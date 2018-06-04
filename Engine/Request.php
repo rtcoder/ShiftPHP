@@ -1,6 +1,7 @@
 <?php
 
 namespace Engine;
+use \Engine\Utils\Debug;
 
 /**
  * Class Request
@@ -8,23 +9,26 @@ namespace Engine;
  */
 class Request {
 
-
     /**
      * @var
      */
     protected static $array;
+
     /**
      * @var
      */
     protected static $controller;
+
     /**
      * @var
      */
     protected static $action;
+
     /**
      * @var
      */
     protected static $arguments;
+
     /**
      * @var
      */
@@ -33,16 +37,30 @@ class Request {
     /**
      *
      */
-    public static function setup() {
+    public static function setup(): void {
 
         self::$path = $_SERVER['REQUEST_URI'];
 
+        $get = $_GET;
+        $post = $_POST;
+
+        if (strpos(self::$path, '?') !== false) {
+            $arr = explode('?', self::$path);
+            self::$path = $arr[0];
+        }
 
         self::$array = explode('/', trim(self::$path, '/'));
 
         self::$controller = self::$array[0] ?? App::$defaultController;
         self::$action = self::$array[1] ?? App::$defaultAction;
-        var_dump(Request::getArray());
+
+
+        if (count(self::$array) > 2) {
+            $tmp = array_slice(self::$array, 2, count(self::$array));
+            self::$arguments = $tmp;
+        }
+
+//        Debug::dd(Request::getArray(), Request::getArguments(), $get, $post);
     }
 
     /**

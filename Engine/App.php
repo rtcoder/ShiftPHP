@@ -15,6 +15,7 @@ final class App {
     public static $action;
     public static $defaultAction = 'index';
 
+
     /**
      * App constructor.
      */
@@ -29,15 +30,16 @@ final class App {
         if ($run === TRUE) return;
 
         Request::setup();
+        echo Request::getController();
+        echo APP_PATH;
+        $controller = ucfirst(Request::getController()) . 'Controller';
 
-        $controller = Request::getController() . '_controller';
-        //utworzenie kontrolera
         self::$controller = new $controller();
-        // tworzymy obiekt refleksji klasy
+
         $class = new ReflectionClass(self::$controller);
-        //pobieramy metodę
+
         $method = $class->getMethod(URI::getAction());
-        //wykonanie metody z argumentami URI
+
         $method->invokeArgs(self::$controller, URI::getArguments());
         $run = TRUE;
 
@@ -56,7 +58,19 @@ final class App {
         if (empty($class)) {
             return;
         }
-        require_once(APP_PATH . $class . '.php');
+
+        $locations = [
+            APP_PATH . 'application/controller/',
+            APP_PATH . 'application/model/',
+            APP_PATH,
+        ];
+
+        foreach ($locations as $location) {
+            echo $location . $class . '.php' . "<br>";
+            if (file_exists($location . $class . '.php')) {
+                require_once($location . $class . '.php');
+            }
+        }
 
     }
 
