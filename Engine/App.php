@@ -25,13 +25,10 @@ final class App {
     public static function start(): void {
         spl_autoload_register(array('\Engine\App', 'autoload'));
 
-
         static $run;
         if ($run === TRUE) return;
 
         Request::setup();
-        echo Request::getController();
-        echo APP_PATH;
         $controller = ucfirst(Request::getController()) . 'Controller';
 
         self::$controller = new $controller();
@@ -42,8 +39,6 @@ final class App {
 
         $method->invokeArgs(self::$controller, URI::getArguments());
         $run = TRUE;
-
-
     }
 
 
@@ -66,7 +61,6 @@ final class App {
         ];
 
         foreach ($locations as $location) {
-            echo $location . $class . '.php' . "<br>";
             if (file_exists($location . $class . '.php')) {
                 require_once($location . $class . '.php');
             }
