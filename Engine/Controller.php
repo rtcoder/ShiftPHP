@@ -9,9 +9,10 @@ namespace Engine;
 class Controller {
 
     /**
-     *
+     * @param string $view
+     * @param array $data
      */
-    public function render(){
-
+    public function render(string $view, array $data = []) {
+        return (new View)->make($view, $data);
     }
 }

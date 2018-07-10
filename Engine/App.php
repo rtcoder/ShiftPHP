@@ -68,5 +68,8 @@ final class App {
 
     }
 
+    public static function setHelpers(): void {
+        require_once 'Utils/helpers.php';
+    }
 
 }

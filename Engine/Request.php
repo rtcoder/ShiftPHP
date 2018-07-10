@@ -1,6 +1,7 @@
 <?php
 
 namespace Engine;
+
 use \Engine\Utils\Debug;
 
 /**
@@ -27,7 +28,7 @@ class Request {
     /**
      * @var
      */
-    protected static $arguments;
+    protected static $arguments = [];
 
     /**
      * @var
@@ -53,7 +54,6 @@ class Request {
 
         self::$controller = self::$array[0] ?? App::$defaultController;
         self::$action = self::$array[1] ?? App::$defaultAction;
-
 
         if (count(self::$array) > 2) {
             $tmp = array_slice(self::$array, 2, count(self::$array));
