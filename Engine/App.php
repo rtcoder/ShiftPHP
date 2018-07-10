@@ -1,6 +1,7 @@
 <?php
 
 namespace Engine;
+use \ReflectionClass;
 
 /**
  * Class App
@@ -35,9 +36,9 @@ final class App {
 
         $class = new ReflectionClass(self::$controller);
 
-        $method = $class->getMethod(URI::getAction());
+        $method = $class->getMethod(Request::getAction());
 
-        $method->invokeArgs(self::$controller, URI::getArguments());
+        $method->invokeArgs(self::$controller, Request::getArguments());
         $run = TRUE;
     }
 
