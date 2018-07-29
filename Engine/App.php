@@ -23,14 +23,15 @@ final class App {
     public function __construct() {
     }
 
+    /**
+     * @throws \ReflectionException
+     */
     public static function start(): void {
-        spl_autoload_register(array('\Engine\App', 'autoload'));
-
         static $run;
         if ($run === TRUE) return;
 
         Request::setup();
-        $controller = ucfirst(Request::getController()) . 'Controller';
+        $controller = 'Controllers\\'.ucfirst(Request::getController()) . 'Controller';
 
         self::$controller = new $controller();
 

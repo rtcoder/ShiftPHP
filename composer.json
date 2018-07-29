@@ -1,0 +1,23 @@
+{
+  "name": "rtcoder/shift-php",
+  "description": "PHP Framework",
+  "type": "project",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Dawid Jeż",
+      "email": "dawidjez@gmail.com"
+    }
+  ],
+  "minimum-stability": "dev",
+  "require": {
+    "php": ">=7.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "View\\": "Engine/View",
+      "Engine\\": "Engine",
+      "Controllers\\": "application/controller"
+    }
+  }
+}
