@@ -1,9 +1,10 @@
 <?php
 
+namespace Controllers;
+
 class HelloController extends \Engine\Controller {
+
     public function index() {
-        echo 'ok';
+        return $this->render('default', ['dd' => 'asd']);
     }
-
-
 }
