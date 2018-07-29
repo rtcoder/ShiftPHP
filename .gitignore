@@ -2,3 +2,5 @@
 /vendor/
 
 Engine/storage/views/
+
+\.idea/
