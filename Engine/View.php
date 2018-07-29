@@ -10,6 +10,7 @@ namespace Engine;
 
 use Engine\Error\ShiftError;
 use Engine\Utils\Storage;
+use View\ViewBuilder;
 
 
 /**
@@ -17,6 +18,7 @@ use Engine\Utils\Storage;
  * @package Engine
  */
 class View {
+
     /**
      * @param $view
      * @param array $data
@@ -38,34 +40,26 @@ class View {
             $view = Request::getController() . '/' . Request::getAction();
         }
 
-        if (!file_exists(__DIR__ . '/../application/view/' . $view . '.php')) {
+        if (!file_exists(__DIR__ . '/../application/view/controller/' . $view . '.php')) {
             throw new ShiftError('View ' . $view . ' does not exists');
         }
-        $viewContent = file_get_contents(__DIR__ . '/../application/view/' . $view . '.php');
+        $viewContent = file_get_contents(__DIR__ . '/../application/view/controller/' . $view . '.php');
 
         $viewName = md5($view) . '.php';
 
         $fullView = str_replace('{{ $view }}', $viewContent, $template);
 
+        $builder = (new ViewBuilder($fullView))
+            ->setScripts()
+            ->setStyles()
+            ->build();
+
         $storage->saveView(
             $viewName,
-            str_replace('{{ $view }}', $viewContent, $template)
+            $builder->getView()
         );
 
-        preg_replace_callback(
-            '/\B@(@?\w+(?:::\w+)?)([ \t]*)(\( ( (?>[^()]+) | (?3) )* \))?/x', function ($match) {
-            return $this->compileStatement($match);
-        }, $fullView
-        );
-
-        die();
         require_once $storage->storageViewsDir . $viewName;
 
-    }
-
-    private function compileStatement($match) {
-        echo '<pre>';
-        var_dump($match);
-//        die;
     }
 }

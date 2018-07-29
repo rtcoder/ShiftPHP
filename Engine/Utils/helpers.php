@@ -5,3 +5,7 @@
  * Date: 04.06.18
  * Time: 23:45
  */
+
+function __($str){
+    return $str;
+}
