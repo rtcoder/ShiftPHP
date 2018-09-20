@@ -2,6 +2,8 @@
 
 namespace Controllers;
 
+use Tools\Config;
+
 class HelloController extends \Engine\Controller {
 
     public function index() {

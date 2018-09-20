@@ -16,6 +16,7 @@
   "autoload": {
     "psr-4": {
       "View\\": "Engine/View",
+      "Tools\\": "Engine/Tools",
       "Engine\\": "Engine",
       "Controllers\\": "application/controller"
     }
