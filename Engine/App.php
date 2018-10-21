@@ -1,7 +1,8 @@
 <?php
 
 namespace Engine;
-use \ReflectionClass;
+
+use ReflectionClass;
 
 /**
  * Class App
@@ -31,7 +32,7 @@ final class App {
         if ($run === TRUE) return;
 
         Request::setup();
-        $controller = 'Controllers\\'.ucfirst(Request::getController()) . 'Controller';
+        $controller = 'Controllers\\' . ucfirst(Request::getController()) . 'Controller';
 
         self::$controller = new $controller();
 

@@ -6,6 +6,6 @@
  * Time: 23:45
  */
 
-function __($str){
+function __($str) {
     return $str;
 }

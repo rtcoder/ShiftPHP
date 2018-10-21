@@ -2,8 +2,6 @@
 
 namespace Engine;
 
-use \Engine\Utils\Debug;
-
 /**
  * Class Request
  * @package Engine

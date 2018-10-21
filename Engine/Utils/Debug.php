@@ -18,7 +18,7 @@ class Debug {
         return self::dd(func_get_args());
     }
 
-    public static function dd():void {
+    public static function dd(): void {
         echo '<pre>';
         var_dump(func_get_args());
 //        Debug::print(func_get_args());
@@ -26,18 +26,18 @@ class Debug {
 
     }
 
-    private static function print($var, $key=null):void {
+    private static function print($var, $key = null): void {
         echo '<div style="border: 1px solid red;padding-left: 5px;">';
 //
         if (is_array($var)) {
-                echo gettype($var) . ' (' . count($var).')';
-            foreach ($var as $k=>$item) {
+            echo gettype($var) . ' (' . count($var) . ')';
+            foreach ($var as $k => $item) {
 
                 Debug::print($item, $k);
             }
         } else {
-            if(!is_null($key)){
-                echo $key.': ';
+            if (!is_null($key)) {
+                echo $key . ': ';
             }
             echo gettype($var) . ' ' . $var;
         }

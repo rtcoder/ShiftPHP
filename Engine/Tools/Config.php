@@ -23,8 +23,8 @@ final class Config {
 
     public static function __get(?string $name) {
 
-        if($name){
-            if(array_key_exists($name, self::$_configs)){
+        if ($name) {
+            if (array_key_exists($name, self::$_configs)) {
                 return self::$_configs[$name];
             }
         }

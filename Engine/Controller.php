@@ -11,8 +11,9 @@ class Controller {
     /**
      * @param string $view
      * @param array $data
+     * @return
      */
-    public function render(string $view, array $data = []) {
-        return (new View)->make($view, $data);
+    public function render(string $view, array $data = [], $title = '') {
+        (new View)->make($view, $data, $title);
     }
 }

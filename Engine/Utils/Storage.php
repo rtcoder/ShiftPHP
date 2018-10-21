@@ -9,8 +9,7 @@
 namespace Engine\Utils;
 
 
-use \Engine\Error\ShiftError;
-use \Engine\Error\StorageError;
+use Engine\Error\ShiftError;
 
 class Storage {
 
@@ -19,7 +18,7 @@ class Storage {
 
     public function __construct() {
         $this->storageDir = realpath(__DIR__ . '/../storage/');
-        $this->storageViewsDir = $this->storageDir.'/views/';
+        $this->storageViewsDir = $this->storageDir . '/views/';
 
         if (!file_exists($this->storageDir)) {
             throw new ShiftError('Storage directory ' . $this->storageDir . ' does not exists');
@@ -34,6 +33,6 @@ class Storage {
             mkdir($this->storageViewsDir, 0777, true);
         }
 
-        file_put_contents($this->storageViewsDir.$name, $content);
+        file_put_contents($this->storageViewsDir . $name, $content);
     }
 }
