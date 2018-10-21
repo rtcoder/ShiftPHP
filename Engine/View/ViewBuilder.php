@@ -39,6 +39,10 @@ class ViewBuilder {
         return $this;
     }
 
+    public function setTitle(string $title): self {
+        $this->html = str_replace('{{ $title }}', $title, $this->html);
+    }
+
     public function getView(): string {
         return $this->html;
     }

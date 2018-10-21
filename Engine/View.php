@@ -19,11 +19,13 @@ use View\ViewBuilder;
  */
 class View {
 
+    private $_title = '';
+
     /**
      * @param $view
      * @param array $data
      */
-    public function make(?string $view, array $data = []) {
+    public function make(?string $view, array $data = [], string $title = '') {
 
         if (!$view || strlen($view) === 0) {
             $view = 'default';
@@ -49,10 +51,12 @@ class View {
 
         $fullView = str_replace('{{ $view }}', $viewContent, $template);
 
-        $builder = (new ViewBuilder($fullView))
-            ->setScripts()
-            ->setStyles()
-            ->build();
+        $builder = new ViewBuilder($fullView);
+        $builder->setScripts()->setStyles();
+        if (strlen($title)) {
+            $builder->setTitle($title);
+        }
+        $builder->build();
 
         $storage->saveView(
             $viewName,
@@ -61,5 +65,19 @@ class View {
 
         require_once $storage->storageViewsDir . $viewName;
 
+    }
+
+    /**
+     * @return string
+     */
+    public function getTitle(): string {
+        return $this->_title;
+    }
+
+    /**
+     * @param string $title
+     */
+    public function setTitle(string $title): void {
+        $this->_title = $title;
     }
 }
