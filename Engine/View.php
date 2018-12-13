@@ -19,14 +19,25 @@ use View\ViewBuilder;
  */
 class View {
 
+    /**
+     * @var string
+     */
     private $_title = '';
+    private $_scripts = [];
+    private $_styles = [];
+
 
     /**
      * @param null|string $view
      * @param array $data
      * @param string $title
+     * @param array $styles
+     * @param array $scripts
      */
-    public function make(?string $view, array $data = [], string $title = '') {
+    public function make(?string $view, array $data = [], string $title = '', array $styles = [], array $scripts = []) {
+        $this->setTitle($title);
+        $this->setScripts($scripts);
+        $this->setStyles($styles);
 
         if (!$view || strlen($view) === 0) {
             $view = 'default';
@@ -53,11 +64,12 @@ class View {
         $fullView = str_replace('{{ $view }}', $viewContent, $template);
 
         $builder = new ViewBuilder($fullView);
-        $builder->setScripts()->setStyles();
-        if (strlen($title)) {
-            $builder->setTitle($title);
-        }
-        $builder->build();
+
+        $builder
+            ->setScripts($this->_scripts)
+            ->setStyles($this->_styles)
+            ->setTitle($this->_title)
+            ->build();
 
         $storage->saveView(
             $viewName,
@@ -80,5 +92,33 @@ class View {
      */
     public function setTitle(string $title): void {
         $this->_title = $title;
+    }
+
+    /**
+     * @return array
+     */
+    public function getScripts(): array {
+        return $this->_scripts;
+    }
+
+    /**
+     * @param array $scripts
+     */
+    public function setScripts(array $scripts): void {
+        $this->_scripts = $scripts;
+    }
+
+    /**
+     * @return array
+     */
+    public function getStyles(): array {
+        return $this->_styles;
+    }
+
+    /**
+     * @param array $styles
+     */
+    public function setStyles(array $styles): void {
+        $this->_styles = $styles;
     }
 }

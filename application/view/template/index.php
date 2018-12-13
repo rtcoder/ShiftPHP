@@ -6,7 +6,6 @@
     {{ $styles }}
 </head>
 <body>
-<?php echo 'ddf'; ?>
 
 {{ $view }}
 
