@@ -11,9 +11,10 @@ class Controller {
     /**
      * @param string $view
      * @param array $data
-     * @return
+     * @param string $title
+     * @return void
      */
-    public function render(string $view, array $data = [], $title = '') {
+    public function render(string $view, array $data = [], string $title = '') :void {
         (new View)->make($view, $data, $title);
     }
 }

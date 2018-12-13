@@ -1,7 +1,7 @@
 <?php
-
+error_reporting(E_ALL);
 define('APP_PATH', realpath($_SERVER['DOCUMENT_ROOT'] . '/'));
-define('VENDOR_PATH', realpath(APP_PATH . 'vendor/'));
+define('VENDOR_PATH', realpath(APP_PATH . '/vendor/'));
 
+require_once VENDOR_PATH . '/autoload.php';
 
-require_once VENDOR_PATH . 'autoload.php';

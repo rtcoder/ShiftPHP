@@ -22,8 +22,9 @@ class View {
     private $_title = '';
 
     /**
-     * @param $view
+     * @param null|string $view
      * @param array $data
+     * @param string $title
      */
     public function make(?string $view, array $data = [], string $title = '') {
 

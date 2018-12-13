@@ -2,11 +2,11 @@
 
 <html>
 <head>
-    {{ $title }}
+    <title>{{ $title }}</title>
     {{ $styles }}
 </head>
 <body>
-<?php echo 'df'; ?>
+<?php echo 'ddf'; ?>
 
 {{ $view }}
 

@@ -21,7 +21,7 @@ final class Config {
         return self::$instance;
     }
 
-    public static function __get(?string $name) {
+    public function __get(?string $name) {
 
         if ($name) {
             if (array_key_exists($name, self::$_configs)) {
