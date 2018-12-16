@@ -15,6 +15,18 @@ function __(string $str): string {
 }
 
 /**
+ * @param mixed ...$args
+ */
+function dd(...$args){
+    \Engine\Utils\Debug::dd(...$args);
+}
+/**
+ * @param mixed ...$args
+ */
+function d(...$args){
+    \Engine\Utils\Debug::d(...$args);
+}
+/**
  * @param mixed $url
  * @return bool
  */

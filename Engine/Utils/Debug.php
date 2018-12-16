@@ -15,15 +15,29 @@ class Debug {
      *
      */
     public function __invoke() {
-        return self::dd(func_get_args());
+        self::dd(func_get_args());
     }
 
-    public static function dd(): void {
+    /**
+     * @param mixed ...$args
+     */
+    public static function dd(...$args): void {
         echo '<pre>';
-        var_dump(func_get_args());
+        var_dump(...$args);
 //        Debug::print(func_get_args());
+        echo '</pre>';
         exit;
 
+    }
+
+    /**
+     * @param mixed ...$args
+     */
+    public static function d(...$args): void {
+        echo '<pre>';
+        var_dump(...$args);
+//        Debug::print(func_get_args());
+        echo '</pre>';
     }
 
     private static function print($var, $key = null): void {
