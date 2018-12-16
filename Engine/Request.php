@@ -50,8 +50,8 @@ class Request {
 
         self::$array = explode('/', trim(self::$path, '/'));
 
-        self::$controller = self::$array[0] ?? App::$defaultController;
-        self::$action = self::$array[1] ?? App::$defaultAction;
+        self::$controller = (self::$array[0] ?? App::$defaultController) ?: App::$defaultController;
+        self::$action = (self::$array[1] ?? App::$defaultAction) ?: App::$defaultAction;
 
         if (count(self::$array) > 2) {
             $tmp = array_slice(self::$array, 2, count(self::$array));
