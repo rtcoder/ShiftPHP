@@ -9,7 +9,7 @@
 namespace Engine\Utils;
 
 
-use Engine\Error\ShiftError;
+use Engine\Error\StorageError;
 
 class Storage {
 
@@ -17,15 +17,10 @@ class Storage {
     public $storageViewsDir;
 
     public function __construct() {
-        $this->storageDir = realpath(__DIR__ . '/../storage/');
+        $storageParentDir = realpath(__DIR__ . '/../');
+        $this->storageDir = $storageParentDir . '/storage/';
         $this->storageViewsDir = $this->storageDir . '/views/';
-
-        if (!file_exists($this->storageDir)) {
-            throw new ShiftError('Storage directory ' . $this->storageDir . ' does not exists');
-        }
-        if (!is_writable($this->storageDir)) {
-            throw new ShiftError('Storage directory ' . $this->storageDir . ' is not writable');
-        }
+        $this->checkDir($this->storageViewsDir);
     }
 
     public function saveView(string $name, string $content): void {
@@ -34,5 +29,17 @@ class Storage {
         }
 
         file_put_contents($this->storageViewsDir . $name, $content);
+    }
+
+    private function checkDir(string $dir): void {
+        if (!file_exists($dir)) {
+            mkdir($dir, 0777, true);
+        }
+        if (!file_exists($dir)) {
+            throw new StorageError('Directory ' . $dir . ' does not exists');
+        }
+        if (!is_writable($dir)) {
+            throw new StorageError('Directory ' . $dir . ' is not writable');
+        }
     }
 }

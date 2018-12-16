@@ -24,6 +24,6 @@ class StorageError extends ShiftError {
      * @param Throwable|null $previous
      */
     public function __construct(string $message = "", int $code = 0, Throwable $previous = null) {
-        parent::__construct($message, $code, $previous);
+        parent::__construct('Storage Error: ' . $message, $code, $previous);
     }
 }
