@@ -58,7 +58,7 @@ class Request {
             self::$arguments = $tmp;
         }
 
-//        Debug::dd(Request::getArray(), Request::getArguments(), $get, $post);
+//        dd(Request::getArray(), Request::getArguments() , 'sdad', $get, $post);
     }
 
     /**

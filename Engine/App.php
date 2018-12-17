@@ -2,6 +2,7 @@
 
 namespace Engine;
 
+use Engine\Error\ShiftError;
 use ReflectionClass;
 
 /**
@@ -34,7 +35,11 @@ final class App {
         Request::setup();
         $controller = 'Controllers\\' . ucfirst(Request::getController()) . 'Controller';
 
-        self::$controller = new $controller();
+        try {
+            self::$controller = new $controller();
+        } catch (\Throwable $exception) {
+            throw new ShiftError($exception->getMessage(), $exception->getCode(), $exception->getPrevious());
+        }
 
         $class = new ReflectionClass(self::$controller);
 
@@ -74,5 +79,4 @@ final class App {
     public static function setHelpers(): void {
         require_once 'Utils/helpers.php';
     }
-
 }
