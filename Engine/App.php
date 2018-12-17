@@ -2,6 +2,9 @@
 
 namespace Engine;
 
+use Engine\Error\ShiftError;
+use ReflectionClass;
+
 /**
  * Class App
  * @package Engine
@@ -22,28 +25,28 @@ final class App {
     public function __construct() {
     }
 
+    /**
+     * @throws \ReflectionException
+     */
     public static function start(): void {
-        spl_autoload_register(array('\Engine\App', 'autoload'));
-
-
         static $run;
         if ($run === TRUE) return;
 
         Request::setup();
-        echo Request::getController();
-        echo APP_PATH;
-        $controller = ucfirst(Request::getController()) . 'Controller';
+        $controller = 'Controllers\\' . ucfirst(Request::getController()) . 'Controller';
 
-        self::$controller = new $controller();
+        try {
+            self::$controller = new $controller();
+        } catch (\Throwable $exception) {
+            throw new ShiftError($exception->getMessage(), $exception->getCode(), $exception->getPrevious());
+        }
 
         $class = new ReflectionClass(self::$controller);
 
-        $method = $class->getMethod(URI::getAction());
+        $method = $class->getMethod(Request::getAction());
 
-        $method->invokeArgs(self::$controller, URI::getArguments());
+        $method->invokeArgs(self::$controller, Request::getArguments());
         $run = TRUE;
-
-
     }
 
 
@@ -66,7 +69,6 @@ final class App {
         ];
 
         foreach ($locations as $location) {
-            echo $location . $class . '.php' . "<br>";
             if (file_exists($location . $class . '.php')) {
                 require_once($location . $class . '.php');
             }
@@ -74,5 +76,7 @@ final class App {
 
     }
 
-
+    public static function setHelpers(): void {
+        require_once 'Utils/helpers.php';
+    }
 }

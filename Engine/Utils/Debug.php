@@ -15,29 +15,43 @@ class Debug {
      *
      */
     public function __invoke() {
-        return self::dd(func_get_args());
+        self::dd(func_get_args());
     }
 
-    public static function dd():void {
+    /**
+     * @param mixed ...$args
+     */
+    public static function dd(...$args): void {
         echo '<pre>';
-        var_dump(func_get_args());
+        var_dump(...$args);
 //        Debug::print(func_get_args());
+        echo '</pre>';
         exit;
 
     }
 
-    private static function print($var, $key=null):void {
+    /**
+     * @param mixed ...$args
+     */
+    public static function d(...$args): void {
+        echo '<pre>';
+        var_dump(...$args);
+//        Debug::print(func_get_args());
+        echo '</pre>';
+    }
+
+    private static function print($var, $key = null): void {
         echo '<div style="border: 1px solid red;padding-left: 5px;">';
 //
         if (is_array($var)) {
-                echo gettype($var) . ' (' . count($var).')';
-            foreach ($var as $k=>$item) {
+            echo gettype($var) . ' (' . count($var) . ')';
+            foreach ($var as $k => $item) {
 
                 Debug::print($item, $k);
             }
         } else {
-            if(!is_null($key)){
-                echo $key.': ';
+            if (!is_null($key)) {
+                echo $key . ': ';
             }
             echo gettype($var) . ' ' . $var;
         }

@@ -1,4 +1,14 @@
 RewriteEngine on
+
+
+#RewriteCond %{REQUEST_URI} ^/i/
+#RewriteCond %{REQUEST_FILENAME} !-f
+#RewriteRule .* image.php [L]
+
+
+
+RewriteCond %{REQUEST_URI} !/(public|Favicon)/
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*) index.php?url=$1 [L,QSA]
+

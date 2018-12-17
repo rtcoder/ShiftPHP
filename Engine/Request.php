@@ -1,7 +1,6 @@
 <?php
 
 namespace Engine;
-use \Engine\Utils\Debug;
 
 /**
  * Class Request
@@ -27,7 +26,7 @@ class Request {
     /**
      * @var
      */
-    protected static $arguments;
+    protected static $arguments = [];
 
     /**
      * @var
@@ -51,16 +50,15 @@ class Request {
 
         self::$array = explode('/', trim(self::$path, '/'));
 
-        self::$controller = self::$array[0] ?? App::$defaultController;
-        self::$action = self::$array[1] ?? App::$defaultAction;
-
+        self::$controller = (self::$array[0] ?? App::$defaultController) ?: App::$defaultController;
+        self::$action = (self::$array[1] ?? App::$defaultAction) ?: App::$defaultAction;
 
         if (count(self::$array) > 2) {
             $tmp = array_slice(self::$array, 2, count(self::$array));
             self::$arguments = $tmp;
         }
 
-//        Debug::dd(Request::getArray(), Request::getArguments(), $get, $post);
+//        dd(Request::getArray(), Request::getArguments() , 'sdad', $get, $post);
     }
 
     /**
