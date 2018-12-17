@@ -26,21 +26,27 @@ class ShiftError extends \Error {
     public function __construct(string $message = "", int $code = 0, Throwable $previous = null) {
         parent::__construct($message, $code, $previous);
 
-        $line = $this->getLine();
+        $line = (int)$this->getLine();
         $highlighted = $this->highlight_file_with_line_numbers($this->getFile(), $line);
         $stackTrace = $this->getBeautyStackTrace();
 
         echo '
         <style>
-        #error-container{width: 100%;float: left;margin: 10px 0px;background: crimson;box-sizing: border-box;padding: 5px;color:#fff;font-family: Arial}
+        *{margin: 0;padding: 0;}
+        #error-container{width: 100%;float: left;background: #135171;box-sizing: border-box;padding: 5px;color:#fff;font-family: Arial, sans-serif}
         #error-container #message{width: 100%;float: left;}
-        #error-container #file-presentation{white-space: pre-wrap;background: white;position: relative}
-        #error-container #file-presentation #yellow-line{width: 100%;z-index: 1;position: absolute;height: 15px;left: 0;background: rgba(255,255,0,0.36)}
-        #error-container #file-presentation code{z-index: 2;}
+        #error-container .file-presentation,
+        #error-container #stack-trace .trace-item .file-presentation{white-space: pre-wrap;background: white;position: relative}
+        #error-container #stack-trace .trace-item .file-presentation{display: none;}
+        #error-container .file-presentation #yellow-line,
+        #error-container #stack-trace .trace-item  .file-presentation #yellow-line{width: 100%;z-index: 1;position: absolute;height: 15px;left: 0;background: rgba(255,255,0,0.36)}
+        #error-container .file-presentation code,
+        #error-container #stack-trace .trace-item .file-presentation code{z-index: 2;}
         #error-container #stack-trace .trace-item{border-bottom:1px #ffffff solid;padding: 5px 2px}
         #error-container #stack-trace .trace-item:last-child{border:none;}
         #error-container #stack-trace .trace-item .filename{font-weight: bold}
-        #error-container #stack-trace .trace-item .filepath{font-size: 12px;}
+        #error-container #stack-trace .trace-item .filepath{font-size: 12px;line-height: 15px;}
+        #error-container #stack-trace .trace-item .filepath .show-hide{cursor: pointer;font-size: 15px;padding: 0 5px;font-weight: bold;}
         #error-container #stack-trace .trace-item .method{font-size: 14px;font-style: italic}
         #error-container #stack-trace .trace-item .method .array{border-bottom: 1px #fff dotted; cursor: pointer;position: relative}
         #error-container #stack-trace .trace-item .method .array .array-content{display: none;position: absolute;bottom: 15px;left: -70px;background: #f3f3f3;color: #000;min-width: 200px;padding: 4px;white-space: pre;border: 1px #a2a2a2 dotted;cursor: text;font-style: normal}
@@ -48,20 +54,41 @@ class ShiftError extends \Error {
         </style>
         <div id="error-container">
             <div id="message">' . $this->getMessage() . '</div>
-            <div id="file-info">in ' . $this->getFile() . '</div>
-            <div id="file-presentation">' . $highlighted . '</div>
+            <div id="file-info">in <b>' . $this->getFile() . '</b></div>
+            <div class="file-presentation">' . $highlighted . '</div>
             <br><br>
             <div id="stack-trace-text">Stack trace:</div>
             <div id="stack-trace">' . $stackTrace . '</div>
-        </div>';
+        </div>
+        <script>
+        const buttons = document.getElementsByClassName("show-hide");
+        
+        for(const button of buttons) {
+          button.addEventListener("click", function(e) {
+            const filePresentation = this.parentElement.parentElement.getElementsByClassName("file-presentation");
+
+            if(!filePresentation.length) {
+              return;
+            }
+
+            if (filePresentation[0].style.display !== "block") {
+              filePresentation[0].style.display = "block";
+              this.innerText = "-";
+            } else {
+              this.innerText = "+";
+              filePresentation[0].style.display = "none";
+            }
+          });
+        }
+        </script>';
     }
 
     /**
-     * @param $file
-     * @param null $lineWithError
+     * @param string $file
+     * @param int $lineWithError
      * @return string
      */
-    private function highlight_file_with_line_numbers($file, $lineWithError = null): string {
+    private function highlight_file_with_line_numbers(string $file, int $lineWithError = null): string {
         $code = substr(highlight_file($file, true), 36, -15);
         $lines = explode('<br />', $code);
         $lineCount = count($lines);
@@ -104,7 +131,8 @@ class ShiftError extends \Error {
     private function getBeautyStackTrace(): string {
         $return = '';
         foreach ($this->getTrace() as $info) {
-            $pathAsArray = explode('/', $info['file']);
+            $infoFile = isset($info['file']) ? $info['file'] : '';
+            $pathAsArray = explode('/', $infoFile);
             $filename = $pathAsArray[count($pathAsArray) - 1];
 
             $fargs = '';
@@ -133,18 +161,20 @@ class ShiftError extends \Error {
             }
             $fargs = trim($fargs, ', ');
 
-
+            $infoLine = isset($info['line']) ? $info['line'] : '';
+            $filePresentation = strlen($infoFile) && stream_is_local($infoFile) ? $this->highlight_file_with_line_numbers($infoFile, (int)$infoLine) : '';
             $return .= '
             <div class="trace-item">
                 <div class="filename">
-                ' . $filename . ':' . $info["line"] . '
+                ' . $filename . ':' . $infoLine . '
                 </div>
                 <div class="filepath">
-                ' . $info["file"] . '
+                ' . $info["file"] . ' <span class="show-hide">+</span>
                 </div>
                 <div class="method">
                 ' . $info["class"] . $info["type"] . $info["function"] . '(' . $fargs . ')
                 </div >
+                <div class="file-presentation">' . $filePresentation . '</div >
             </div >
             ';
         }
