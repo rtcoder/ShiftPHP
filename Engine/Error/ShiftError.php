@@ -9,6 +9,7 @@
 namespace Engine\Error;
 
 
+use Engine\Error\ShiftError\ErrorHighlighter;
 use Throwable;
 
 /**
@@ -25,25 +26,24 @@ class ShiftError extends \Error {
      */
     public function __construct(string $message = "", int $code = 0, Throwable $previous = null) {
         parent::__construct($message, $code, $previous);
-
         $line = (int)$this->getLine();
-        $highlighted = $this->highlight_file_with_line_numbers($this->getFile(), $line);
-        $stackTrace = $this->getBeautyStackTrace();
+        $errorHighlighter = new ErrorHighlighter($this->getFile(), $line);
+        $highlighted = $errorHighlighter->highlighted;
+        $stackTrace = $errorHighlighter->getBeautyStackTrace($this->getTrace());
 
         echo '
+        <link href="https://fonts.googleapis.com/css?family=Roboto:100" rel="stylesheet">
         <style>
         *{margin: 0;padding: 0;}
-        #error-container{width: 100%;float: left;background: #135171;box-sizing: border-box;padding: 5px;color:#fff;font-family: Arial, sans-serif}
-        #error-container #message{width: 100%;float: left;}
-        #error-container .file-presentation,
-        #error-container #stack-trace .trace-item .file-presentation{white-space: pre-wrap;background: white;position: relative}
-        #error-container #stack-trace .trace-item .file-presentation{display: none;}
-        #error-container .file-presentation #yellow-line,
-        #error-container #stack-trace .trace-item  .file-presentation #yellow-line{width: 100%;z-index: 1;position: absolute;height: 15px;left: 0;background: rgba(255,255,0,0.36)}
-        #error-container .file-presentation code,
-        #error-container #stack-trace .trace-item .file-presentation code{z-index: 2;}
-        #error-container #stack-trace .trace-item{border-bottom:1px #ffffff solid;padding: 5px 2px}
-        #error-container #stack-trace .trace-item:last-child{border:none;}
+        #error-container{width: 100vw; height: 100vh;float: left;background: #111;box-sizing: border-box;padding: 5px;color:#fff;font-family: "Roboto", sans-serif;font-weight: 100;}
+        #error-container #message{width: 100%;float: left;font-size: 42px;color: #f0f0f0;}
+        #error-container .file-presentation{white-space: pre-wrap;background: #131313;position: relative;min-height: 165px;}
+        #error-container .file-presentation #yellow-line{width: 100%;z-index: 1;position: absolute;height: 15px;left: 0;background: rgba(132, 132, 132, 0.22)}
+        #error-container .file-presentation code{z-index: 2;}
+        #error-container #stack-trace{color: #ffffff;width: 100vw;border-collapse: collapse;}
+        #error-container #stack-trace .trace-item{padding: 5px 2px;cursor: pointer;}
+        #error-container #stack-trace .trace-item:hover{background: rgba(255, 0, 0, 0.3);}
+        #error-container #stack-trace .trace-item td{border: none}
         #error-container #stack-trace .trace-item .filename{font-weight: bold}
         #error-container #stack-trace .trace-item .filepath{font-size: 12px;line-height: 15px;}
         #error-container #stack-trace .trace-item .filepath .show-hide{cursor: pointer;font-size: 15px;padding: 0 5px;font-weight: bold;}
@@ -54,130 +54,47 @@ class ShiftError extends \Error {
         </style>
         <div id="error-container">
             <div id="message">' . $this->getMessage() . '</div>
-            <div id="file-info">in <b>' . $this->getFile() . '</b></div>
-            <div class="file-presentation">' . $highlighted . '</div>
+            <div id="file-info"><b>' . $this->getFile() . ': ' . $line . '</b></div>
+            ' . $highlighted . $stackTrace->traceItemsCode . '
             <br><br>
             <div id="stack-trace-text">Stack trace:</div>
-            <div id="stack-trace">' . $stackTrace . '</div>
+            <table id="stack-trace" border="0">
+            <tbody>
+            <tr class="trace-item" data-id="' . md5($this->getFile() . $line) . '">
+                <td>
+                ' . $line . '
+                </td>
+                <td>
+                ' . str_replace(APP_ROOT . '/', '', $this->getFile()) . '
+                </td>
+                <td class="method">
+                </td >
+            </tr >
+            ' . $stackTrace->traceItems . '
+            </tbody>
+            </table>
         </div>
         <script>
-        const buttons = document.getElementsByClassName("show-hide");
+        const buttons = document.getElementsByClassName("trace-item");
         
         for(const button of buttons) {
           button.addEventListener("click", function(e) {
-            const filePresentation = this.parentElement.parentElement.getElementsByClassName("file-presentation");
-
-            if(!filePresentation.length) {
+            const id = this.getAttribute("data-id")
+            const filePresentationList = document.getElementsByClassName("file-presentation");
+            const targetFilePresentation = document.getElementById(id);
+            
+            if (!filePresentationList.length || !targetFilePresentation) {
               return;
             }
-
-            if (filePresentation[0].style.display !== "block") {
-              filePresentation[0].style.display = "block";
-              this.innerText = "-";
-            } else {
-              this.innerText = "+";
-              filePresentation[0].style.display = "none";
+            
+            for (let node of filePresentationList) {
+              node.style.display = "none";
             }
+
+            targetFilePresentation.style.display = "block";
           });
         }
         </script>';
     }
 
-    /**
-     * @param string $file
-     * @param int $lineWithError
-     * @return string
-     */
-    private function highlight_file_with_line_numbers(string $file, int $lineWithError = null): string {
-        $code = substr(highlight_file($file, true), 36, -15);
-        $lines = explode('<br />', $code);
-        $lineCount = count($lines);
-        $padLength = strlen($lineCount);
-
-        $return = '';
-        if ($lineWithError)
-            $return .= '<div id="yellow-line" style="top: 75px"></div>';
-
-        $return .= "<code><span style=\"color: #000000\">";
-
-        $start = null;
-        $limit = 10;
-        if ($lineWithError) {
-            $start = $lineWithError - 5;
-        }
-
-        foreach ($lines as $i => $line) {
-            if ($start) {
-                if ($start > $i + 1) {
-                    continue;
-                }
-                if ($start + $limit < $i + 1) {
-                    continue;
-                }
-            }
-            $lineNumber = str_pad($i + 1, $padLength, " ", STR_PAD_LEFT);
-            $return .= '<span style="color: #999999">' . $lineNumber . ' | </span>' . $line . "\n";
-        }
-
-        $return .= "</span></code>";
-
-
-        return $return;
-    }
-
-    /**
-     * @return string
-     */
-    private function getBeautyStackTrace(): string {
-        $return = '';
-        foreach ($this->getTrace() as $info) {
-            $infoFile = isset($info['file']) ? $info['file'] : '';
-            $pathAsArray = explode('/', $infoFile);
-            $filename = $pathAsArray[count($pathAsArray) - 1];
-
-            $fargs = '';
-
-            foreach ($info['args'] as $arg) {
-                $type = gettype($arg);
-
-                switch ($type) {
-                    case 'string':
-                        if (strlen($arg) === 0) {
-                            $fargs .= "''";
-                        } else {
-                            $fargs .= "'" . $arg . "'";
-                        }
-                        break;
-                    case 'array':
-                        $fargs .= '<span class="array">Array<span class="array-content">' . print_r($arg, true) . '</span></span>';
-                        break;
-                    case 'object':
-                        $fargs .= '<span class="array">' . get_class($arg) . ' Object<span class="array-content">' . print_r($arg, true) . '</span></span>';
-                        break;
-                    default:
-                        $fargs .= $arg;
-                }
-                $fargs .= ', ';
-            }
-            $fargs = trim($fargs, ', ');
-
-            $infoLine = isset($info['line']) ? $info['line'] : '';
-            $filePresentation = strlen($infoFile) && stream_is_local($infoFile) ? $this->highlight_file_with_line_numbers($infoFile, (int)$infoLine) : '';
-            $return .= '
-            <div class="trace-item">
-                <div class="filename">
-                ' . $filename . ':' . $infoLine . '
-                </div>
-                <div class="filepath">
-                ' . $info["file"] . ' <span class="show-hide">+</span>
-                </div>
-                <div class="method">
-                ' . $info["class"] . $info["type"] . $info["function"] . '(' . $fargs . ')
-                </div >
-                <div class="file-presentation">' . $filePresentation . '</div >
-            </div >
-            ';
-        }
-        return $return;
-    }
 }
