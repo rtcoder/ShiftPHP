@@ -13,7 +13,10 @@ use Engine\Console\CommandInterface;
 
 class Help implements CommandInterface {
 
-    public function execute(array $args): void {
+    public function execute(...$args): void {
+
+        var_dump($args);
+
         $mappings = [
             [
                 'dir' => APP_PATH . '/console/',

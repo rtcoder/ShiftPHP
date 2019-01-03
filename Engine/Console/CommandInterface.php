@@ -10,5 +10,5 @@ namespace Engine\Console;
 
 
 interface CommandInterface {
-    public function execute(array $args): void;
+    public function execute(...$args): void;
 }
