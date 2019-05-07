@@ -34,14 +34,14 @@ class ShiftError extends \Error {
         echo '
         <link href="https://fonts.googleapis.com/css?family=Roboto:100" rel="stylesheet">
         <style>
-        *{margin: 0;padding: 0;}
+        *{margin: 0;padding: 0;-webkit-box-sizing: border-box;-moz-box-sizing: border-box;box-sizing: border-box;}
         #error-container{width: 100vw; height: 100vh;float: left;background: #111;box-sizing: border-box;padding: 5px;color:#fff;font-family: "Roboto", sans-serif;font-weight: 100;}
         #error-container #message{width: 100%;float: left;font-size: 42px;color: #f0f0f0;}
         #error-container .file-presentation{white-space: pre-wrap;background: #131313;position: relative;min-height: 165px;}
         #error-container .file-presentation #yellow-line{width: 100%;z-index: 1;position: absolute;height: 15px;left: 0;background: rgba(132, 132, 132, 0.22)}
         #error-container .file-presentation code{z-index: 2;}
-        #error-container #stack-trace{color: #ffffff;width: 100vw;border-collapse: collapse;}
-        #error-container #stack-trace .trace-item{padding: 5px 2px;cursor: pointer;}
+        #error-container #stack-trace{color: #ffffff;width: 100%;border-collapse: collapse;}
+        #error-container #stack-trace .trace-item{padding: 5px 0;cursor: pointer;}
         #error-container #stack-trace .trace-item:hover{background: rgba(255, 0, 0, 0.3);}
         #error-container #stack-trace .trace-item td{border: none}
         #error-container #stack-trace .trace-item .filename{font-weight: bold}

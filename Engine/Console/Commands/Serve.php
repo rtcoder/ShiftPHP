@@ -13,6 +13,9 @@ use Engine\Console\CommandInterface;
 
 class Serve implements CommandInterface {
 
+
+
+
     public function execute(...$args): void {
         $host = 'localhost:8000';
         if (count($args)) {
@@ -39,5 +42,13 @@ class Serve implements CommandInterface {
         }
 
         return $command;
+    }
+
+    public function getHelp() {
+        // TODO: Implement getHelp() method.
+    }
+
+    public function getDescription() {
+        // TODO: Implement getDescription() method.
     }
 }

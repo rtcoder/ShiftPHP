@@ -13,25 +13,42 @@ use Engine\Console\CommandInterface;
 
 class Help implements CommandInterface {
 
+    private $mappings = [
+        [
+            'dir' => APP_PATH . '/console/',
+            'namespace' => 'AppConsole\\Commands\\'
+        ],
+        [
+            'dir' => APP_ROOT . '/Engine/Console/Commands/',
+            'namespace' => 'Console\\Commands\\'
+        ],
+    ];
+
+    /**
+     * @param mixed ...$args
+     */
     public function execute(...$args): void {
+        $commandName = $args[0] ?? '';
 
-        var_dump($args);
+        if ($commandName) {
+            $this->displayHelpForCommand($commandName);
+        } else {
+            $this->displayFullHelp();
+        }
+    }
 
-        $mappings = [
-            [
-                'dir' => APP_PATH . '/console/',
-                'namespace' => 'AppConsole\\Commands\\'
-            ],
-            [
-                'dir' => APP_ROOT . '/Engine/Console/Commands/',
-                'namespace' => 'Console\\Commands\\'
-            ],
-        ];
+    private function displayFullHelp() {
+
+    }
+
+    private function displayHelpForCommand($command) {
+
         $found = false;
-        foreach ($mappings as $mapping) {
-            if (!$found && file_exists($mapping['dir'] . $commandName . '.php')) {
-                require_once($mapping['dir'] . $commandName . '.php');
-                $found = $mapping['namespace'] . $commandName;
+
+        foreach ($this->mappings as $mapping) {
+            if (!$found && file_exists($mapping['dir'] . $command . '.php')) {
+                require_once($mapping['dir'] . $command . '.php');
+                $found = $mapping['namespace'] . $command;
             }
         }
     }
