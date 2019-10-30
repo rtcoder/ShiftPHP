@@ -9,7 +9,8 @@
 namespace Engine\Error\ShiftError;
 
 
-final class ErrorHighlighter {
+final class ErrorHighlighter
+{
 
     public $highlighted = '';
 
@@ -17,9 +18,19 @@ final class ErrorHighlighter {
      * @var StackTrace
      */
 
-    public function __construct(string $file, int $lineWithError = null, bool $hidden = false) {
+    public function __construct(string $file, int $lineWithError = null, bool $hidden = false)
+    {
         $this->setCodeStyle();
         $this->highlighted = $this->highlight_file_with_line_numbers($file, $lineWithError, $hidden);
+    }
+
+    protected final function setCodeStyle(): void
+    {
+        ini_set('highlight.string', '#a3dd00;');
+        ini_set('highlight.comment', '#636363;');
+        ini_set('highlight.keyword', '#C07041;');
+        ini_set('highlight.default', '#798aA0;');
+        ini_set('highlight.html', '#000000;');
     }
 
     /**
@@ -28,7 +39,8 @@ final class ErrorHighlighter {
      * @param bool $hidden
      * @return string
      */
-    protected final function highlight_file_with_line_numbers(string $file, int $lineWithError = null, bool $hidden = false): string {
+    protected final function highlight_file_with_line_numbers(string $file, int $lineWithError = null, bool $hidden = false): string
+    {
         $code = substr(highlight_file($file, true), 36, -15);
         $lines = explode('<br />', $code);
         $lineCount = count($lines);
@@ -69,7 +81,8 @@ final class ErrorHighlighter {
      * @param array $trace
      * @return StackTrace
      */
-    public final function getBeautyStackTrace(array $trace): StackTrace {
+    public final function getBeautyStackTrace(array $trace): StackTrace
+    {
         $stackTrace = new StackTrace();
         $traceItems = '';
         $traceItemsCode = '';
@@ -123,13 +136,5 @@ final class ErrorHighlighter {
         $stackTrace->traceItems = $traceItems;
         $stackTrace->traceItemsCode = $traceItemsCode;
         return $stackTrace;
-    }
-
-    protected final function setCodeStyle(): void {
-        ini_set('highlight.string', '#a3dd00;');
-        ini_set('highlight.comment', '#636363;');
-        ini_set('highlight.keyword', '#C07041;');
-        ini_set('highlight.default', '#798aA0;');
-        ini_set('highlight.html', '#000000;');
     }
 }

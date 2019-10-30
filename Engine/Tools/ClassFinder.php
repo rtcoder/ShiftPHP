@@ -8,10 +8,12 @@
 
 namespace Engine\Tools;
 
-class ClassFinder {
+class ClassFinder
+{
     private static $appRoot = __DIR__ . "/../../";
 
-    public static function getClassesInNamespace($namespace) {
+    public static function getClassesInNamespace($namespace)
+    {
         $files = scandir(self::getNamespaceDirectory($namespace));
 
         $classes = array_map(function ($file) use ($namespace) {
@@ -23,16 +25,8 @@ class ClassFinder {
         });
     }
 
-    private static function getDefinedNamespaces() {
-        $composerJsonPath = self::$appRoot . 'composer.json';
-        $composerConfig = json_decode(file_get_contents($composerJsonPath));
-
-        //Apparently PHP doesn't like hyphens, so we use variable variables instead.
-        $psr4 = "psr-4";
-        return (array)$composerConfig->autoload->$psr4;
-    }
-
-    private static function getNamespaceDirectory($namespace) {
+    private static function getNamespaceDirectory($namespace)
+    {
         $composerNamespaces = self::getDefinedNamespaces();
 
         $namespaceFragments = explode('\\', $namespace);
@@ -49,5 +43,15 @@ class ClassFinder {
         }
 
         return false;
+    }
+
+    private static function getDefinedNamespaces()
+    {
+        $composerJsonPath = self::$appRoot . 'composer.json';
+        $composerConfig = json_decode(file_get_contents($composerJsonPath));
+
+        //Apparently PHP doesn't like hyphens, so we use variable variables instead.
+        $psr4 = "psr-4";
+        return (array)$composerConfig->autoload->$psr4;
     }
 }

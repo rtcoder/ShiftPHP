@@ -11,12 +11,12 @@ namespace Console\Commands;
 
 use Engine\Console\CommandInterface;
 
-class Serve implements CommandInterface {
+class Serve implements CommandInterface
+{
 
 
-
-
-    public function execute(...$args): void {
+    public function execute(...$args): void
+    {
         $host = 'localhost:8000';
         if (count($args)) {
             if (isset($args[0])) {
@@ -29,7 +29,8 @@ class Serve implements CommandInterface {
         exec($command);
     }
 
-    private final function getOpenCommand(): string {
+    private final function getOpenCommand(): string
+    {
         $command = 'open';
 
         switch (php_uname('s')) {
@@ -44,11 +45,13 @@ class Serve implements CommandInterface {
         return $command;
     }
 
-    public function getHelp() {
+    public function getHelp()
+    {
         // TODO: Implement getHelp() method.
     }
 
-    public function getDescription() {
+    public function getDescription()
+    {
         // TODO: Implement getDescription() method.
     }
 }

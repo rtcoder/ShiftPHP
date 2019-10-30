@@ -6,7 +6,8 @@ namespace Engine;
  * Class Controller
  * @package Engine
  */
-class Controller {
+class Controller
+{
 
     /**
      * @param string $view
@@ -16,7 +17,8 @@ class Controller {
      * @param array $scripts
      * @return void
      */
-    public function render(string $view, array $data = [], string $title = '', array $styles = [], array $scripts = []): void {
+    public function render(string $view, array $data = [], string $title = '', array $styles = [], array $scripts = []): void
+    {
         (new View)->make($view, $data, $title, $styles, $scripts);
     }
 }

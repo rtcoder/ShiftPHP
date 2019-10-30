@@ -12,10 +12,13 @@ namespace Engine\Console;
 use Grabower\CliTypo\CliTypo;
 use ReflectionClass;
 
-class Shift {
+class Shift
+{
+    protected $_description = 'xd';
     private $_args = [];
-protected $_description='xd';
-    public function __construct(array $argv) {
+
+    public function __construct(array $argv)
+    {
         $this->setArgs($argv);
     }
 
@@ -23,25 +26,29 @@ protected $_description='xd';
      * @param string $name
      * @return mixed|null
      */
-    public function getArg(string $name) {
+    public function getArg(string $name)
+    {
         return isset($this->_args[$name]) ? $this->_args[$name] : null;
     }
 
     /**
      * @return array
      */
-    public function getArgs(): array {
+    public function getArgs(): array
+    {
         return $this->_args;
     }
 
     /**
      * @param array $args
      */
-    public function setArgs(array $args): void {
+    public function setArgs(array $args): void
+    {
         $this->_args = $args;
     }
 
-    public function run(): void {
+    public function run(): void
+    {
         $cliTypo = new CliTypo();
         if (count($this->_args) < 2) {
             $cliTypo->alert()->error('Shift CLI needs at least one parameter');

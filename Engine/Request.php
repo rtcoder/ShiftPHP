@@ -6,7 +6,8 @@ namespace Engine;
  * Class Request
  * @package Engine
  */
-class Request {
+class Request
+{
 
     /**
      * @var
@@ -36,7 +37,8 @@ class Request {
     /**
      *
      */
-    public static function setup(): void {
+    public static function setup(): void
+    {
 
         self::$path = $_SERVER['REQUEST_URI'];
 
@@ -64,70 +66,80 @@ class Request {
     /**
      * @return array
      */
-    public static function getArray(): array {
+    public static function getArray(): array
+    {
         return self::$array;
     }
 
     /**
      * @param array $array
      */
-    public static function setArray(array $array): void {
+    public static function setArray(array $array): void
+    {
         self::$array = $array;
     }
 
     /**
      * @return string
      */
-    public static function getController(): string {
+    public static function getController(): string
+    {
         return self::$controller;
     }
 
     /**
      * @param string $controller
      */
-    public static function setController(string $controller): void {
+    public static function setController(string $controller): void
+    {
         self::$controller = $controller;
     }
 
     /**
      * @return string
      */
-    public static function getAction(): string {
+    public static function getAction(): string
+    {
         return self::$action;
     }
 
     /**
      * @param string $action
      */
-    public static function setAction($action): void {
+    public static function setAction($action): void
+    {
         self::$action = $action;
     }
 
     /**
      * @return array
      */
-    public static function getArguments(): array {
+    public static function getArguments(): array
+    {
         return self::$arguments;
     }
 
     /**
      * @param string $arguments
      */
-    public static function setArguments($arguments): void {
+    public static function setArguments($arguments): void
+    {
         self::$arguments = $arguments;
     }
 
     /**
      * @return string
      */
-    public static function getPath(): string {
+    public static function getPath(): string
+    {
         return self::$path;
     }
 
     /**
      * @param string $path
      */
-    public static function setPath($path): void {
+    public static function setPath($path): void
+    {
         self::$path = $path;
     }
 }

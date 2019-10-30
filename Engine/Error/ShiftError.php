@@ -16,7 +16,8 @@ use Throwable;
  * Class ShiftError
  * @package Engine\Error
  */
-class ShiftError extends \Error {
+class ShiftError extends \Error
+{
 
     /**
      * ShiftError constructor.
@@ -24,7 +25,8 @@ class ShiftError extends \Error {
      * @param int $code
      * @param Throwable|null $previous
      */
-    public function __construct(string $message = "", int $code = 0, Throwable $previous = null) {
+    public function __construct(string $message = "", int $code = 0, Throwable $previous = null)
+    {
         parent::__construct($message, $code, $previous);
         $line = (int)$this->getLine();
         $errorHighlighter = new ErrorHighlighter($this->getFile(), $line);

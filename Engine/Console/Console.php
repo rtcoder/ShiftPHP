@@ -9,10 +9,12 @@
 namespace Engine\Console;
 
 
-class Console {
+class Console
+{
 
-public function __constructor(){
+    public function __constructor()
+    {
 
-}
+    }
 
 }

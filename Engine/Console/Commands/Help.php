@@ -11,7 +11,8 @@ namespace Console\Commands;
 
 use Engine\Console\CommandInterface;
 
-class Help implements CommandInterface {
+class Help implements CommandInterface
+{
 
     private $mappings = [
         [
@@ -27,7 +28,8 @@ class Help implements CommandInterface {
     /**
      * @param mixed ...$args
      */
-    public function execute(...$args): void {
+    public function execute(...$args): void
+    {
         $commandName = $args[0] ?? '';
 
         if ($commandName) {
@@ -37,11 +39,8 @@ class Help implements CommandInterface {
         }
     }
 
-    private function displayFullHelp() {
-
-    }
-
-    private function displayHelpForCommand($command) {
+    private function displayHelpForCommand($command)
+    {
 
         $found = false;
 
@@ -51,5 +50,10 @@ class Help implements CommandInterface {
                 $found = $mapping['namespace'] . $command;
             }
         }
+    }
+
+    private function displayFullHelp()
+    {
+
     }
 }

@@ -15,7 +15,8 @@ use Engine\Request;
  * Class ViewBuilder
  * @package View
  */
-class ViewBuilder {
+class ViewBuilder
+{
 
     /**
      * @var string
@@ -33,35 +34,47 @@ class ViewBuilder {
     /**
      * ViewBuilder constructor.
      */
-    public function __construct(string $html) {
+    public function __construct(string $html)
+    {
         $this->html = $html;
     }
 
+    /**
+     * @param string $title
+     * @return ViewBuilder
+     */
+    public function setTitle(string $title): self
+    {
+        $this->html = str_replace('{{ $title }}', $title, $this->html);
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getView(): string
+    {
+        return $this->html;
+    }
 
     /**
      * @return ViewBuilder
      */
-    private function buildScripts(): self {
-        $scriptsDestination = '/public/js/' . Request::getController() . '/' . Request::getAction() . '.js';
-        $scripts = '<script src="' . $scriptsDestination . '"></script>';
-
-        foreach ($this->scripts as $script) {
-            $addScript = true;
-            if (!is_url($script)) {
-                $addScript = file_exists(PUBLIC_PATH . '/js/' . $script);
-            }
-            if ($addScript) {
-                $scripts .= '<script src="/public/js/' . $script . '"></script>';
-            }
-        }
-        $this->html = str_replace('{{ $scripts }}', $scripts, $this->html);
+    public function build(): self
+    {
+        $this->buildStyles();
+        $this->buildScripts();
+        $this->replacePHPClosures();
+        $this->replacePHPCode();
+        $this->replacePHPVariables();
         return $this;
     }
 
     /**
      * @return ViewBuilder
      */
-    private function buildStyles(): self {
+    private function buildStyles(): self
+    {
         $styleDestination = '/public/css/' . Request::getController() . '/' . Request::getAction() . '.css';
         $styles = '<link rel="stylesheet" href="' . $styleDestination . '"/>';
 
@@ -80,48 +93,31 @@ class ViewBuilder {
     }
 
     /**
-     * @param string $title
      * @return ViewBuilder
      */
-    public function setTitle(string $title): self {
-        $this->html = str_replace('{{ $title }}', $title, $this->html);
-        return $this;
-    }
+    private function buildScripts(): self
+    {
+        $scriptsDestination = '/public/js/' . Request::getController() . '/' . Request::getAction() . '.js';
+        $scripts = '<script src="' . $scriptsDestination . '"></script>';
 
-    /**
-     * @return string
-     */
-    public function getView(): string {
-        return $this->html;
-    }
-
-
-    /**
-     * @return ViewBuilder
-     */
-    public function build(): self {
-        $this->buildStyles();
-        $this->buildScripts();
-        $this->replacePHPClosures();
-        $this->replacePHPCode();
-        $this->replacePHPVariables();
+        foreach ($this->scripts as $script) {
+            $addScript = true;
+            if (!is_url($script)) {
+                $addScript = file_exists(PUBLIC_PATH . '/js/' . $script);
+            }
+            if ($addScript) {
+                $scripts .= '<script src="/public/js/' . $script . '"></script>';
+            }
+        }
+        $this->html = str_replace('{{ $scripts }}', $scripts, $this->html);
         return $this;
     }
 
     /**
      *
      */
-    private function replacePHPCode(): void {
-        $this->html = preg_replace_callback(
-            '/\B@(@?\w+(?:::\w+)?)([ \t]*)(\( ( (?>[^()]+) | (?3) )* \))?/x', function ($match) {
-            return $this->compileStatement($match);
-        }, $this->html);
-    }
-
-    /**
-     *
-     */
-    private function replacePHPClosures(): void {
+    private function replacePHPClosures(): void
+    {
         $this->html = str_replace(
             ['@endif', '@endfor', '@endforeach', '@endwhile', '@endphp'],
             ['<?php endif; ?>', '<?php endfor; ?>', '<?php endforeach; ?>', '<?php endwhile; ?>', '<?php endphp; ?>'],
@@ -132,17 +128,20 @@ class ViewBuilder {
     /**
      *
      */
-    private function replacePHPVariables(): void {
-        $pattern = '/{{ \$(\w+) }}/';
-        $replcement = '<?= __($$1); ?>';
-        $this->html = preg_replace($pattern, $replcement, $this->html);
+    private function replacePHPCode(): void
+    {
+        $this->html = preg_replace_callback(
+            '/\B@(@?\w+(?:::\w+)?)([ \t]*)(\( ( (?>[^()]+) | (?3) )* \))?/x', function ($match) {
+            return $this->compileStatement($match);
+        }, $this->html);
     }
 
     /**
      * @param array $match
      * @return string
      */
-    private function compileStatement(array $match): string {
+    private function compileStatement(array $match): string
+    {
         switch ($match[1]) {
             case 'include':
                 return '<?php include ' . $match[4] . ';?>';
@@ -165,9 +164,20 @@ class ViewBuilder {
     }
 
     /**
+     *
+     */
+    private function replacePHPVariables(): void
+    {
+        $pattern = '/{{ \$(\w+) }}/';
+        $replcement = '<?= __($$1); ?>';
+        $this->html = preg_replace($pattern, $replcement, $this->html);
+    }
+
+    /**
      * @return array
      */
-    public function getStyles(): array {
+    public function getStyles(): array
+    {
         return $this->styles;
     }
 
@@ -175,7 +185,8 @@ class ViewBuilder {
      * @param array $styles
      * @return ViewBuilder
      */
-    public function setStyles(array $styles): self {
+    public function setStyles(array $styles): self
+    {
         $this->styles = $styles;
         return $this;
     }
@@ -183,7 +194,8 @@ class ViewBuilder {
     /**
      * @return array
      */
-    public function getScripts(): array {
+    public function getScripts(): array
+    {
         return $this->scripts;
     }
 
@@ -191,7 +203,8 @@ class ViewBuilder {
      * @param array $scripts
      * @return ViewBuilder
      */
-    public function setScripts(array $scripts): self {
+    public function setScripts(array $scripts): self
+    {
         $this->scripts = $scripts;
         return $this;
     }
