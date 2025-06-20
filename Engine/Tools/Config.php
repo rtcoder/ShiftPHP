@@ -9,19 +9,22 @@
 namespace Tools;
 
 
-final class Config {
+final class Config
+{
     private static $instance;
 
     private static $_configs = [];
 
-    public static function getInstance(): self {
+    public static function getInstance(): self
+    {
         if (self::$instance === null) {
             self::$instance = new Config();
         }
         return self::$instance;
     }
 
-    public function __get(?string $name) {
+    public function __get(?string $name)
+    {
 
         if ($name) {
             if (array_key_exists($name, self::$_configs)) {

@@ -9,6 +9,7 @@
 namespace View;
 
 
-class Templater {
+class Templater
+{
 
 }

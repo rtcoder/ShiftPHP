@@ -12,7 +12,8 @@
   "minimum-stability": "dev",
   "require": {
     "php": ">=7.1",
-    "grabower/clitypo": "dev-master"
+    "grabower/clitypo": "dev-master",
+    "ext-json": "*"
   },
   "repositories": [
     {

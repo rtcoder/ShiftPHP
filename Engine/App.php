@@ -9,7 +9,8 @@ use ReflectionClass;
  * Class App
  * @package Engine
  */
-final class App {
+final class App
+{
     /**
      * @var
      */
@@ -22,13 +23,15 @@ final class App {
     /**
      * App constructor.
      */
-    public function __construct() {
+    public function __construct()
+    {
     }
 
     /**
      * @throws \ReflectionException
      */
-    public static function start(): void {
+    public static function start(): void
+    {
         static $run;
         if ($run === TRUE) return;
 
@@ -53,7 +56,8 @@ final class App {
     /**
      * @param string $class_name
      */
-    public static function autoload(string $class_name): void {
+    public static function autoload(string $class_name): void
+    {
         $class = str_replace('_', '/',
             str_replace('\\', '/', $class_name)
         );
@@ -63,9 +67,9 @@ final class App {
         }
 
         $locations = [
-            APP_PATH . 'application/controller/',
-            APP_PATH . 'application/model/',
-            APP_PATH,
+            APP_PATH . '/controller/',
+            APP_PATH . '/model/',
+            APP_ROOT,
         ];
 
         foreach ($locations as $location) {
@@ -76,7 +80,8 @@ final class App {
 
     }
 
-    public static function setHelpers(): void {
+    public static function setHelpers(): void
+    {
         require_once 'Utils/helpers.php';
     }
 }

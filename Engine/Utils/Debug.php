@@ -9,38 +9,22 @@
 namespace Engine\Utils;
 
 
-class Debug {
-
-    /**
-     *
-     */
-    public function __invoke() {
-        self::dd(func_get_args());
-    }
+class Debug
+{
 
     /**
      * @param mixed ...$args
      */
-    public static function dd(...$args): void {
-        echo '<pre>';
-        var_dump(...$args);
-//        Debug::print(func_get_args());
-        echo '</pre>';
-        exit;
-
-    }
-
-    /**
-     * @param mixed ...$args
-     */
-    public static function d(...$args): void {
+    public static function d(...$args): void
+    {
         echo '<pre>';
         var_dump(...$args);
 //        Debug::print(func_get_args());
         echo '</pre>';
     }
 
-    private static function print($var, $key = null): void {
+    private static function print($var, $key = null): void
+    {
         echo '<div style="border: 1px solid red;padding-left: 5px;">';
 //
         if (is_array($var)) {
@@ -57,5 +41,26 @@ class Debug {
         }
 //
         echo '</div>';
+    }
+
+    /**
+     *
+     */
+    public function __invoke()
+    {
+        self::dd(func_get_args());
+    }
+
+    /**
+     * @param mixed ...$args
+     */
+    public static function dd(...$args): void
+    {
+        echo '<pre>';
+        var_dump(...$args);
+//        Debug::print(func_get_args());
+        echo '</pre>';
+        exit;
+
     }
 }

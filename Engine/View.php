@@ -17,7 +17,8 @@ use View\ViewBuilder;
  * Class View
  * @package Engine
  */
-class View {
+class View
+{
 
     /**
      * @var string
@@ -34,7 +35,8 @@ class View {
      * @param array $styles
      * @param array $scripts
      */
-    public function make(?string $view, array $data = [], string $title = '', array $styles = [], array $scripts = []) {
+    public function make(?string $view, array $data = [], string $title = '', array $styles = [], array $scripts = [])
+    {
         $this->setTitle($title);
         $this->setScripts($scripts);
         $this->setStyles($styles);
@@ -83,42 +85,48 @@ class View {
     /**
      * @return string
      */
-    public function getTitle(): string {
+    public function getTitle(): string
+    {
         return $this->_title;
     }
 
     /**
      * @param string $title
      */
-    public function setTitle(string $title): void {
+    public function setTitle(string $title): void
+    {
         $this->_title = $title;
     }
 
     /**
      * @return array
      */
-    public function getScripts(): array {
+    public function getScripts(): array
+    {
         return $this->_scripts;
     }
 
     /**
      * @param array $scripts
      */
-    public function setScripts(array $scripts): void {
+    public function setScripts(array $scripts): void
+    {
         $this->_scripts = $scripts;
     }
 
     /**
      * @return array
      */
-    public function getStyles(): array {
+    public function getStyles(): array
+    {
         return $this->_styles;
     }
 
     /**
      * @param array $styles
      */
-    public function setStyles(array $styles): void {
+    public function setStyles(array $styles): void
+    {
         $this->_styles = $styles;
     }
 }

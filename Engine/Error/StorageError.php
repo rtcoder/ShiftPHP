@@ -15,7 +15,8 @@ use Throwable;
  * Class StorageError
  * @package Engine\Error
  */
-class StorageError extends ShiftError {
+class StorageError extends ShiftError
+{
 
     /**
      * StorageError constructor.
@@ -23,7 +24,8 @@ class StorageError extends ShiftError {
      * @param int $code
      * @param Throwable|null $previous
      */
-    public function __construct(string $message = "", int $code = 0, Throwable $previous = null) {
+    public function __construct(string $message = "", int $code = 0, Throwable $previous = null)
+    {
         parent::__construct('Storage Error: ' . $message, $code, $previous);
     }
 }
