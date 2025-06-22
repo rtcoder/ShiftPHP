@@ -39,7 +39,7 @@ class Help implements CommandInterface
         }
     }
 
-    private function displayHelpForCommand($command)
+    private function displayHelpForCommand($command): void
     {
 
         $found = false;
@@ -52,8 +52,18 @@ class Help implements CommandInterface
         }
     }
 
-    private function displayFullHelp()
+    private function displayFullHelp(): void
     {
 
+    }
+
+    public function getHelp()
+    {
+        // TODO: Implement getHelp() method.
+    }
+
+    public function getDescription()
+    {
+        // TODO: Implement getDescription() method.
     }
 }

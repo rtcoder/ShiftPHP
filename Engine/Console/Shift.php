@@ -9,8 +9,8 @@
 namespace Engine\Console;
 
 
-use Grabower\CliTypo\CliTypo;
 use ReflectionClass;
+use ReflectionException;
 
 class Shift
 {
@@ -28,7 +28,7 @@ class Shift
      */
     public function getArg(string $name)
     {
-        return isset($this->_args[$name]) ? $this->_args[$name] : null;
+        return $this->_args[$name] ?? null;
     }
 
     /**
@@ -47,15 +47,18 @@ class Shift
         $this->_args = $args;
     }
 
+    /**
+     * @throws ReflectionException
+     */
     public function run(): void
     {
-        $cliTypo = new CliTypo();
+        $cli = new Cli();
         if (count($this->_args) < 2) {
-            $cliTypo->alert()->error('Shift CLI needs at least one parameter');
+            $cli->error('Shift CLI needs at least one parameter');
             exit();
         }
         $commandName = ucfirst($this->_args[1]);
-        $cliTypo->text()->write($commandName);
+        $cli->info($commandName);
 
         $mappings = [
             [
@@ -75,7 +78,7 @@ class Shift
             }
         }
         if (!$found) {
-            $cliTypo->alert()->error('Command ' . $commandName . ' not found');
+            $cli->error('Command ' . $commandName . ' not found');
             exit();
         }
 

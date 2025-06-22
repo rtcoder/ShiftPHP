@@ -11,16 +11,9 @@
   ],
   "minimum-stability": "dev",
   "require": {
-    "php": ">=7.1",
-    "grabower/clitypo": "dev-master",
+    "php": ">=8.0",
     "ext-json": "*"
   },
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/adriangrabowski/clitypo.git"
-    }
-  ],
   "autoload": {
     "psr-4": {
       "View\\": "Engine/View",

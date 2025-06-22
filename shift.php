@@ -1,6 +1,10 @@
 #!/usr/bin/php
 <?php
+
+use Engine\App;
+use Engine\Console\Shift;
+
 require_once 'bootstrap.php';
-\Engine\App::setHelpers();
-$console = new \Engine\Console\Shift($argv);
+App::setHelpers();
+$console = new Shift($argv);
 $console->run();
