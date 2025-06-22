@@ -15,7 +15,7 @@ class Serve implements CommandInterface
 {
 
 
-    public function execute(...$args): void
+    public function execute(mixed ...$args): void
     {
         $host = 'localhost:8000';
         if (count($args) && isset($args[0])) {
@@ -43,13 +43,15 @@ class Serve implements CommandInterface
         return $command;
     }
 
-    public function getHelp()
+    public function getHelp(): string
     {
         // TODO: Implement getHelp() method.
+        return '';
     }
 
-    public function getDescription()
+    public function getDescription(): string
     {
         // TODO: Implement getDescription() method.
+        return '';
     }
 }

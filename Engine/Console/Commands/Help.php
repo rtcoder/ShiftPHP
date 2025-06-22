@@ -8,13 +8,12 @@
 
 namespace Console\Commands;
 
-
 use Engine\Console\CommandInterface;
 
 class Help implements CommandInterface
 {
-
-    private $mappings = [
+    /** @var array<array{dir: string, namespace: string}> */
+    private array $mappings = [
         [
             'dir' => APP_PATH . '/console/',
             'namespace' => 'AppConsole\\Commands\\'
@@ -28,7 +27,7 @@ class Help implements CommandInterface
     /**
      * @param mixed ...$args
      */
-    public function execute(...$args): void
+    public function execute(mixed ...$args): void
     {
         $commandName = $args[0] ?? '';
 
@@ -39,9 +38,11 @@ class Help implements CommandInterface
         }
     }
 
-    private function displayHelpForCommand($command): void
+    /**
+     * @param string $command
+     */
+    private function displayHelpForCommand(string $command): void
     {
-
         $found = false;
 
         foreach ($this->mappings as $mapping) {
@@ -54,16 +55,23 @@ class Help implements CommandInterface
 
     private function displayFullHelp(): void
     {
-
     }
 
-    public function getHelp()
+    /**
+     * @return string
+     */
+    public function getHelp(): string
     {
         // TODO: Implement getHelp() method.
+        return '';
     }
 
-    public function getDescription()
+    /**
+     * @return string
+     */
+    public function getDescription(): string
     {
         // TODO: Implement getDescription() method.
+        return '';
     }
 }

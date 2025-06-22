@@ -23,9 +23,9 @@ class View
     /**
      * @var string
      */
-    private $_title = '';
-    private $_scripts = [];
-    private $_styles = [];
+    private string $_title = '';
+    private array $_scripts = [];
+    private array $_styles = [];
 
 
     /**
@@ -34,8 +34,9 @@ class View
      * @param string $title
      * @param array $styles
      * @param array $scripts
+     * @return void
      */
-    public function make(?string $view, array $data = [], string $title = '', array $styles = [], array $scripts = [])
+    public function make(?string $view, array $data = [], string $title = '', array $styles = [], array $scripts = []): void
     {
         $this->setTitle($title);
         $this->setScripts($scripts);

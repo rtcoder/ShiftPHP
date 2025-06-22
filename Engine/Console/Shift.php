@@ -14,8 +14,8 @@ use ReflectionException;
 
 class Shift
 {
-    protected $_description = 'xd';
-    private $_args = [];
+    protected string $_description = 'xd';
+    private array $_args = [];
 
     public function __construct(array $argv)
     {
@@ -26,7 +26,7 @@ class Shift
      * @param string $name
      * @return mixed|null
      */
-    public function getArg(string $name)
+    public function getArg(string $name): mixed
     {
         return $this->_args[$name] ?? null;
     }
@@ -49,6 +49,7 @@ class Shift
 
     /**
      * @throws ReflectionException
+     * @return void
      */
     public function run(): void
     {

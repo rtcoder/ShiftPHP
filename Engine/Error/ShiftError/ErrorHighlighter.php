@@ -12,13 +12,13 @@ namespace Engine\Error\ShiftError;
 final class ErrorHighlighter
 {
 
-    public $highlighted = '';
+    public string $highlighted = '';
 
     /*
      * @var StackTrace
      */
 
-    public function __construct(string $file, int $lineWithError = null, bool $hidden = false)
+    public function __construct(string $file, ?int $lineWithError = null, bool $hidden = false)
     {
         $this->setCodeStyle();
         $this->highlighted = $this->highlight_file_with_line_numbers($file, $lineWithError, $hidden);
@@ -35,11 +35,11 @@ final class ErrorHighlighter
 
     /**
      * @param string $file
-     * @param int $lineWithError
+     * @param int|null $lineWithError
      * @param bool $hidden
      * @return string
      */
-    protected final function highlight_file_with_line_numbers(string $file, int $lineWithError = null, bool $hidden = false): string
+    protected final function highlight_file_with_line_numbers(string $file, ?int $lineWithError = null, bool $hidden = false): string
     {
         $code = substr(highlight_file($file, true), 36, -15);
         $lines = explode('<br />', $code);

@@ -24,6 +24,7 @@ class ShiftError extends \Error
      * @param string $message
      * @param int $code
      * @param Throwable|null $previous
+     * @return void
      */
     public function __construct(string $message = "", int $code = 0, Throwable $previous = null)
     {
@@ -78,17 +79,17 @@ class ShiftError extends \Error
         </div>
         <script>
         const buttons = document.getElementsByClassName("trace-item");
-        
+
         for(const button of buttons) {
           button.addEventListener("click", function(e) {
             const id = this.getAttribute("data-id")
             const filePresentationList = document.getElementsByClassName("file-presentation");
             const targetFilePresentation = document.getElementById(id);
-            
+
             if (!filePresentationList.length || !targetFilePresentation) {
               return;
             }
-            
+
             for (let node of filePresentationList) {
               node.style.display = "none";
             }
