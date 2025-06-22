@@ -11,3 +11,5 @@ a tu if
 
 <span>{{ $i }}</span>
 @endfor
+
+{{ $dd }}

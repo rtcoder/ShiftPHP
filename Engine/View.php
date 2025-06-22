@@ -42,7 +42,7 @@ class View
         $this->setScripts($scripts);
         $this->setStyles($styles);
 
-        if (!$view || strlen($view) === 0) {
+        if (!$view) {
             $view = 'default';
         }
 

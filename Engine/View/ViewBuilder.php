@@ -21,15 +21,15 @@ class ViewBuilder
     /**
      * @var string
      */
-    private $html;
+    private string $html;
     /**
      * @var array
      */
-    private $styles = [];
+    private array $styles = [];
     /**
      * @var array
      */
-    private $scripts = [];
+    private array $scripts = [];
 
     /**
      * ViewBuilder constructor.
@@ -71,9 +71,9 @@ class ViewBuilder
     }
 
     /**
-     * @return ViewBuilder
+     * @return void
      */
-    private function buildStyles(): self
+    private function buildStyles(): void
     {
         $styleDestination = '/public/css/' . Request::getController() . '/' . Request::getAction() . '.css';
         $styles = '<link rel="stylesheet" href="' . $styleDestination . '"/>';
@@ -89,13 +89,12 @@ class ViewBuilder
         }
         $this->html = str_replace('{{ $styles }}', $styles, $this->html);
 
-        return $this;
     }
 
     /**
-     * @return ViewBuilder
+     * @return void
      */
-    private function buildScripts(): self
+    private function buildScripts(): void
     {
         $scriptsDestination = '/public/js/' . Request::getController() . '/' . Request::getAction() . '.js';
         $scripts = '<script src="' . $scriptsDestination . '"></script>';
@@ -110,7 +109,6 @@ class ViewBuilder
             }
         }
         $this->html = str_replace('{{ $scripts }}', $scripts, $this->html);
-        return $this;
     }
 
     /**
@@ -142,25 +140,14 @@ class ViewBuilder
      */
     private function compileStatement(array $match): string
     {
-        switch ($match[1]) {
-            case 'include':
-                return '<?php include ' . $match[4] . ';?>';
-                break;
-            case 'if':
-                return '<?php if' . $match[3] . ':?>';
-                break;
-            case 'for':
-                return '<?php for' . $match[3] . ':?>';
-                break;
-            case 'foreach':
-                return '<?php foreach' . $match[3] . ':?>';
-                break;
-            case 'while':
-                return '<?php while' . $match[3] . ':?>';
-                break;
-            default:
-                return '';
-        }
+        return match ($match[1]) {
+            'include' => '<?php include ' . $match[4] . ';?>',
+            'if' => '<?php if' . $match[3] . ':?>',
+            'for' => '<?php for' . $match[3] . ':?>',
+            'foreach' => '<?php foreach' . $match[3] . ':?>',
+            'while' => '<?php while' . $match[3] . ':?>',
+            default => '',
+        };
     }
 
     /**
@@ -169,8 +156,8 @@ class ViewBuilder
     private function replacePHPVariables(): void
     {
         $pattern = '/{{ \$(\w+) }}/';
-        $replcement = '<?= __($$1); ?>';
-        $this->html = preg_replace($pattern, $replcement, $this->html);
+        $replacement = '<?= __($$1); ?>';
+        $this->html = preg_replace($pattern, $replacement, $this->html);
     }
 
     /**

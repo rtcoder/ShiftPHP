@@ -10,16 +10,17 @@ namespace Engine\Utils;
 
 
 use Engine\Error\StorageError;
+use RuntimeException;
 
 class Storage
 {
 
-    public $storageDir;
-    public $storageViewsDir;
+    public string $storageDir;
+    public string $storageViewsDir;
 
     public function __construct()
     {
-        $storageParentDir = realpath(__DIR__ . '/../');
+        $storageParentDir = dirname(__DIR__) . '/';
         $this->storageDir = $storageParentDir . '/storage/';
         $this->storageViewsDir = $this->storageDir . '/views/';
         $this->checkDir($this->storageViewsDir);
@@ -27,8 +28,8 @@ class Storage
 
     private function checkDir(string $dir): void
     {
-        if (!file_exists($dir)) {
-            mkdir($dir, 0777, true);
+        if (!file_exists($dir) && !mkdir($dir, 0777, true) && !is_dir($dir)) {
+            throw new RuntimeException(sprintf('Directory "%s" was not created', $dir));
         }
         if (!file_exists($dir)) {
             throw new StorageError('Directory ' . $dir . ' does not exists');
@@ -40,8 +41,8 @@ class Storage
 
     public function saveView(string $name, string $content): void
     {
-        if (!file_exists($this->storageViewsDir)) {
-            mkdir($this->storageViewsDir, 0777, true);
+        if (!file_exists($this->storageViewsDir) && !mkdir($concurrentDirectory = $this->storageViewsDir, 0777, true) && !is_dir($concurrentDirectory)) {
+            throw new RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
         }
 
         file_put_contents($this->storageViewsDir . $name, $content);
