@@ -169,8 +169,10 @@ class Cli
             echo "\n"; // Nowa linia na końcu postępu
         }
 
-        // Flush output
-        ob_flush();
+        // Sprawdzamy czy bufor jest aktywny przed próbą jego opróżnienia
+        if (ob_get_level() > 0) {
+            ob_flush();
+        }
         flush();
     }
 
