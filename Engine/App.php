@@ -4,6 +4,7 @@ namespace Engine;
 
 use Engine\Error\ShiftError;
 use ReflectionClass;
+use ReflectionException;
 
 /**
  * Class App
@@ -11,47 +12,77 @@ use ReflectionClass;
  */
 final class App
 {
-    /**
-     * @var
-     */
-    public static $controller;
-    public static $defaultController = 'index';
-    public static $action;
-    public static $defaultAction = 'index';
+    private Request $request;
+    private ServiceContainer $container;
+    private string $defaultController = 'index';
+    private string $defaultAction = 'index';
+    private bool $isRunning = false;
 
-
-    /**
-     * App constructor.
-     */
-    public function __construct()
+    public function __construct(Request $request)
     {
+        $this->request = $request;
+        $this->container = new ServiceContainer();
+        $this->registerDefaultServices();
     }
 
     /**
-     * @throws \ReflectionException
+     * @throws ShiftError
      */
-    public static function start(): void
+    public function start(): void
     {
-        static $run;
-        if ($run === TRUE) return;
-
-        Request::setup();
-        $controller = 'Controllers\\' . ucfirst(Request::getController()) . 'Controller';
-
-        try {
-            self::$controller = new $controller();
-        } catch (\Throwable $exception) {
-            throw new ShiftError($exception->getMessage(), $exception->getCode(), $exception->getPrevious());
+        if ($this->isRunning) {
+            return;
         }
 
-        $class = new ReflectionClass(self::$controller);
-
-        $method = $class->getMethod(Request::getAction());
-
-        $method->invokeArgs(self::$controller, Request::getArguments());
-        $run = TRUE;
+        try {
+            $controller = $this->resolveController();
+            $this->executeController($controller);
+            $this->isRunning = true;
+        } catch (ReflectionException $exception) {
+            throw new ShiftError(
+                'Controller method not found: ' . $exception->getMessage(),
+                $exception->getCode(),
+                $exception->getPrevious()
+            );
+        } catch (\Throwable $exception) {
+            throw new ShiftError(
+                'Application error: ' . $exception->getMessage(),
+                $exception->getCode(),
+                $exception->getPrevious()
+            );
+        }
     }
 
+    /**
+     * @throws ShiftError
+     */
+    private function resolveController(): object
+    {
+        $controllerName = ucfirst($this->request->getController()) . 'Controller';
+        $controllerClass = 'Controllers\\' . $controllerName;
+
+        if (!class_exists($controllerClass)) {
+            throw new ShiftError("Controller class '{$controllerClass}' not found");
+        }
+
+        return new $controllerClass();
+    }
+
+    /**
+     * @throws ReflectionException
+     */
+    private function executeController(object $controller): void
+    {
+        $reflectionClass = new ReflectionClass($controller);
+        $methodName = $this->request->getAction();
+
+        if (!$reflectionClass->hasMethod($methodName)) {
+            throw new ReflectionException("Method '{$methodName}' not found in controller");
+        }
+
+        $method = $reflectionClass->getMethod($methodName);
+        $method->invokeArgs($controller, $this->request->getArguments());
+    }
 
     /**
      * @param string $class_name
@@ -77,11 +108,46 @@ final class App
                 require_once($location . $class . '.php');
             }
         }
-
     }
 
     public static function setHelpers(): void
     {
         require_once 'Utils/helpers.php';
+    }
+
+    public function getRequest(): Request
+    {
+        return $this->request;
+    }
+
+    public function setDefaultController(string $controller): void
+    {
+        $this->defaultController = $controller;
+    }
+
+    public function setDefaultAction(string $action): void
+    {
+        $this->defaultAction = $action;
+    }
+
+    private function registerDefaultServices(): void
+    {
+        $this->container->singleton('request', $this->request);
+        $this->container->singleton('view', function() {
+            return new View();
+        });
+        $this->container->singleton('storage', function() {
+            return new \Engine\Utils\Storage();
+        });
+    }
+
+    public function getContainer(): ServiceContainer
+    {
+        return $this->container;
+    }
+
+    public function resolve(string $service)
+    {
+        return $this->container->resolve($service);
     }
 }

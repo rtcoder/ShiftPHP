@@ -18,6 +18,8 @@ use Throwable;
  */
 class ShiftError extends \Error
 {
+    private string $customFile = '';
+    private int $customLine = 0;
 
     /**
      * ShiftError constructor.
@@ -29,8 +31,35 @@ class ShiftError extends \Error
     public function __construct(string $message = "", int $code = 0, ?Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);
-        $line = (int)$this->getLine();
-        $errorHighlighter = new ErrorHighlighter($this->getFile(), $line);
+        $this->renderError();
+    }
+
+    public function setFile(string $file): void
+    {
+        $this->customFile = $file;
+    }
+
+    public function setLine(int $line): void
+    {
+        $this->customLine = $line;
+    }
+
+    public function getCustomFile(): string
+    {
+        return $this->customFile ?: $this->getFile();
+    }
+
+    public function getCustomLine(): int
+    {
+        return $this->customLine ?: $this->getLine();
+    }
+
+    private function renderError(): void
+    {
+        $line = (int)$this->getCustomLine();
+        $file = $this->getCustomFile();
+        
+        $errorHighlighter = new ErrorHighlighter($file, $line);
         $highlighted = $errorHighlighter->highlighted;
         $stackTrace = $errorHighlighter->getBeautyStackTrace($this->getTrace());
 
@@ -57,18 +86,18 @@ class ShiftError extends \Error
         </style>
         <div id="error-container">
             <div id="message">' . $this->getMessage() . '</div>
-            <div id="file-info"><b>' . $this->getFile() . ': ' . $line . '</b></div>
+            <div id="file-info"><b>' . $file . ': ' . $line . '</b></div>
             ' . $highlighted . $stackTrace->traceItemsCode . '
             <br><br>
             <div id="stack-trace-text">Stack trace:</div>
             <table id="stack-trace" border="0">
             <tbody>
-            <tr class="trace-item" data-id="' . md5($this->getFile() . $line) . '">
+            <tr class="trace-item" data-id="' . md5($file . $line) . '">
                 <td>
                 ' . $line . '
                 </td>
                 <td>
-                ' . str_replace(APP_ROOT . '/', '', $this->getFile()) . '
+                ' . str_replace(APP_ROOT . '/', '', $file) . '
                 </td>
                 <td class="method">
                 </td >
@@ -99,5 +128,4 @@ class ShiftError extends \Error
         }
         </script>';
     }
-
 }

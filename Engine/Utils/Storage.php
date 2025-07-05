@@ -14,37 +14,88 @@ use RuntimeException;
 
 class Storage
 {
-
-    public string $storageDir;
-    public string $storageViewsDir;
+    private string $storageDir;
+    private string $storageViewsDir;
 
     public function __construct()
     {
-        $storageParentDir = dirname(__DIR__) . '/';
-        $this->storageDir = $storageParentDir . '/storage/';
-        $this->storageViewsDir = $this->storageDir . '/views/';
-        $this->checkDir($this->storageViewsDir);
+        $this->initializePaths();
+        $this->ensureDirectoriesExist();
     }
 
-    private function checkDir(string $dir): void
+    private function initializePaths(): void
     {
-        if (!file_exists($dir) && !mkdir($dir, 0777, true) && !is_dir($dir)) {
-            throw new RuntimeException(sprintf('Directory "%s" was not created', $dir));
+        $storageParentDir = dirname(__DIR__) . '/';
+        $this->storageDir = $storageParentDir . 'storage/';
+        $this->storageViewsDir = $this->storageDir . 'views/';
+    }
+
+    private function ensureDirectoriesExist(): void
+    {
+        $this->createDirectoryIfNotExists($this->storageDir);
+        $this->createDirectoryIfNotExists($this->storageViewsDir);
+    }
+
+    /**
+     * @throws StorageError
+     */
+    private function createDirectoryIfNotExists(string $dir): void
+    {
+        if (file_exists($dir)) {
+            $this->validateDirectory($dir);
+            return;
         }
-        if (!file_exists($dir)) {
-            throw new StorageError('Directory ' . $dir . ' does not exists');
+
+        if (!mkdir($dir, 0755, true)) {
+            throw new StorageError("Failed to create directory: {$dir}");
         }
+
+        $this->validateDirectory($dir);
+    }
+
+    /**
+     * @throws StorageError
+     */
+    private function validateDirectory(string $dir): void
+    {
+        if (!is_dir($dir)) {
+            throw new StorageError("Path '{$dir}' is not a directory");
+        }
+
         if (!is_writable($dir)) {
-            throw new StorageError('Directory ' . $dir . ' is not writable');
+            throw new StorageError("Directory '{$dir}' is not writable");
         }
     }
 
+    /**
+     * @throws StorageError
+     */
     public function saveView(string $name, string $content): void
     {
-        if (!file_exists($this->storageViewsDir) && !mkdir($concurrentDirectory = $this->storageViewsDir, 0777, true) && !is_dir($concurrentDirectory)) {
-            throw new RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
+        $filePath = $this->storageViewsDir . $name;
+        
+        if (file_put_contents($filePath, $content) === false) {
+            throw new StorageError("Failed to save view file: {$filePath}");
         }
+    }
 
-        file_put_contents($this->storageViewsDir . $name, $content);
+    public function getStorageDir(): string
+    {
+        return $this->storageDir;
+    }
+
+    public function getStorageViewsDir(): string
+    {
+        return $this->storageViewsDir;
+    }
+
+    public function clearViews(): void
+    {
+        $files = glob($this->storageViewsDir . '*.php');
+        foreach ($files as $file) {
+            if (is_file($file)) {
+                unlink($file);
+            }
+        }
     }
 }

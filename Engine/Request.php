@@ -8,138 +8,101 @@ namespace Engine;
  */
 class Request
 {
+    private string $path;
+    private string $controller;
+    private string $action;
+    private array $arguments = [];
+    private array $queryParams = [];
+    private array $postData = [];
+    private array $serverData = [];
 
-    /**
-     * @var
-     */
-    protected static $array;
-
-    /**
-     * @var
-     */
-    protected static $controller;
-
-    /**
-     * @var
-     */
-    protected static $action;
-
-    /**
-     * @var
-     */
-    protected static $arguments = [];
-
-    /**
-     * @var
-     */
-    protected static $path;
-
-    /**
-     *
-     */
-    public static function setup(): void
+    public function __construct()
     {
+        $this->serverData = $_SERVER;
+        $this->queryParams = $_GET;
+        $this->postData = $_POST;
+        $this->parseRequest();
+    }
 
-        self::$path = $_SERVER['REQUEST_URI'];
-
-        $get = $_GET;
-        $post = $_POST;
-
-        if (strpos(self::$path, '?') !== false) {
-            $arr = explode('?', self::$path);
-            self::$path = $arr[0];
+    private function parseRequest(): void
+    {
+        $this->path = $this->serverData['REQUEST_URI'] ?? '/';
+        
+        // Remove query string from path
+        if (strpos($this->path, '?') !== false) {
+            $parts = explode('?', $this->path);
+            $this->path = $parts[0];
         }
 
-        self::$array = explode('/', trim(self::$path, '/'));
-
-        self::$controller = (self::$array[0] ?? App::$defaultController) ?: App::$defaultController;
-        self::$action = (self::$array[1] ?? App::$defaultAction) ?: App::$defaultAction;
-
-        if (count(self::$array) > 2) {
-            $tmp = array_slice(self::$array, 2, count(self::$array));
-            self::$arguments = $tmp;
+        $pathSegments = explode('/', trim($this->path, '/'));
+        
+        $this->controller = $pathSegments[0] ?? 'index';
+        $this->action = $pathSegments[1] ?? 'index';
+        
+        // Extract arguments from path segments
+        if (count($pathSegments) > 2) {
+            $this->arguments = array_slice($pathSegments, 2);
         }
-
-//        dd(Request::getArray(), Request::getArguments() , 'sdad', $get, $post);
     }
 
-    /**
-     * @return array
-     */
-    public static function getArray(): array
+    public function getPath(): string
     {
-        return self::$array;
+        return $this->path;
     }
 
-    /**
-     * @param array $array
-     */
-    public static function setArray(array $array): void
+    public function getController(): string
     {
-        self::$array = $array;
+        return $this->controller;
     }
 
-    /**
-     * @return string
-     */
-    public static function getController(): string
+    public function getAction(): string
     {
-        return self::$controller;
+        return $this->action;
     }
 
-    /**
-     * @param string $controller
-     */
-    public static function setController(string $controller): void
+    public function getArguments(): array
     {
-        self::$controller = $controller;
+        return $this->arguments;
     }
 
-    /**
-     * @return string
-     */
-    public static function getAction(): string
+    public function getQueryParams(): array
     {
-        return self::$action;
+        return $this->queryParams;
     }
 
-    /**
-     * @param string $action
-     */
-    public static function setAction($action): void
+    public function getPostData(): array
     {
-        self::$action = $action;
+        return $this->postData;
     }
 
-    /**
-     * @return array
-     */
-    public static function getArguments(): array
+    public function getMethod(): string
     {
-        return self::$arguments;
+        return $this->serverData['REQUEST_METHOD'] ?? 'GET';
     }
 
-    /**
-     * @param string $arguments
-     */
-    public static function setArguments($arguments): void
+    public function isPost(): bool
     {
-        self::$arguments = $arguments;
+        return $this->getMethod() === 'POST';
     }
 
-    /**
-     * @return string
-     */
-    public static function getPath(): string
+    public function isGet(): bool
     {
-        return self::$path;
+        return $this->getMethod() === 'GET';
     }
 
-    /**
-     * @param string $path
-     */
-    public static function setPath($path): void
+    public function getHeader(string $name): ?string
     {
-        self::$path = $path;
+        $headerKey = 'HTTP_' . strtoupper(str_replace('-', '_', $name));
+        return $this->serverData[$headerKey] ?? null;
+    }
+
+    public function getUserAgent(): ?string
+    {
+        return $this->serverData['HTTP_USER_AGENT'] ?? null;
+    }
+
+    public function getIpAddress(): ?string
+    {
+        return $this->serverData['REMOTE_ADDR'] ?? null;
     }
 }

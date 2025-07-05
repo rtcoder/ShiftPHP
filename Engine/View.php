@@ -19,17 +19,22 @@ use View\ViewBuilder;
  */
 class View
 {
+    private string $title = '';
+    private array $scripts = [];
+    private array $styles = [];
+    private Storage $storage;
+    private string $templatePath;
+    private string $viewPath;
+
+    public function __construct()
+    {
+        $this->storage = new Storage();
+        $this->templatePath = __DIR__ . '/../application/view/template/index.php';
+        $this->viewPath = __DIR__ . '/../application/view/controller/';
+    }
 
     /**
-     * @var string
-     */
-    private string $_title = '';
-    private array $_scripts = [];
-    private array $_styles = [];
-
-
-    /**
-     * @param null|string $view
+     * @param string|null $view
      * @param array $data
      * @param string $title
      * @param array $styles
@@ -42,45 +47,69 @@ class View
         $this->setScripts($scripts);
         $this->setStyles($styles);
 
-        if (!$view) {
-            $view = 'default';
+        $viewName = $this->resolveViewName($view);
+        $viewContent = $this->loadViewContent($viewName);
+        $templateContent = $this->loadTemplateContent();
+        
+        $fullView = $this->buildFullView($templateContent, $viewContent);
+        $this->renderView($fullView, $viewName, $data);
+    }
+
+    private function resolveViewName(?string $view): string
+    {
+        if (!$view || $view === 'default') {
+            return Request::getController() . '/' . Request::getAction();
         }
+        return $view;
+    }
 
-        $storage = new Storage();
-
-        if (!file_exists(__DIR__ . '/../application/view/template/index.php')) {
-            throw new ShiftError('Template ' . $view . ' does not exists');
+    /**
+     * @throws ShiftError
+     */
+    private function loadViewContent(string $viewName): string
+    {
+        $viewFile = $this->viewPath . $viewName . '.php';
+        
+        if (!file_exists($viewFile)) {
+            throw new ShiftError("View '{$viewName}' does not exist at path: {$viewFile}");
         }
-        $template = file_get_contents(__DIR__ . '/../application/view/template/index.php');
+        
+        return file_get_contents($viewFile);
+    }
 
-        if ($view === 'default') {
-            $view = Request::getController() . '/' . Request::getAction();
+    /**
+     * @throws ShiftError
+     */
+    private function loadTemplateContent(): string
+    {
+        if (!file_exists($this->templatePath)) {
+            throw new ShiftError("Template does not exist at path: {$this->templatePath}");
         }
+        
+        return file_get_contents($this->templatePath);
+    }
 
-        if (!file_exists(__DIR__ . '/../application/view/controller/' . $view . '.php')) {
-            throw new ShiftError('View ' . $view . ' does not exists');
-        }
-        $viewContent = file_get_contents(__DIR__ . '/../application/view/controller/' . $view . '.php');
+    private function buildFullView(string $template, string $viewContent): string
+    {
+        return str_replace('{{ $view }}', $viewContent, $template);
+    }
 
-        $viewName = md5($view) . '.php';
-
-        $fullView = str_replace('{{ $view }}', $viewContent, $template);
-
+    private function renderView(string $fullView, string $viewName, array $data): void
+    {
         $builder = new ViewBuilder($fullView);
-
         $builder
-            ->setScripts($this->_scripts)
-            ->setStyles($this->_styles)
-            ->setTitle($this->_title)
+            ->setScripts($this->scripts)
+            ->setStyles($this->styles)
+            ->setTitle($this->title)
             ->build();
 
-        $storage->saveView(
-            $viewName,
-            $builder->getView()
-        );
+        $viewFileName = md5($viewName) . '.php';
+        $this->storage->saveView($viewFileName, $builder->getView());
 
-        require_once $storage->storageViewsDir . $viewName;
-
+        // Extract variables for view
+        extract($data);
+        
+        require_once $this->storage->storageViewsDir . $viewFileName;
     }
 
     /**
@@ -88,7 +117,7 @@ class View
      */
     public function getTitle(): string
     {
-        return $this->_title;
+        return $this->title;
     }
 
     /**
@@ -96,7 +125,7 @@ class View
      */
     public function setTitle(string $title): void
     {
-        $this->_title = $title;
+        $this->title = $title;
     }
 
     /**
@@ -104,7 +133,7 @@ class View
      */
     public function getScripts(): array
     {
-        return $this->_scripts;
+        return $this->scripts;
     }
 
     /**
@@ -112,7 +141,7 @@ class View
      */
     public function setScripts(array $scripts): void
     {
-        $this->_scripts = $scripts;
+        $this->scripts = $scripts;
     }
 
     /**
@@ -120,7 +149,7 @@ class View
      */
     public function getStyles(): array
     {
-        return $this->_styles;
+        return $this->styles;
     }
 
     /**
@@ -128,6 +157,6 @@ class View
      */
     public function setStyles(array $styles): void
     {
-        $this->_styles = $styles;
+        $this->styles = $styles;
     }
 }
