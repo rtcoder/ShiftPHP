@@ -8,11 +8,11 @@ namespace Engine\Console;
 class Cli
 {
     // Kody kolorów ANSI
-    private const string COLOR_DEFAULT = "\033[0m";
-    private const string COLOR_BLUE = "\033[0;34m";
-    private const string COLOR_RED = "\033[0;31m";
-    private const string COLOR_GREEN = "\033[0;32m";
-    private const string COLOR_YELLOW = "\033[0;33m";
+    private static $COLOR_DEFAULT = "\033[0m";
+    private static $COLOR_BLUE = "\033[0;34m";
+    private static $COLOR_RED = "\033[0;31m";
+    private static $COLOR_GREEN = "\033[0;32m";
+    private static $COLOR_YELLOW = "\033[0;33m";
 
     /**
      * Wyświetla informację w kolorze niebieskim
@@ -23,7 +23,7 @@ class Cli
      */
     public function info(string $message, bool $newLine = true): void
     {
-        $this->output(self::COLOR_BLUE . $message . self::COLOR_DEFAULT, $newLine);
+        $this->output(self::$COLOR_BLUE . $message . self::$COLOR_DEFAULT, $newLine);
     }
 
     /**
@@ -47,7 +47,7 @@ class Cli
      */
     public function error(string $message, bool $newLine = true): void
     {
-        $this->output(self::COLOR_RED . $message . self::COLOR_DEFAULT, $newLine);
+        $this->output(self::$COLOR_RED . $message . self::$COLOR_DEFAULT, $newLine);
     }
 
     /**
@@ -59,7 +59,7 @@ class Cli
      */
     public function success(string $message, bool $newLine = true): void
     {
-        $this->output(self::COLOR_GREEN . $message . self::COLOR_DEFAULT, $newLine);
+        $this->output(self::$COLOR_GREEN . $message . self::$COLOR_DEFAULT, $newLine);
     }
 
     /**
@@ -71,7 +71,7 @@ class Cli
      */
     public function warning(string $message, bool $newLine = true): void
     {
-        $this->output(self::COLOR_YELLOW . $message . self::COLOR_DEFAULT, $newLine);
+        $this->output(self::$COLOR_YELLOW . $message . self::$COLOR_DEFAULT, $newLine);
     }
 
     /**
