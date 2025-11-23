@@ -5,6 +5,7 @@ namespace Engine;
 use Engine\Error\ShiftError;
 use ReflectionClass;
 use ReflectionException;
+use Throwable;
 
 /**
  * Class App
@@ -44,7 +45,7 @@ final class App
                 $exception->getCode(),
                 $exception->getPrevious()
             );
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             throw new ShiftError(
                 'Application error: ' . $exception->getMessage(),
                 $exception->getCode(),

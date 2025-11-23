@@ -7,7 +7,7 @@
  */
 
 /**
- * @param $str
+ * @param string $str
  * @return mixed
  */
 function __(string $str): string
@@ -18,7 +18,7 @@ function __(string $str): string
 /**
  * @param mixed ...$args
  */
-function dd(...$args)
+function dd(...$args): void
 {
     \Engine\Utils\Debug::dd(...$args);
 }
@@ -26,7 +26,7 @@ function dd(...$args)
 /**
  * @param mixed ...$args
  */
-function d(...$args)
+function d(...$args): void
 {
     \Engine\Utils\Debug::d(...$args);
 }
@@ -35,7 +35,7 @@ function d(...$args)
  * @param mixed $url
  * @return bool
  */
-function is_url($url): bool
+function is_url(mixed $url): bool
 {
     return filter_var($url, FILTER_VALIDATE_URL) !== false;
 }
@@ -44,7 +44,7 @@ function is_url($url): bool
  * @param mixed $url
  * @return bool
  */
-function is_email($url): bool
+function is_email(mixed $url): bool
 {
     return filter_var($url, FILTER_VALIDATE_EMAIL) !== false;
 }
@@ -56,7 +56,7 @@ function is_email($url): bool
  * @param string $command The command to check
  * @return bool True if the command has been found ; otherwise, false.
  */
-function command_exists($command)
+function command_exists(string $command): bool
 {
     $whereIsCommand = (PHP_OS == 'WINNT') ? 'where' : 'which';
 

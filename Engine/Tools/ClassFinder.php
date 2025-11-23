@@ -10,9 +10,9 @@ namespace Engine\Tools;
 
 class ClassFinder
 {
-    private static $appRoot = __DIR__ . "/../../";
+    private static string $appRoot = __DIR__ . "/../../";
 
-    public static function getClassesInNamespace($namespace)
+    public static function getClassesInNamespace($namespace): array
     {
         $files = scandir(self::getNamespaceDirectory($namespace));
 
@@ -25,7 +25,7 @@ class ClassFinder
         });
     }
 
-    private static function getNamespaceDirectory($namespace)
+    private static function getNamespaceDirectory($namespace): false|string
     {
         $composerNamespaces = self::getDefinedNamespaces();
 
@@ -45,7 +45,7 @@ class ClassFinder
         return false;
     }
 
-    private static function getDefinedNamespaces()
+    private static function getDefinedNamespaces(): array
     {
         $composerJsonPath = self::$appRoot . 'composer.json';
         $composerConfig = json_decode(file_get_contents($composerJsonPath));

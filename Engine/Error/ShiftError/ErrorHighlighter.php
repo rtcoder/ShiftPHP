@@ -87,7 +87,7 @@ final class ErrorHighlighter
         $traceItems = '';
         $traceItemsCode = '';
         foreach ($trace as $key => $info) {
-            $infoFile = isset($info['file']) ? $info['file'] : (isset($trace[$key + 1]) ? $trace[$key + 1]['file'] : '');
+            $infoFile = $info['file'] ?? (isset($trace[$key + 1]) ? $trace[$key + 1]['file'] : '');
             $pathAsArray = explode('/', $infoFile);
             $filename = $pathAsArray[count($pathAsArray) - 1];
 
@@ -117,7 +117,7 @@ final class ErrorHighlighter
             }
             $fargs = trim($fargs, ', ');
 
-            $infoLine = isset($info['line']) ? $info['line'] : (isset($trace[$key + 1]) ? $trace[$key + 1]['line'] : '');
+            $infoLine = $info['line'] ?? (isset($trace[$key + 1]) ? $trace[$key + 1]['line'] : '');
             $traceItemsCode .= strlen($infoFile) && stream_is_local($infoFile) ? $this->highlight_file_with_line_numbers($infoFile, (int)$infoLine, true) : '';
             $traceItems .= '
             <tr class="trace-item" data-id="' . md5($infoFile . $infoLine) . '" data-f="' . $infoFile . '" data-l="' . $infoLine . '">

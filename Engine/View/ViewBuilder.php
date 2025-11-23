@@ -129,9 +129,9 @@ class ViewBuilder
     private function replacePHPCode(): void
     {
         $this->html = preg_replace_callback(
-            '/\B@(@?\w+(?:::\w+)?)([ \t]*)(\( ( (?>[^()]+) | (?3) )* \))?/x', function ($match) {
-            return $this->compileStatement($match);
-        }, $this->html);
+            '/\B@(@?\w+(?:::\w+)?)([ \t]*)(\( ( (?>[^()]+) | (?3) )* \))?/x',
+            fn ($match)=>$this->compileStatement($match)
+        , $this->html);
     }
 
     /**
