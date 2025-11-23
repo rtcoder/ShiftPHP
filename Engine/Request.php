@@ -27,18 +27,18 @@ class Request
     private function parseRequest(): void
     {
         $this->path = $this->serverData['REQUEST_URI'] ?? '/';
-        
+
         // Remove query string from path
-        if (strpos($this->path, '?') !== false) {
+        if (str_contains($this->path, '?')) {
             $parts = explode('?', $this->path);
             $this->path = $parts[0];
         }
 
         $pathSegments = explode('/', trim($this->path, '/'));
-        
+
         $this->controller = $pathSegments[0] ?? 'index';
         $this->action = $pathSegments[1] ?? 'index';
-        
+
         // Extract arguments from path segments
         if (count($pathSegments) > 2) {
             $this->arguments = array_slice($pathSegments, 2);

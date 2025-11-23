@@ -11,7 +11,8 @@ use Throwable;
 class ErrorHandler
 {
     private static bool $isRegistered = false;
-    private static $customHandler = null;
+    /** @var callable|null */
+    private static mixed $customHandler = null;
 
     public static function register(): void
     {

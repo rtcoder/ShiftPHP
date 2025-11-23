@@ -11,6 +11,6 @@ namespace Engine\Error\ShiftError;
 
 class StackTrace
 {
-    public $traceItemsCode;
-    public $traceItems;
+    public string $traceItemsCode;
+    public string $traceItems;
 }

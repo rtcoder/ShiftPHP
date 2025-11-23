@@ -8,11 +8,11 @@ namespace Engine\Console;
 class Cli
 {
     // Kody kolorów ANSI
-    private static $COLOR_DEFAULT = "\033[0m";
-    private static $COLOR_BLUE = "\033[0;34m";
-    private static $COLOR_RED = "\033[0;31m";
-    private static $COLOR_GREEN = "\033[0;32m";
-    private static $COLOR_YELLOW = "\033[0;33m";
+    private static string $COLOR_DEFAULT = "\033[0m";
+    private static string $COLOR_BLUE = "\033[0;34m";
+    private static string $COLOR_RED = "\033[0;31m";
+    private static string $COLOR_GREEN = "\033[0;32m";
+    private static string $COLOR_YELLOW = "\033[0;33m";
 
     /**
      * Wyświetla informację w kolorze niebieskim
