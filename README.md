@@ -143,6 +143,71 @@ List registered API routes:
 php shift.php route:list
 ```
 
+Run the example module command:
+
+```sh
+php shift.php health
+```
+
+## Modules
+
+ShiftPHP supports a modular monolith structure under `application/modules`.
+
+Each module can own its controllers, routes, services, and CLI commands:
+
+```text
+application/modules/Health/
+├── Module.php
+├── Controllers/
+├── Services/
+└── Commands/
+```
+
+A module registers itself through `Module.php`:
+
+```php
+namespace Modules\Health;
+
+use Engine\Modules\AbstractModule;
+use Engine\Router;
+use Engine\Routing\AttributeRouteLoader;
+use Engine\ServiceContainer;
+use Modules\Health\Controllers\HealthController;
+use Modules\Health\Services\HealthService;
+
+class Module extends AbstractModule
+{
+    public function getName(): string
+    {
+        return 'health';
+    }
+
+    public function registerServices(ServiceContainer $container): void
+    {
+        $container->singleton(HealthService::class, HealthService::class);
+    }
+
+    public function registerRoutes(Router $router): void
+    {
+        (new AttributeRouteLoader())->load($router, [
+            HealthController::class,
+        ]);
+    }
+
+    public function getCommandMappings(): array
+    {
+        return [
+            [
+                'dir' => __DIR__ . '/Commands/',
+                'namespace' => 'Modules\\Health\\Commands\\',
+            ],
+        ];
+    }
+}
+```
+
+Modules are loaded automatically by convention from `application/modules/*/Module.php`.
+
 ## Tests
 
 Run the lightweight API core test suite:

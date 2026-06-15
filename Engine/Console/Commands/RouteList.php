@@ -4,6 +4,7 @@ namespace Console\Commands;
 
 use Engine\Console\Cli;
 use Engine\Console\CommandInterface;
+use Engine\Modules\ModuleLoader;
 use Engine\Router;
 
 class RouteList implements CommandInterface
@@ -12,6 +13,7 @@ class RouteList implements CommandInterface
     {
         $cli = new Cli();
         $router = new Router();
+        (new ModuleLoader())->load()->registerRoutes($router);
         $routesFile = APP_PATH . '/routes.php';
 
         if (!file_exists($routesFile)) {

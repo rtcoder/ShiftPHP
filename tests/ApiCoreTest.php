@@ -7,7 +7,10 @@ use Engine\JsonResponse;
 use Engine\Request;
 use Engine\ResponseEmitter;
 use Engine\Router;
+use Engine\ServiceContainer;
 use Engine\Routing\AttributeRouteLoader;
+use Engine\Modules\ModuleLoader;
+use Modules\Health\Services\HealthService;
 
 require_once __DIR__ . '/../bootstrap.php';
 
@@ -172,6 +175,40 @@ $tests['app applies status header and body attributes'] = function (): void {
     assertSameValue(201, $emitter->statusCode, 'Status attribute should override response status.');
     assertArrayHasKeyValue('X-ShiftPHP-Example', 'created', $emitter->headers, 'Header attribute should add response header.');
     assertSameValue('Shift', $payload['name'] ?? null, 'Body attribute should bind JSON body key.');
+};
+
+$tests['module loader registers services and routes'] = function (): void {
+    $loader = (new ModuleLoader())->load();
+    $router = new Router();
+    $container = new ServiceContainer();
+
+    $loader->registerServices($container);
+    $loader->registerRoutes($router);
+
+    assertSameValue(true, $container->has(HealthService::class), 'Health module service should be registered.');
+
+    $routes = array_map(
+        static fn (\Engine\Route $route): string => $route->getMethod() . ' ' . $route->getPath(),
+        $router->getRoutes()
+    );
+
+    assertSameValue(['GET /health'], $routes, 'Health module route should be registered.');
+};
+
+$tests['app dispatches module controller with service'] = function (): void {
+    $loader = (new ModuleLoader())->load();
+    $router = new Router();
+    $emitter = new CapturingEmitter();
+    $app = new App(makeRequest('GET', '/health'), $router, $emitter);
+
+    $loader->registerServices($app->getContainer());
+    $loader->registerRoutes($router);
+    $app->start();
+
+    $payload = json_decode($emitter->content, true);
+
+    assertSameValue(200, $emitter->statusCode, 'Module route should emit successful status.');
+    assertSameValue('health', $payload['module'] ?? null, 'Module controller should resolve its service.');
 };
 
 $failed = 0;

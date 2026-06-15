@@ -8,7 +8,7 @@
 
 namespace Engine\Console;
 
-
+use Engine\Modules\ModuleLoader;
 use ReflectionClass;
 use ReflectionException;
 
@@ -70,6 +70,10 @@ class Shift
                 'namespace' => 'Console\\Commands\\'
             ],
         ];
+        $mappings = array_merge(
+            $mappings,
+            (new ModuleLoader())->load()->getCommandMappings()
+        );
         $found = false;
         foreach ($mappings as $mapping) {
             if (!$found && file_exists($mapping['dir'] . $commandName . '.php')) {
