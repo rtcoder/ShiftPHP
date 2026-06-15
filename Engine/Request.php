@@ -11,12 +11,12 @@ use Engine\Error\HttpError;
 class Request
 {
     private string $path;
-    private array $queryParams = [];
-    private array $postData = [];
-    private array $serverData = [];
+    private array $queryParams;
+    private array $postData;
+    private array $serverData;
     private array $routeParams = [];
     private ?array $jsonData = null;
-    private string $rawBody = '';
+    private string $rawBody;
 
     public function __construct(?array $serverData = null, ?array $queryParams = null, ?array $postData = null, ?string $rawBody = null)
     {

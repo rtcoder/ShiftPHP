@@ -10,7 +10,7 @@ class Route
     public function __construct(
         private string $method,
         private string $path,
-        private array $handler
+        private readonly array $handler
     ) {
         $this->method = strtoupper($method);
         $this->path = $this->normalizePath($path);

@@ -2,7 +2,7 @@
 
 namespace Engine;
 
-class RouteMatch
+readonly class RouteMatch
 {
     public function __construct(
         private Route $route,

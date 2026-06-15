@@ -5,9 +5,9 @@ namespace Engine;
 class Response
 {
     public function __construct(
-        private string $content = '',
-        private int $statusCode = 200,
-        private array $headers = []
+        private readonly string $content = '',
+        private readonly int    $statusCode = 200,
+        private readonly array $headers = []
     ) {
     }
 

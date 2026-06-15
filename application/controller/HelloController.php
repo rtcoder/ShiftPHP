@@ -2,6 +2,7 @@
 
 namespace Controllers;
 
+use Engine\Controller;
 use Engine\JsonResponse;
 use Engine\Request;
 
@@ -9,7 +10,7 @@ use Engine\Request;
  * Class HelloController
  * @package Controllers
  */
-class HelloController extends \Engine\Controller
+class HelloController extends Controller
 {
     public function index(): JsonResponse
     {

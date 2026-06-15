@@ -2,6 +2,8 @@
 
 namespace Engine;
 
+use JsonException;
+
 /**
  * Class Controller
  * @package Engine
@@ -19,7 +21,9 @@ abstract class Controller
 
     /**
      * @param array $data
-     * @return void
+     * @param int $statusCode
+     * @return JsonResponse
+     * @throws JsonException
      */
     protected function json(array $data, int $statusCode = 200): JsonResponse
     {

@@ -3,7 +3,9 @@
 namespace Engine;
 
 use Engine\Error\HttpError;
+use JsonException;
 use ReflectionClass;
+use ReflectionException;
 use ReflectionNamedType;
 use ReflectionParameter;
 use Throwable;
@@ -41,6 +43,9 @@ final class App
         $this->emitter->emit($response);
     }
 
+    /**
+     * @throws ReflectionException
+     */
     private function dispatch(): Response
     {
         $match = $this->router->match($this->request);
@@ -105,6 +110,9 @@ final class App
         return $arguments;
     }
 
+    /**
+     * @throws JsonException
+     */
     private function normalizeResponse(mixed $result): Response
     {
         if ($result instanceof Response) {

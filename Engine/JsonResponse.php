@@ -2,8 +2,13 @@
 
 namespace Engine;
 
+use JsonException;
+
 class JsonResponse extends Response
 {
+    /**
+     * @throws JsonException
+     */
     public function __construct(array $data = [], int $statusCode = 200, array $headers = [])
     {
         parent::__construct(
@@ -18,6 +23,9 @@ class JsonResponse extends Response
         return new self($data);
     }
 
+    /**
+     * @throws JsonException
+     */
     public static function created(array $data = []): self
     {
         return new self($data, 201);
