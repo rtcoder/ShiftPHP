@@ -31,7 +31,7 @@ class JsonResponse extends Response
         return new self($data, 201);
     }
 
-    public static function error(string $message, int $statusCode = 400, array $context = []): self
+    public static function error(string $message, int $statusCode = 400, array $context = [], array $headers = []): self
     {
         $payload = [
             'error' => [
@@ -44,6 +44,6 @@ class JsonResponse extends Response
             $payload['error']['context'] = $context;
         }
 
-        return new self($payload, $statusCode);
+        return new self($payload, $statusCode, $headers);
     }
 }

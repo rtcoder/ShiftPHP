@@ -58,7 +58,14 @@ class Router
         }
 
         if ($allowedMethods !== []) {
-            throw new HttpError('Method not allowed', 405);
+            $allowedMethods = array_values(array_unique($allowedMethods));
+
+            throw new HttpError(
+                'Method not allowed',
+                405,
+                null,
+                ['Allow' => implode(', ', $allowedMethods)]
+            );
         }
 
         throw new HttpError('Endpoint not found', 404);

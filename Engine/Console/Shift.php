@@ -58,8 +58,7 @@ class Shift
             $cli->error('Shift CLI needs at least one parameter');
             exit();
         }
-        $commandName = ucfirst($this->_args[1]);
-        $cli->info($commandName);
+        $commandName = $this->normalizeCommandName($this->_args[1]);
 
         $mappings = [
             [
@@ -88,6 +87,14 @@ class Shift
         $method = $class->getMethod('execute');
         $args = array_slice($this->_args, 2, count($this->_args));
         $method->invokeArgs($cl, $args);
+    }
+
+    private function normalizeCommandName(string $command): string
+    {
+        $parts = preg_split('/[:\-_]/', $command) ?: [];
+        $parts = array_map(static fn (string $part): string => ucfirst($part), $parts);
+
+        return implode('', $parts);
     }
 
 }

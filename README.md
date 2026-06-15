@@ -102,3 +102,19 @@ Then open:
 http://127.0.0.1:8000/hello
 http://127.0.0.1:8000/hello/api/example
 ```
+
+## CLI
+
+List registered API routes:
+
+```sh
+php shift.php route:list
+```
+
+## Tests
+
+Run the lightweight API core test suite:
+
+```sh
+composer test
+```

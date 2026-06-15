@@ -35,9 +35,9 @@ abstract class Controller
         return new Response('', 204);
     }
 
-    protected function error(string $message, int $statusCode = 400, array $context = []): JsonResponse
+    protected function error(string $message, int $statusCode = 400, array $context = [], array $headers = []): JsonResponse
     {
-        return JsonResponse::error($message, $statusCode, $context);
+        return JsonResponse::error($message, $statusCode, $context, $headers);
     }
 
     /**

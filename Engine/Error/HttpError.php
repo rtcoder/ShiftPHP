@@ -6,8 +6,12 @@ use Throwable;
 
 class HttpError extends ShiftError
 {
-    public function __construct(string $message = '', int $statusCode = 500, ?Throwable $previous = null)
-    {
+    public function __construct(
+        string $message = '',
+        int $statusCode = 500,
+        ?Throwable $previous = null,
+        private readonly array $headers = []
+    ) {
         parent::__construct($message, $statusCode, $previous);
     }
 
@@ -20,5 +24,10 @@ class HttpError extends ShiftError
         }
 
         return $code;
+    }
+
+    public function getHeaders(): array
+    {
+        return $this->headers;
     }
 }

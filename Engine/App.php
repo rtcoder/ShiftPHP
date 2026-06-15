@@ -35,7 +35,12 @@ final class App
         try {
             $response = $this->dispatch();
         } catch (HttpError $exception) {
-            $response = JsonResponse::error($exception->getMessage(), $exception->getStatusCode());
+            $response = JsonResponse::error(
+                $exception->getMessage(),
+                $exception->getStatusCode(),
+                [],
+                $exception->getHeaders()
+            );
         } catch (Throwable $exception) {
             $response = JsonResponse::error('Internal Server Error', 500);
         }

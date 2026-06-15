@@ -13,6 +13,9 @@ Implemented in this branch:
 - JSON response helpers on the base controller,
 - request helpers for query, post, input, raw body, JSON and route params,
 - JSON errors for `400`, `404` and `500`,
+- `405 Method Not Allowed` with an `Allow` header,
+- lightweight API core tests through `composer test`,
+- `route:list` CLI command,
 - removal of view storage and example page assets from runtime.
 
 ## Runtime Flow
@@ -90,7 +93,6 @@ Internal errors return a generic `500` message unless `display_errors` is enable
 ## Next After 0.5
 
 - Middleware pipeline.
-- Better route listing and `shift route:list`.
 - Controller autowiring through the container.
 - Validation helpers and typed request DTOs.
 - CORS and auth middleware.

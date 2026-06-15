@@ -39,7 +39,6 @@ class Request
 
         $this->path = '/' . trim($this->path, '/');
         $this->path = $this->path === '/' ? '/' : rtrim($this->path, '/');
-
     }
 
     public function getPath(): string
