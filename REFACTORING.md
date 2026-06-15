@@ -1,216 +1,160 @@
-# ShiftPHP Framework - Refaktoryzacja
+# ShiftPHP - API-only refactoring
 
-## 🎯 **Przegląd zmian**
+Ten dokument opisuje kierunek refaktoryzacji ShiftPHP po decyzji, że framework ma obslugiwac tylko API. Warstwa widokow, template engine i storage dla skompilowanych widokow nie sa juz czescia docelowego runtime.
 
-Ten dokument opisuje kompleksową refaktoryzację frameworka ShiftPHP, która wprowadza nowoczesne wzorce projektowe, poprawia architekturę i zwiększa możliwości testowania.
+## Cel
 
-## 📋 **Lista zmian**
+ShiftPHP powinien byc malym rdzeniem HTTP/API:
 
-### 1. **Refaktoryzacja klasy Request**
-- **Przed**: Statyczne metody i właściwości
-- **Po**: Instancje klas z dependency injection
-- **Korzyści**: 
-  - Łatwiejsze testowanie
-  - Lepsze zarządzanie stanem
-  - Dodatkowe metody (isPost, isGet, getHeader, etc.)
+- przyjmuje request,
+- mapuje request na endpoint,
+- uruchamia kontroler lub handler,
+- zwraca odpowiedz JSON,
+- obsluguje bledy w spojnym formacie JSON,
+- pozwala podpinac zaleznosci przez container.
 
-### 2. **Refaktoryzacja klasy App**
-- **Przed**: Statyczne metody, globalny stan
-- **Po**: Instancje z dependency injection
-- **Korzyści**:
-  - Kontrola cyklu życia aplikacji
-  - Możliwość testowania
-  - Lepsze zarządzanie błędami
+## Zmiany wykonane w pierwszym kroku
 
-### 3. **Ulepszenie systemu widoków**
-- **Przed**: Monolityczna klasa View
-- **Po**: Podzielona na mniejsze, wyspecjalizowane metody
-- **Korzyści**:
-  - Lepsze separation of concerns
-  - Łatwiejsze utrzymanie
-  - Czytelniejszy kod
+### Controller
 
-### 4. **Poprawa klasy Storage**
-- **Przed**: Podstawowa walidacja, publiczne właściwości
-- **Po**: Zaawansowana walidacja, enkapsulacja
-- **Korzyści**:
-  - Bezpieczniejsze operacje na plikach
-  - Lepsze zarządzanie błędami
-  - Dodatkowe funkcje (clearViews)
-
-### 5. **Nowy system obsługi błędów**
-- **Nowe**: Klasa ErrorHandler z centralnym zarządzaniem
-- **Korzyści**:
-  - Spójna obsługa błędów
-  - Wsparcie dla CLI i web
-  - Możliwość customizacji
-
-### 6. **Service Container**
-- **Nowe**: System dependency injection
-- **Korzyści**:
-  - Loose coupling
-  - Łatwiejsze testowanie
-  - Zarządzanie zależnościami
-
-## 🔧 **Szczegóły techniczne**
-
-### Dependency Injection
+- Bazowy kontroler dostaje `Request` przez konstruktor.
+- Bazowy kontroler nie tworzy juz wlasnego `Request`.
+- Bazowy kontroler nie tworzy juz `View`.
+- Publiczny kierunek API to `json()`, `error()` i `noContent()`.
 
 ```php
-// Przed
-$app = new App();
-App::start();
-
-// Po
-$request = new Request();
-$app = new App($request);
-$app->start();
-```
-
-### Service Container
-
-```php
-// Rejestracja serwisów
-$app->getContainer()->singleton('database', function() {
-    return new Database();
-});
-
-// Resolwowanie serwisów
-$database = $app->resolve('database');
-```
-
-### Obsługa błędów
-
-```php
-// Automatyczna rejestracja w bootstrap.php
-\Engine\Error\ErrorHandler::register();
-
-// Custom handler
-\Engine\Error\ErrorHandler::setCustomHandler(function($exception) {
-    // Custom error handling
-});
-```
-
-## 📁 **Struktura plików**
-
-```
-Engine/
-├── App.php                    # Główna klasa aplikacji (refaktoryzowana)
-├── Request.php                # Obsługa żądań (refaktoryzowana)
-├── Controller.php             # Bazowa klasa kontrolera (ulepszona)
-├── View.php                   # System widoków (refaktoryzowany)
-├── ServiceContainer.php       # NOWY: Container dla DI
-├── ServiceInterface.php       # NOWY: Interfejs dla serwisów
-├── Error/
-│   ├── ErrorHandler.php       # NOWY: Centralny system błędów
-│   └── ShiftError.php         # Ulepszona obsługa błędów
-└── Utils/
-    └── Storage.php            # Ulepszona klasa Storage
-```
-
-## 🚀 **Korzyści z refaktoryzacji**
-
-### 1. **Testowalność**
-- Wszystkie klasy można teraz łatwo testować
-- Dependency injection umożliwia mockowanie
-- Brak globalnego stanu
-
-### 2. **Maintainability**
-- Czytelniejszy kod
-- Lepsze separation of concerns
-- Mniejsze klasy z jedną odpowiedzialnością
-
-### 3. **Extensibility**
-- Service container umożliwia łatwe dodawanie nowych serwisów
-- Modularna architektura
-- Interfejsy dla rozszerzeń
-
-### 4. **Error Handling**
-- Centralny system obsługi błędów
-- Lepsze logowanie
-- Wsparcie dla różnych środowisk
-
-## 🔄 **Migracja**
-
-### Dla istniejących kontrolerów:
-
-```php
-// Przed
-class MyController extends \Engine\Controller
+class HelloController extends \Engine\Controller
 {
-    public function index()
+    public function index(): void
     {
-        $this->render('view', ['data' => 'value']);
-    }
-}
-
-// Po (bez zmian w API!)
-class MyController extends \Engine\Controller
-{
-    public function index()
-    {
-        $this->render('view', ['data' => 'value']);
-        // Dodatkowo dostępne:
-        $this->json(['status' => 'success']);
-        $this->redirect('/home');
+        $this->json([
+            'message' => 'Hello from ShiftPHP!',
+        ]);
     }
 }
 ```
 
-### Dla punktu wejścia:
+### App
+
+- `App` przekazuje ten sam `Request` do kontrolera.
+- Domyslne serwisy nie rejestruja juz `view`.
+- `App` nadal odpowiada za znalezienie kontrolera i wywolanie akcji, ale to powinno zostac wydzielone do routera.
+
+### Error handling
+
+- `ShiftError` nie renderuje HTML w konstruktorze.
+- `ErrorHandler` zwraca JSON dla requestow webowych.
+- HTML highlighter moze zostac usuniety albo przeniesiony do osobnego narzedzia developerskiego, ale nie powinien byc czescia API runtime.
+
+### Composer/autoload
+
+- Namespace `View\\` zostal usuniety z PSR-4 autoload.
+
+## Do usuniecia z runtime
+
+Te elementy sa zwiazane z dawnym MVC i nie powinny zostac w docelowym API-only rdzeniu:
+
+- `Engine/View.php`
+- `Engine/View/`
+- `application/view/`
+- `public/css/hello/`
+- `public/js/hello/`
+- `Engine/Utils/Storage.php`, jezeli sluzy tylko do widokow
+- helpery zwiazane z template engine, np. `__()` i `is_url()`, jezeli nie sa uzywane poza widokami
+
+Usuwanie najlepiej zrobic osobnym commitem po upewnieniu sie, ze nie ma juz zaleznosci w kontrolerach i dokumentacji.
+
+## Nastepne kroki
+
+### 1. Response object
+
+Aktualnie kontroler robi `echo` i ustawia naglowki bezposrednio. Lepszy docelowy model:
 
 ```php
-// Przed
-require_once 'bootstrap.php';
-Engine\App::start();
-
-// Po
-require_once 'bootstrap.php';
-$request = new Engine\Request();
-$app = new Engine\App($request);
-$app->start();
+return JsonResponse::ok(['status' => 'success']);
+return JsonResponse::created($resource);
+return JsonResponse::error('Not found', 404);
 ```
 
-## 🧪 **Testowanie**
+Korzyści:
 
-Framework jest teraz w pełni testowalny:
+- latwiejsze testy,
+- brak efektow ubocznych w kontrolerze,
+- jedno miejsce dla status code, headers i serializacji JSON.
+
+### 2. Router
+
+`Request` nie powinien znac pojec `controller` i `action`. Docelowo:
+
+- `Request` opisuje HTTP: method, path, headers, query, body,
+- `Router` mapuje method + path na handler,
+- `App` tylko spina request, router, container i response emitter.
+
+Minimalny etap posredni:
 
 ```php
-// Przykład testu
-$request = $this->createMock(Engine\Request::class);
-$request->method('getController')->willReturn('test');
-$request->method('getAction')->willReturn('index');
-
-$app = new Engine\App($request);
-// Test aplikacji...
+$router->get('/hello', [HelloController::class, 'index']);
+$router->post('/users', [UserController::class, 'create']);
 ```
 
-## 📈 **Wydajność**
+### 3. Request body
 
-- Brak statycznych właściwości = lepsze zarządzanie pamięcią
-- Service container z singletonami = optymalizacja zasobów
-- Lepsze zarządzanie błędami = szybsze debugowanie
+Dla API potrzebne sa metody:
 
-## 🔮 **Przyszłe rozszerzenia**
+- `getJson(): array`
+- `input(string $key, mixed $default = null): mixed`
+- `query(string $key, mixed $default = null): mixed`
+- `header(string $name, ?string $default = null): ?string`
+- `method(): string`
+- `path(): string`
 
-Refaktoryzacja przygotowuje framework na:
+Wazne: JSON body powinien byc walidowany, a bledny JSON powinien dawac `400 Bad Request`.
 
-1. **Middleware system**
-2. **Event system**
-3. **Database abstraction layer**
-4. **Caching system**
-5. **CLI commands**
-6. **API routing**
+### 4. Error format
 
-## 📝 **Podsumowanie**
+Proponowany format:
 
-Refaktoryzacja ShiftPHP wprowadza:
+```json
+{
+  "error": {
+    "message": "Not found",
+    "status": 404
+  }
+}
+```
 
-- ✅ **Dependency Injection**
-- ✅ **Service Container**
-- ✅ **Lepsze zarządzanie błędami**
-- ✅ **Testowalność**
-- ✅ **Maintainability**
-- ✅ **Extensibility**
+Dla `display_errors=On` mozna dodac `file`, `line` i `trace`, ale tylko w srodowisku developerskim.
 
-Framework jest teraz gotowy na przyszłe rozszerzenia i łatwiejszy w utrzymaniu. 
+### 5. Dependency injection
+
+Container powinien byc uzywany do budowy kontrolerow. Docelowo:
+
+- kontroler moze dostac serwisy w konstruktorze,
+- container potrafi zbudowac klase po typach,
+- request jest rejestrowany per request, nie jako globalny singleton na zawsze.
+
+### 6. CLI
+
+CLI jest osobnym tematem, ale warto poprawic:
+
+- `serve` nie powinno sklejac komendy shellowej z argumentu uzytkownika,
+- komendy powinny uzywac jednego namespace,
+- help/description powinny byc wymagane i faktycznie wypelnione.
+
+## Priorytet prac
+
+1. Usunac pozostale zaleznosci od widokow z runtime.
+2. Dodac obiekt odpowiedzi i testy dla JSON.
+3. Wydzielic router z `Request`.
+4. Ustandaryzowac bledy HTTP i JSON body.
+5. Dopiero potem rozwijac middleware, eventy, cache i database layer.
+
+## Kryterium gotowosci
+
+Pierwszy etap API-only mozna uznac za zamkniety, gdy:
+
+- zaden kontroler nie wywoluje `render()`,
+- `composer.json` nie laduje namespace `View\\`,
+- request do istniejacego endpointu zwraca JSON,
+- request do nieistniejacego endpointu zwraca JSON error,
+- testy lub smoke test pokrywaja przynajmniej jeden happy path i jeden error path.

@@ -3,6 +3,7 @@
 namespace Engine;
 
 use Engine\Error\ShiftError;
+use Engine\Error\HttpError;
 use ReflectionClass;
 use ReflectionException;
 use Throwable;
@@ -17,7 +18,6 @@ final class App
     private ServiceContainer $container;
     private string $defaultController = 'index';
     private string $defaultAction = 'index';
-    private bool $isRunning = false;
 
     public function __construct(Request $request)
     {
@@ -31,19 +31,16 @@ final class App
      */
     public function start(): void
     {
-        if ($this->isRunning) {
-            return;
-        }
-
         try {
             $controller = $this->resolveController();
             $this->executeController($controller);
-            $this->isRunning = true;
+        } catch (HttpError $exception) {
+            throw $exception;
         } catch (ReflectionException $exception) {
-            throw new ShiftError(
-                'Controller method not found: ' . $exception->getMessage(),
-                $exception->getCode(),
-                $exception->getPrevious()
+            throw new HttpError(
+                'Endpoint not found',
+                404,
+                $exception
             );
         } catch (Throwable $exception) {
             throw new ShiftError(
@@ -59,14 +56,14 @@ final class App
      */
     private function resolveController(): object
     {
-        $controllerName = ucfirst($this->request->getController()) . 'Controller';
+        $controllerName = ucfirst($this->request->getController() ?: $this->defaultController) . 'Controller';
         $controllerClass = 'Controllers\\' . $controllerName;
 
         if (!class_exists($controllerClass)) {
-            throw new ShiftError("Controller class '{$controllerClass}' not found");
+            throw new HttpError('Endpoint not found', 404);
         }
 
-        return new $controllerClass();
+        return new $controllerClass($this->request, $this->container);
     }
 
     /**
@@ -75,7 +72,7 @@ final class App
     private function executeController(object $controller): void
     {
         $reflectionClass = new ReflectionClass($controller);
-        $methodName = $this->request->getAction();
+        $methodName = $this->request->getAction() ?: $this->defaultAction;
 
         if (!$reflectionClass->hasMethod($methodName)) {
             throw new ReflectionException("Method '{$methodName}' not found in controller");
@@ -134,12 +131,6 @@ final class App
     private function registerDefaultServices(): void
     {
         $this->container->singleton('request', $this->request);
-        $this->container->singleton('view', function() {
-            return new View();
-        });
-        $this->container->singleton('storage', function() {
-            return new \Engine\Utils\Storage();
-        });
     }
 
     public function getContainer(): ServiceContainer

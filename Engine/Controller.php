@@ -9,35 +9,44 @@ namespace Engine;
 abstract class Controller
 {
     protected Request $request;
-    protected View $view;
+    protected ServiceContainer $container;
 
-    public function __construct()
+    public function __construct(Request $request, ?ServiceContainer $container = null)
     {
-        $this->request = new Request();
-        $this->view = new View();
-    }
-
-    /**
-     * @param string $view
-     * @param array $data
-     * @param string $title
-     * @param array $styles
-     * @param array $scripts
-     * @return void
-     */
-    protected function render(string $view, array $data = [], string $title = '', array $styles = [], array $scripts = []): void
-    {
-        $this->view->make($view, $data, $title, $styles, $scripts);
+        $this->request = $request;
+        $this->container = $container ?? new ServiceContainer();
     }
 
     /**
      * @param array $data
      * @return void
      */
-    protected function json(array $data): void
+    protected function json(array $data, int $statusCode = 200): void
     {
+        http_response_code($statusCode);
         header('Content-Type: application/json');
-        echo json_encode($data);
+        echo json_encode($data, JSON_THROW_ON_ERROR);
+    }
+
+    protected function noContent(): void
+    {
+        http_response_code(204);
+    }
+
+    protected function error(string $message, int $statusCode = 400, array $context = []): void
+    {
+        $payload = [
+            'error' => [
+                'message' => $message,
+                'status' => $statusCode,
+            ],
+        ];
+
+        if ($context !== []) {
+            $payload['error']['context'] = $context;
+        }
+
+        $this->json($payload, $statusCode);
     }
 
     /**
@@ -58,11 +67,8 @@ abstract class Controller
         return $this->request;
     }
 
-    /**
-     * @return View
-     */
-    protected function getView(): View
+    protected function getContainer(): ServiceContainer
     {
-        return $this->view;
+        return $this->container;
     }
 }

@@ -10,18 +10,18 @@ class HelloController extends \Engine\Controller
 {
     public function index(): void
     {
-        $this->render('default', [
+        $this->json([
             'message' => 'Hello from ShiftPHP!',
             'timestamp' => date('Y-m-d H:i:s')
-        ], 'Welcome to ShiftPHP');
+        ]);
     }
 
     public function about(): void
     {
-        $this->render('hello/about', [
+        $this->json([
             'title' => 'About ShiftPHP',
             'version' => '1.0.0'
-        ], 'About - ShiftPHP');
+        ]);
     }
 
     public function api(): void

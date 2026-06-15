@@ -36,8 +36,8 @@ class Request
 
         $pathSegments = explode('/', trim($this->path, '/'));
 
-        $this->controller = $pathSegments[0] ?? 'index';
-        $this->action = $pathSegments[1] ?? 'index';
+        $this->controller = $pathSegments[0] !== '' ? $pathSegments[0] : 'index';
+        $this->action = ($pathSegments[1] ?? '') !== '' ? $pathSegments[1] : 'index';
 
         // Extract arguments from path segments
         if (count($pathSegments) > 2) {

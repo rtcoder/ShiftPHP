@@ -86,27 +86,34 @@ class ErrorHandler
 
     private static function renderWebError(Throwable $exception): void
     {
-        if ($exception instanceof ShiftError) {
-            // Use the existing ShiftError rendering
-            return;
+        $statusCode = $exception instanceof HttpError ? $exception->getStatusCode() : 500;
+        http_response_code($statusCode);
+
+        header('Content-Type: application/json');
+
+        $payload = [
+            'error' => [
+                'message' => 'Internal Server Error',
+                'status' => $statusCode,
+            ],
+        ];
+
+        $displayDetails = self::shouldDisplayDetails();
+
+        if ($exception instanceof HttpError || $displayDetails) {
+            $payload['error']['message'] = $exception->getMessage();
         }
 
-        // Simple error rendering for other exceptions
-        http_response_code(500);
-        
-        if (ini_get('display_errors')) {
-            echo '<h1>Application Error</h1>';
-            echo '<p><strong>Message:</strong> ' . htmlspecialchars($exception->getMessage()) . '</p>';
-            echo '<p><strong>File:</strong> ' . htmlspecialchars($exception->getFile()) . '</p>';
-            echo '<p><strong>Line:</strong> ' . $exception->getLine() . '</p>';
-            
-            if (ini_get('display_errors') === '1') {
-                echo '<h2>Stack Trace:</h2>';
-                echo '<pre>' . htmlspecialchars($exception->getTraceAsString()) . '</pre>';
-            }
-        } else {
-            echo '<h1>Internal Server Error</h1>';
-            echo '<p>An error occurred while processing your request.</p>';
+        if ($displayDetails) {
+            $payload['error']['file'] = $exception->getFile();
+            $payload['error']['line'] = $exception->getLine();
         }
+
+        echo json_encode($payload, JSON_THROW_ON_ERROR);
+    }
+
+    private static function shouldDisplayDetails(): bool
+    {
+        return in_array(strtolower((string) ini_get('display_errors')), ['1', 'on', 'true'], true);
     }
 } 

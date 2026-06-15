@@ -16,7 +16,6 @@
   },
   "autoload": {
     "psr-4": {
-      "View\\": "Engine/View",
       "Tools\\": "Engine/Tools",
       "Console\\": "Engine/Console",
       "AppConsole\\": "application/console",
