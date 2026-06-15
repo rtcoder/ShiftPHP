@@ -2,144 +2,155 @@
 
 namespace Engine;
 
+use Engine\Error\HttpError;
+
 /**
  * Class Request
  * @package Engine
  */
 class Request
 {
+    private string $path;
+    private array $queryParams;
+    private array $postData;
+    private array $serverData;
+    private array $routeParams = [];
+    private ?array $jsonData = null;
+    private string $rawBody;
 
-    /**
-     * @var
-     */
-    protected static $array;
-
-    /**
-     * @var
-     */
-    protected static $controller;
-
-    /**
-     * @var
-     */
-    protected static $action;
-
-    /**
-     * @var
-     */
-    protected static $arguments = [];
-
-    /**
-     * @var
-     */
-    protected static $path;
-
-    /**
-     *
-     */
-    public static function setup(): void
+    public function __construct(?array $serverData = null, ?array $queryParams = null, ?array $postData = null, ?string $rawBody = null)
     {
+        $this->serverData = $serverData ?? $_SERVER;
+        $this->queryParams = $queryParams ?? $_GET;
+        $this->postData = $postData ?? $_POST;
+        $this->rawBody = $rawBody ?? (string) file_get_contents('php://input');
+        $this->parseRequest();
+    }
 
-        self::$path = $_SERVER['REQUEST_URI'];
+    private function parseRequest(): void
+    {
+        $this->path = $this->serverData['REQUEST_URI'] ?? '/';
 
-        $get = $_GET;
-        $post = $_POST;
-
-        if (strpos(self::$path, '?') !== false) {
-            $arr = explode('?', self::$path);
-            self::$path = $arr[0];
+        // Remove query string from path
+        if (str_contains($this->path, '?')) {
+            $parts = explode('?', $this->path);
+            $this->path = $parts[0];
         }
 
-        self::$array = explode('/', trim(self::$path, '/'));
+        $this->path = '/' . trim($this->path, '/');
+        $this->path = $this->path === '/' ? '/' : rtrim($this->path, '/');
+    }
 
-        self::$controller = (self::$array[0] ?? App::$defaultController) ?: App::$defaultController;
-        self::$action = (self::$array[1] ?? App::$defaultAction) ?: App::$defaultAction;
+    public function getPath(): string
+    {
+        return $this->path;
+    }
 
-        if (count(self::$array) > 2) {
-            $tmp = array_slice(self::$array, 2, count(self::$array));
-            self::$arguments = $tmp;
+    public function getQueryParams(): array
+    {
+        return $this->queryParams;
+    }
+
+    public function getPostData(): array
+    {
+        return $this->postData;
+    }
+
+    public function query(string $key, mixed $default = null): mixed
+    {
+        return $this->queryParams[$key] ?? $default;
+    }
+
+    public function post(string $key, mixed $default = null): mixed
+    {
+        return $this->postData[$key] ?? $default;
+    }
+
+    public function input(string $key, mixed $default = null): mixed
+    {
+        $json = $this->getJson();
+
+        if (array_key_exists($key, $json)) {
+            return $json[$key];
         }
 
-//        dd(Request::getArray(), Request::getArguments() , 'sdad', $get, $post);
+        if (array_key_exists($key, $this->postData)) {
+            return $this->postData[$key];
+        }
+
+        return $this->query($key, $default);
     }
 
-    /**
-     * @return array
-     */
-    public static function getArray(): array
+    public function getRawBody(): string
     {
-        return self::$array;
+        return $this->rawBody;
     }
 
-    /**
-     * @param array $array
-     */
-    public static function setArray(array $array): void
+    public function getJson(): array
     {
-        self::$array = $array;
+        if ($this->jsonData !== null) {
+            return $this->jsonData;
+        }
+
+        if (trim($this->rawBody) === '') {
+            $this->jsonData = [];
+            return $this->jsonData;
+        }
+
+        $decoded = json_decode($this->rawBody, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new HttpError('Malformed JSON request body', 400);
+        }
+
+        $this->jsonData = is_array($decoded) ? $decoded : [];
+
+        return $this->jsonData;
     }
 
-    /**
-     * @return string
-     */
-    public static function getController(): string
+    public function getMethod(): string
     {
-        return self::$controller;
+        return strtoupper($this->serverData['REQUEST_METHOD'] ?? 'GET');
     }
 
-    /**
-     * @param string $controller
-     */
-    public static function setController(string $controller): void
+    public function isPost(): bool
     {
-        self::$controller = $controller;
+        return $this->getMethod() === 'POST';
     }
 
-    /**
-     * @return string
-     */
-    public static function getAction(): string
+    public function isGet(): bool
     {
-        return self::$action;
+        return $this->getMethod() === 'GET';
     }
 
-    /**
-     * @param string $action
-     */
-    public static function setAction($action): void
+    public function getHeader(string $name): ?string
     {
-        self::$action = $action;
+        $headerKey = 'HTTP_' . strtoupper(str_replace('-', '_', $name));
+        return $this->serverData[$headerKey] ?? $this->serverData[strtoupper(str_replace('-', '_', $name))] ?? null;
     }
 
-    /**
-     * @return array
-     */
-    public static function getArguments(): array
+    public function getUserAgent(): ?string
     {
-        return self::$arguments;
+        return $this->serverData['HTTP_USER_AGENT'] ?? null;
     }
 
-    /**
-     * @param string $arguments
-     */
-    public static function setArguments($arguments): void
+    public function getIpAddress(): ?string
     {
-        self::$arguments = $arguments;
+        return $this->serverData['REMOTE_ADDR'] ?? null;
     }
 
-    /**
-     * @return string
-     */
-    public static function getPath(): string
+    public function setRouteParams(array $routeParams): void
     {
-        return self::$path;
+        $this->routeParams = $routeParams;
     }
 
-    /**
-     * @param string $path
-     */
-    public static function setPath($path): void
+    public function getRouteParams(): array
     {
-        self::$path = $path;
+        return $this->routeParams;
+    }
+
+    public function routeParam(string $key, mixed $default = null): mixed
+    {
+        return $this->routeParams[$key] ?? $default;
     }
 }

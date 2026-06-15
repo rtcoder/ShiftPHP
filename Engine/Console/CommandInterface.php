@@ -11,9 +11,9 @@ namespace Engine\Console;
 
 interface CommandInterface
 {
-    public function execute(...$args): void;
+    public function execute(mixed ...$args): void;
 
-    public function getHelp();
+    public function getHelp(): string;
 
-    public function getDescription();
+    public function getDescription(): string;
 }

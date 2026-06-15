@@ -11,9 +11,9 @@ namespace Tools;
 
 final class Config
 {
-    private static $instance;
+    private static Config $instance;
 
-    private static $_configs = [];
+    private static array $_configs = [];
 
     public static function getInstance(): self
     {

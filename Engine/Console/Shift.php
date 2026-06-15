@@ -9,13 +9,13 @@
 namespace Engine\Console;
 
 
-use Grabower\CliTypo\CliTypo;
 use ReflectionClass;
+use ReflectionException;
 
 class Shift
 {
-    protected $_description = 'xd';
-    private $_args = [];
+    protected string $_description = 'xd';
+    private array $_args = [];
 
     public function __construct(array $argv)
     {
@@ -26,9 +26,9 @@ class Shift
      * @param string $name
      * @return mixed|null
      */
-    public function getArg(string $name)
+    public function getArg(string $name): mixed
     {
-        return isset($this->_args[$name]) ? $this->_args[$name] : null;
+        return $this->_args[$name] ?? null;
     }
 
     /**
@@ -47,15 +47,18 @@ class Shift
         $this->_args = $args;
     }
 
+    /**
+     * @throws ReflectionException
+     * @return void
+     */
     public function run(): void
     {
-        $cliTypo = new CliTypo();
+        $cli = new Cli();
         if (count($this->_args) < 2) {
-            $cliTypo->alert()->error('Shift CLI needs at least one parameter');
+            $cli->error('Shift CLI needs at least one parameter');
             exit();
         }
-        $commandName = ucfirst($this->_args[1]);
-        $cliTypo->text()->write($commandName);
+        $commandName = $this->normalizeCommandName($this->_args[1]);
 
         $mappings = [
             [
@@ -75,7 +78,7 @@ class Shift
             }
         }
         if (!$found) {
-            $cliTypo->alert()->error('Command ' . $commandName . ' not found');
+            $cli->error('Command ' . $commandName . ' not found');
             exit();
         }
 
@@ -84,6 +87,14 @@ class Shift
         $method = $class->getMethod('execute');
         $args = array_slice($this->_args, 2, count($this->_args));
         $method->invokeArgs($cl, $args);
+    }
+
+    private function normalizeCommandName(string $command): string
+    {
+        $parts = preg_split('/[:\-_]/', $command) ?: [];
+        $parts = array_map(static fn (string $part): string => ucfirst($part), $parts);
+
+        return implode('', $parts);
     }
 
 }

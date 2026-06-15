@@ -15,13 +15,11 @@ class Serve implements CommandInterface
 {
 
 
-    public function execute(...$args): void
+    public function execute(mixed ...$args): void
     {
         $host = 'localhost:8000';
-        if (count($args)) {
-            if (isset($args[0])) {
-                $host = $args[0];
-            }
+        if (count($args) && isset($args[0])) {
+            $host = $args[0];
         }
 
         $command = $this->getOpenCommand() . ' http://' . $host . ';php -S ' . $host;
@@ -29,7 +27,7 @@ class Serve implements CommandInterface
         exec($command);
     }
 
-    private final function getOpenCommand(): string
+    private function getOpenCommand(): string
     {
         $command = 'open';
 
@@ -45,13 +43,15 @@ class Serve implements CommandInterface
         return $command;
     }
 
-    public function getHelp()
+    public function getHelp(): string
     {
         // TODO: Implement getHelp() method.
+        return '';
     }
 
-    public function getDescription()
+    public function getDescription(): string
     {
         // TODO: Implement getDescription() method.
+        return '';
     }
 }

@@ -46,7 +46,7 @@ class Debug
     /**
      *
      */
-    public function __invoke()
+    public function __invoke(): void
     {
         self::dd(func_get_args());
     }

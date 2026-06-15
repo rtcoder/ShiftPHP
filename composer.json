@@ -11,19 +11,14 @@
   ],
   "minimum-stability": "dev",
   "require": {
-    "php": ">=7.1",
-    "grabower/clitypo": "dev-master",
+    "php": ">=8.3",
     "ext-json": "*"
   },
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/adriangrabowski/clitypo.git"
-    }
-  ],
+  "scripts": {
+    "test": "XDEBUG_MODE=off php tests/ApiCoreTest.php"
+  },
   "autoload": {
     "psr-4": {
-      "View\\": "Engine/View",
       "Tools\\": "Engine/Tools",
       "Console\\": "Engine/Console",
       "AppConsole\\": "application/console",
