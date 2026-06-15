@@ -5,13 +5,18 @@ namespace Controllers;
 use Engine\Controller;
 use Engine\JsonResponse;
 use Engine\Request;
+use Engine\Routing\Attributes\Get;
+use Engine\Routing\Attributes\Post;
+use Engine\Routing\Attributes\RoutePrefix;
 
 /**
  * Class HelloController
  * @package Controllers
  */
+#[RoutePrefix('/hello')]
 class HelloController extends Controller
 {
+    #[Get('')]
     public function index(): JsonResponse
     {
         return $this->json([
@@ -20,6 +25,7 @@ class HelloController extends Controller
         ]);
     }
 
+    #[Get('/about')]
     public function about(): JsonResponse
     {
         return $this->json([
@@ -28,6 +34,8 @@ class HelloController extends Controller
         ]);
     }
 
+    #[Get('/api')]
+    #[Get('/api/{argument}')]
     public function api(?string $argument = null): JsonResponse
     {
         $arguments = [];
@@ -47,6 +55,7 @@ class HelloController extends Controller
         ]);
     }
 
+    #[Post('/echo')]
     public function echo(Request $request): JsonResponse
     {
         return $this->json([

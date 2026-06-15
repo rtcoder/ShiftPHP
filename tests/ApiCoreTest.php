@@ -7,6 +7,7 @@ use Engine\JsonResponse;
 use Engine\Request;
 use Engine\ResponseEmitter;
 use Engine\Router;
+use Engine\Routing\AttributeRouteLoader;
 
 require_once __DIR__ . '/../bootstrap.php';
 
@@ -61,6 +62,28 @@ $tests['router matches route params'] = function (): void {
     $match = $router->match(makeRequest('GET', '/hello/api/example'));
 
     assertSameValue(['argument' => 'example'], $match->getParameters(), 'Route parameters should be extracted.');
+};
+
+$tests['attribute loader registers controller routes'] = function (): void {
+    $router = new Router();
+    (new AttributeRouteLoader())->load($router, [HelloController::class]);
+
+    $routes = array_map(
+        static fn (\Engine\Route $route): string => $route->getMethod() . ' ' . $route->getPath(),
+        $router->getRoutes()
+    );
+
+    assertSameValue(
+        [
+            'GET /hello',
+            'GET /hello/about',
+            'GET /hello/api',
+            'GET /hello/api/{argument}',
+            'POST /hello/echo',
+        ],
+        $routes,
+        'Attribute loader should register all HelloController routes.'
+    );
 };
 
 $tests['router returns 405 with Allow header'] = function (): void {

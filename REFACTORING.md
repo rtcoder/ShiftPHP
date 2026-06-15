@@ -16,6 +16,7 @@ Implemented in this branch:
 - `405 Method Not Allowed` with an `Allow` header,
 - lightweight API core tests through `composer test`,
 - `route:list` CLI command,
+- PHP 8 attributes for controller routing,
 - removal of view storage and example page assets from runtime.
 
 ## Runtime Flow
@@ -35,8 +36,9 @@ Routes live in `application/routes.php`:
 
 ```php
 return static function (Router $router): void {
-    $router->get('/hello', [HelloController::class, 'index']);
-    $router->get('/hello/api/{argument}', [HelloController::class, 'api']);
+    (new AttributeRouteLoader())->load($router, [
+        HelloController::class,
+    ]);
 };
 ```
 
@@ -55,6 +57,7 @@ Controllers receive the current `Request` and `ServiceContainer` through the con
 ```php
 class HelloController extends \Engine\Controller
 {
+    #[Get('/api/{argument}')]
     public function api(string $argument): JsonResponse
     {
         return $this->json([
