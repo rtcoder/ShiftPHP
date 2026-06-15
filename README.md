@@ -23,11 +23,12 @@ Routes are registered in `application/routes.php`:
 ```php
 use Controllers\HelloController;
 use Engine\Router;
+use Engine\Routing\AttributeRouteLoader;
 
 return static function (Router $router): void {
-    $router->get('/hello', [HelloController::class, 'index']);
-    $router->get('/hello/api/{argument}', [HelloController::class, 'api']);
-    $router->post('/hello/echo', [HelloController::class, 'echo']);
+    (new AttributeRouteLoader())->load($router, [
+        HelloController::class,
+    ]);
 };
 ```
 
@@ -49,9 +50,14 @@ namespace Controllers;
 use Engine\Controller;
 use Engine\JsonResponse;
 use Engine\Request;
+use Engine\Routing\Attributes\Get;
+use Engine\Routing\Attributes\Post;
+use Engine\Routing\Attributes\RoutePrefix;
 
+#[RoutePrefix('/users')]
 class UserController extends Controller
 {
+    #[Get('/{id}')]
     public function show(Request $request, string $id): JsonResponse
     {
         return $this->json([
@@ -59,10 +65,25 @@ class UserController extends Controller
             'include' => $request->query('include'),
         ]);
     }
+
+    #[Post('')]
+    public function create(Request $request): JsonResponse
+    {
+        return $this->json($request->getJson(), 201);
+    }
 }
 ```
 
 Route parameters are passed by method parameter name. A controller action can also request the current `Engine\Request`.
+
+You can use these routing attributes:
+
+- `#[RoutePrefix('/prefix')]`
+- `#[Get('/path')]`
+- `#[Post('/path')]`
+- `#[Put('/path')]`
+- `#[Patch('/path')]`
+- `#[Delete('/path')]`
 
 ## Responses
 
