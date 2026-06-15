@@ -42,9 +42,9 @@ abstract class Controller
 
     /**
      * @param string $url
-     * @return void
+     * @return never
      */
-    protected function redirect(string $url): void
+    protected function redirect(string $url): never
     {
         header("Location: {$url}");
         exit;

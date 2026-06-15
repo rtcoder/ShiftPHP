@@ -109,7 +109,7 @@ class View
         // Extract variables for view
         extract($data);
         
-        require_once $this->storage->storageViewsDir . $viewFileName;
+        require_once $this->storage->getStorageViewsDir() . $viewFileName;
     }
 
     /**

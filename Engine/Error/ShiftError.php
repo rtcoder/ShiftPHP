@@ -56,7 +56,7 @@ class ShiftError extends \Error
 
     private function renderError(): void
     {
-        $line = (int)$this->getCustomLine();
+        $line = $this->getCustomLine();
         $file = $this->getCustomFile();
         
         $errorHighlighter = new ErrorHighlighter($file, $line);
