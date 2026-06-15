@@ -2,6 +2,8 @@
 
 -
 
+<!-- The Release workflow uses this Summary section as release notes after merge. -->
+
 ## Validation
 
 -
