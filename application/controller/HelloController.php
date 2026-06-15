@@ -2,38 +2,54 @@
 
 namespace Controllers;
 
+use Engine\JsonResponse;
+use Engine\Request;
+
 /**
  * Class HelloController
  * @package Controllers
  */
 class HelloController extends \Engine\Controller
 {
-    public function index(): void
+    public function index(): JsonResponse
     {
-        $this->json([
+        return $this->json([
             'message' => 'Hello from ShiftPHP!',
             'timestamp' => date('Y-m-d H:i:s')
         ]);
     }
 
-    public function about(): void
+    public function about(): JsonResponse
     {
-        $this->json([
+        return $this->json([
             'title' => 'About ShiftPHP',
             'version' => '1.0.0'
         ]);
     }
 
-    public function api(): void
+    public function api(?string $argument = null): JsonResponse
     {
-        $this->json([
+        $arguments = [];
+        if ($argument !== null) {
+            $arguments[] = $argument;
+        }
+
+        return $this->json([
             'status' => 'success',
             'message' => 'API endpoint working!',
             'data' => [
-                'controller' => $this->request->getController(),
-                'action' => $this->request->getAction(),
-                'arguments' => $this->request->getArguments()
+                'path' => $this->request->getPath(),
+                'method' => $this->request->getMethod(),
+                'arguments' => $arguments,
+                'routeParams' => $this->request->getRouteParams()
             ]
+        ]);
+    }
+
+    public function echo(Request $request): JsonResponse
+    {
+        return $this->json([
+            'data' => $request->getJson(),
         ]);
     }
 }

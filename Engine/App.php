@@ -2,10 +2,10 @@
 
 namespace Engine;
 
-use Engine\Error\ShiftError;
 use Engine\Error\HttpError;
 use ReflectionClass;
-use ReflectionException;
+use ReflectionNamedType;
+use ReflectionParameter;
 use Throwable;
 
 /**
@@ -16,70 +16,110 @@ final class App
 {
     private Request $request;
     private ServiceContainer $container;
-    private string $defaultController = 'index';
-    private string $defaultAction = 'index';
+    private Router $router;
+    private ResponseEmitter $emitter;
 
-    public function __construct(Request $request)
+    public function __construct(Request $request, ?Router $router = null, ?ResponseEmitter $emitter = null)
     {
         $this->request = $request;
         $this->container = new ServiceContainer();
+        $this->router = $router ?? new Router();
+        $this->emitter = $emitter ?? new ResponseEmitter();
         $this->registerDefaultServices();
     }
 
-    /**
-     * @throws ShiftError
-     */
     public function start(): void
     {
         try {
-            $controller = $this->resolveController();
-            $this->executeController($controller);
+            $response = $this->dispatch();
         } catch (HttpError $exception) {
-            throw $exception;
-        } catch (ReflectionException $exception) {
-            throw new HttpError(
-                'Endpoint not found',
-                404,
-                $exception
-            );
+            $response = JsonResponse::error($exception->getMessage(), $exception->getStatusCode());
         } catch (Throwable $exception) {
-            throw new ShiftError(
-                'Application error: ' . $exception->getMessage(),
-                $exception->getCode(),
-                $exception->getPrevious()
-            );
+            $response = JsonResponse::error('Internal Server Error', 500);
         }
+
+        $this->emitter->emit($response);
     }
 
-    /**
-     * @throws ShiftError
-     */
-    private function resolveController(): object
+    private function dispatch(): Response
     {
-        $controllerName = ucfirst($this->request->getController() ?: $this->defaultController) . 'Controller';
-        $controllerClass = 'Controllers\\' . $controllerName;
+        $match = $this->router->match($this->request);
+        $this->request->setRouteParams($match->getParameters());
+
+        [$controllerClass, $methodName] = $match->getHandler();
 
         if (!class_exists($controllerClass)) {
             throw new HttpError('Endpoint not found', 404);
         }
 
-        return new $controllerClass($this->request, $this->container);
-    }
-
-    /**
-     * @throws ReflectionException
-     */
-    private function executeController(object $controller): void
-    {
+        $controller = new $controllerClass($this->request, $this->container);
         $reflectionClass = new ReflectionClass($controller);
-        $methodName = $this->request->getAction() ?: $this->defaultAction;
 
         if (!$reflectionClass->hasMethod($methodName)) {
-            throw new ReflectionException("Method '{$methodName}' not found in controller");
+            throw new HttpError('Endpoint not found', 404);
         }
 
         $method = $reflectionClass->getMethod($methodName);
-        $method->invokeArgs($controller, $this->request->getArguments());
+        $result = $method->invokeArgs(
+            $controller,
+            $this->resolveMethodArguments($method->getParameters(), $match->getParameters())
+        );
+
+        return $this->normalizeResponse($result);
+    }
+
+    /**
+     * @param ReflectionParameter[] $parameters
+     */
+    private function resolveMethodArguments(array $parameters, array $routeParameters): array
+    {
+        $arguments = [];
+        $orderedRouteParameters = array_values($routeParameters);
+
+        foreach ($parameters as $index => $parameter) {
+            $type = $parameter->getType();
+
+            if ($type instanceof ReflectionNamedType && $type->getName() === Request::class) {
+                $arguments[] = $this->request;
+                continue;
+            }
+
+            if (array_key_exists($parameter->getName(), $routeParameters)) {
+                $arguments[] = $routeParameters[$parameter->getName()];
+                continue;
+            }
+
+            if (array_key_exists($index, $orderedRouteParameters)) {
+                $arguments[] = $orderedRouteParameters[$index];
+                continue;
+            }
+
+            if ($parameter->isDefaultValueAvailable()) {
+                $arguments[] = $parameter->getDefaultValue();
+                continue;
+            }
+
+            throw new HttpError('Endpoint not found', 404);
+        }
+
+        return $arguments;
+    }
+
+    private function normalizeResponse(mixed $result): Response
+    {
+        if ($result instanceof Response) {
+            return $result;
+        }
+
+        if (is_array($result)) {
+            return new JsonResponse($result);
+        }
+
+        if ($result === null) {
+            return new Response('', 204);
+        }
+
+        return new Response((string) $result);
     }
 
     /**
@@ -118,24 +158,20 @@ final class App
         return $this->request;
     }
 
-    public function setDefaultController(string $controller): void
-    {
-        $this->defaultController = $controller;
-    }
-
-    public function setDefaultAction(string $action): void
-    {
-        $this->defaultAction = $action;
-    }
-
     private function registerDefaultServices(): void
     {
         $this->container->singleton('request', $this->request);
+        $this->container->singleton('router', $this->router);
     }
 
     public function getContainer(): ServiceContainer
     {
         return $this->container;
+    }
+
+    public function getRouter(): Router
+    {
+        return $this->router;
     }
 
     public function resolve(string $service)

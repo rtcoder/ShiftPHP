@@ -11,4 +11,11 @@ require_once 'bootstrap.php';
 // Create request instance and start application
 $request = new Request();
 $app = new App($request);
+
+$routes = APP_PATH . '/routes.php';
+if (file_exists($routes)) {
+    $registerRoutes = require $routes;
+    $registerRoutes($app->getRouter());
+}
+
 $app->start();

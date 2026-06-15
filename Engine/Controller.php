@@ -21,42 +21,19 @@ abstract class Controller
      * @param array $data
      * @return void
      */
-    protected function json(array $data, int $statusCode = 200): void
+    protected function json(array $data, int $statusCode = 200): JsonResponse
     {
-        http_response_code($statusCode);
-        header('Content-Type: application/json');
-        echo json_encode($data, JSON_THROW_ON_ERROR);
+        return new JsonResponse($data, $statusCode);
     }
 
-    protected function noContent(): void
+    protected function noContent(): Response
     {
-        http_response_code(204);
+        return new Response('', 204);
     }
 
-    protected function error(string $message, int $statusCode = 400, array $context = []): void
+    protected function error(string $message, int $statusCode = 400, array $context = []): JsonResponse
     {
-        $payload = [
-            'error' => [
-                'message' => $message,
-                'status' => $statusCode,
-            ],
-        ];
-
-        if ($context !== []) {
-            $payload['error']['context'] = $context;
-        }
-
-        $this->json($payload, $statusCode);
-    }
-
-    /**
-     * @param string $url
-     * @return never
-     */
-    protected function redirect(string $url): never
-    {
-        header("Location: {$url}");
-        exit;
+        return JsonResponse::error($message, $statusCode, $context);
     }
 
     /**
