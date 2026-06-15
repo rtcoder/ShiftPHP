@@ -39,7 +39,7 @@ function assertArrayHasKeyValue(string $key, mixed $expected, array $actual, str
     }
 }
 
-function makeRequest(string $method, string $uri, string $body = ''): Request
+function makeRequest(string $method, string $uri, string $body = '', array $query = []): Request
 {
     return new Request(
         [
@@ -47,7 +47,7 @@ function makeRequest(string $method, string $uri, string $body = ''): Request
             'REQUEST_URI' => $uri,
             'HTTP_AUTHORIZATION' => 'Bearer token',
         ],
-        [],
+        $query,
         [],
         $body
     );
@@ -80,6 +80,7 @@ $tests['attribute loader registers controller routes'] = function (): void {
             'GET /hello/api',
             'GET /hello/api/{argument}',
             'POST /hello/echo',
+            'POST /hello/created',
         ],
         $routes,
         'Attribute loader should register all HelloController routes.'
@@ -142,6 +143,35 @@ $tests['app dispatches route to controller'] = function (): void {
 
     assertSameValue(200, $emitter->statusCode, 'App should emit successful status.');
     assertSameValue('demo', $payload['data']['routeParams']['argument'] ?? null, 'App should pass route params to controller.');
+};
+
+$tests['app binds path and query params from attributes'] = function (): void {
+    $router = new Router();
+    (new AttributeRouteLoader())->load($router, [HelloController::class]);
+    $emitter = new CapturingEmitter();
+
+    $app = new App(makeRequest('GET', '/hello/api/demo', '', ['include' => 'details']), $router, $emitter);
+    $app->start();
+
+    $payload = json_decode($emitter->content, true);
+
+    assertSameValue('demo', $payload['data']['arguments'][0] ?? null, 'PathParam should bind route value.');
+    assertSameValue('details', $payload['data']['include'] ?? null, 'QueryParam should bind query value.');
+};
+
+$tests['app applies status header and body attributes'] = function (): void {
+    $router = new Router();
+    (new AttributeRouteLoader())->load($router, [HelloController::class]);
+    $emitter = new CapturingEmitter();
+
+    $app = new App(makeRequest('POST', '/hello/created', '{"name":"Shift"}'), $router, $emitter);
+    $app->start();
+
+    $payload = json_decode($emitter->content, true);
+
+    assertSameValue(201, $emitter->statusCode, 'Status attribute should override response status.');
+    assertArrayHasKeyValue('X-ShiftPHP-Example', 'created', $emitter->headers, 'Header attribute should add response header.');
+    assertSameValue('Shift', $payload['name'] ?? null, 'Body attribute should bind JSON body key.');
 };
 
 $failed = 0;

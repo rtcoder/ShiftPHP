@@ -17,6 +17,7 @@ Implemented in this branch:
 - lightweight API core tests through `composer test`,
 - `route:list` CLI command,
 - PHP 8 attributes for controller routing,
+- PHP 8 attributes for response metadata and parameter binding,
 - removal of view storage and example page assets from runtime.
 
 ## Runtime Flow
@@ -58,11 +59,19 @@ Controllers receive the current `Request` and `ServiceContainer` through the con
 class HelloController extends \Engine\Controller
 {
     #[Get('/api/{argument}')]
-    public function api(string $argument): JsonResponse
+    public function api(#[PathParam] string $argument, #[QueryParam('include')] ?string $include = null): JsonResponse
     {
         return $this->json([
             'argument' => $argument,
+            'include' => $include,
         ]);
+    }
+
+    #[Post('/created')]
+    #[Status(201)]
+    public function created(#[Body('name')] string $name): array
+    {
+        return ['name' => $name];
     }
 }
 ```

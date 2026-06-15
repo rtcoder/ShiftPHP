@@ -4,10 +4,14 @@ namespace Controllers;
 
 use Engine\Controller;
 use Engine\JsonResponse;
-use Engine\Request;
 use Engine\Routing\Attributes\Get;
+use Engine\Routing\Attributes\Body;
+use Engine\Routing\Attributes\Header;
+use Engine\Routing\Attributes\PathParam;
 use Engine\Routing\Attributes\Post;
+use Engine\Routing\Attributes\QueryParam;
 use Engine\Routing\Attributes\RoutePrefix;
+use Engine\Routing\Attributes\Status;
 
 /**
  * Class HelloController
@@ -36,7 +40,7 @@ class HelloController extends Controller
 
     #[Get('/api')]
     #[Get('/api/{argument}')]
-    public function api(?string $argument = null): JsonResponse
+    public function api(#[PathParam] ?string $argument = null, #[QueryParam('include')] ?string $include = null): JsonResponse
     {
         $arguments = [];
         if ($argument !== null) {
@@ -50,16 +54,28 @@ class HelloController extends Controller
                 'path' => $this->request->getPath(),
                 'method' => $this->request->getMethod(),
                 'arguments' => $arguments,
+                'include' => $include,
                 'routeParams' => $this->request->getRouteParams()
             ]
         ]);
     }
 
     #[Post('/echo')]
-    public function echo(Request $request): JsonResponse
+    public function echo(#[Body] array $data): JsonResponse
     {
         return $this->json([
-            'data' => $request->getJson(),
+            'data' => $data,
         ]);
+    }
+
+    #[Post('/created')]
+    #[Status(201)]
+    #[Header('X-ShiftPHP-Example', 'created')]
+    public function created(#[Body('name')] string $name): array
+    {
+        return [
+            'name' => $name,
+            'created' => true,
+        ];
     }
 }
