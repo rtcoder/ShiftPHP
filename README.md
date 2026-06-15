@@ -49,27 +49,33 @@ namespace Controllers;
 
 use Engine\Controller;
 use Engine\JsonResponse;
-use Engine\Request;
+use Engine\Routing\Attributes\Body;
 use Engine\Routing\Attributes\Get;
+use Engine\Routing\Attributes\Header;
 use Engine\Routing\Attributes\Post;
+use Engine\Routing\Attributes\PathParam;
+use Engine\Routing\Attributes\QueryParam;
 use Engine\Routing\Attributes\RoutePrefix;
+use Engine\Routing\Attributes\Status;
 
 #[RoutePrefix('/users')]
 class UserController extends Controller
 {
     #[Get('/{id}')]
-    public function show(Request $request, string $id): JsonResponse
+    public function show(#[PathParam] int $id, #[QueryParam('include')] ?string $include = null): JsonResponse
     {
         return $this->json([
             'id' => $id,
-            'include' => $request->query('include'),
+            'include' => $include,
         ]);
     }
 
     #[Post('')]
-    public function create(Request $request): JsonResponse
+    #[Status(201)]
+    #[Header('X-Resource', 'created')]
+    public function create(#[Body] array $payload): array
     {
-        return $this->json($request->getJson(), 201);
+        return $payload;
     }
 }
 ```
@@ -84,6 +90,11 @@ You can use these routing attributes:
 - `#[Put('/path')]`
 - `#[Patch('/path')]`
 - `#[Delete('/path')]`
+- `#[Status(201)]`
+- `#[Header('X-Name', 'value')]`
+- `#[PathParam('id')]`
+- `#[QueryParam('include')]`
+- `#[Body]` or `#[Body('field')]`
 
 ## Responses
 

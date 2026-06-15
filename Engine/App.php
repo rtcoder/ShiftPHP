@@ -3,9 +3,15 @@
 namespace Engine;
 
 use Engine\Error\HttpError;
+use Engine\Routing\Attributes\Body;
+use Engine\Routing\Attributes\Header;
+use Engine\Routing\Attributes\PathParam;
+use Engine\Routing\Attributes\QueryParam;
+use Engine\Routing\Attributes\Status;
 use JsonException;
 use ReflectionClass;
 use ReflectionException;
+use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionParameter;
 use Throwable;
@@ -75,7 +81,10 @@ final class App
             $this->resolveMethodArguments($method->getParameters(), $match->getParameters())
         );
 
-        return $this->normalizeResponse($result);
+        return $this->applyResponseAttributes(
+            $this->normalizeResponse($result),
+            $method
+        );
     }
 
     /**
@@ -94,13 +103,43 @@ final class App
                 continue;
             }
 
+            $pathParam = $this->getParameterAttribute($parameter, PathParam::class);
+            if ($pathParam instanceof PathParam) {
+                $name = $pathParam->name ?? $parameter->getName();
+                $arguments[] = $this->castParameterValue(
+                    $routeParameters[$name] ?? $this->getDefaultParameterValue($parameter),
+                    $parameter
+                );
+                continue;
+            }
+
+            $queryParam = $this->getParameterAttribute($parameter, QueryParam::class);
+            if ($queryParam instanceof QueryParam) {
+                $name = $queryParam->name ?? $parameter->getName();
+                $arguments[] = $this->castParameterValue(
+                    $this->request->query($name, $queryParam->default ?? $this->getDefaultParameterValue($parameter)),
+                    $parameter
+                );
+                continue;
+            }
+
+            $body = $this->getParameterAttribute($parameter, Body::class);
+            if ($body instanceof Body) {
+                $json = $this->request->getJson();
+                $value = $body->key === null
+                    ? $json
+                    : ($json[$body->key] ?? $this->getDefaultParameterValue($parameter));
+                $arguments[] = $this->castParameterValue($value, $parameter);
+                continue;
+            }
+
             if (array_key_exists($parameter->getName(), $routeParameters)) {
-                $arguments[] = $routeParameters[$parameter->getName()];
+                $arguments[] = $this->castParameterValue($routeParameters[$parameter->getName()], $parameter);
                 continue;
             }
 
             if (array_key_exists($index, $orderedRouteParameters)) {
-                $arguments[] = $orderedRouteParameters[$index];
+                $arguments[] = $this->castParameterValue($orderedRouteParameters[$index], $parameter);
                 continue;
             }
 
@@ -113,6 +152,43 @@ final class App
         }
 
         return $arguments;
+    }
+
+    private function getParameterAttribute(ReflectionParameter $parameter, string $attributeClass): ?object
+    {
+        $attributes = $parameter->getAttributes($attributeClass);
+
+        if ($attributes === []) {
+            return null;
+        }
+
+        return $attributes[0]->newInstance();
+    }
+
+    private function getDefaultParameterValue(ReflectionParameter $parameter): mixed
+    {
+        if ($parameter->isDefaultValueAvailable()) {
+            return $parameter->getDefaultValue();
+        }
+
+        return null;
+    }
+
+    private function castParameterValue(mixed $value, ReflectionParameter $parameter): mixed
+    {
+        $type = $parameter->getType();
+
+        if (!$type instanceof ReflectionNamedType || $value === null) {
+            return $value;
+        }
+
+        return match ($type->getName()) {
+            'int' => (int) $value,
+            'float' => (float) $value,
+            'bool' => filter_var($value, FILTER_VALIDATE_BOOLEAN),
+            'string' => (string) $value,
+            default => $value,
+        };
     }
 
     /**
@@ -133,6 +209,31 @@ final class App
         }
 
         return new Response((string) $result);
+    }
+
+    private function applyResponseAttributes(Response $response, ReflectionMethod $method): Response
+    {
+        $statusCode = $response->getStatusCode();
+        $statusAttributes = $method->getAttributes(Status::class);
+
+        if ($statusAttributes !== []) {
+            /** @var Status $status */
+            $status = $statusAttributes[0]->newInstance();
+            $statusCode = $status->code;
+        }
+
+        $headers = $response->getHeaders();
+        foreach ($method->getAttributes(Header::class) as $attribute) {
+            /** @var Header $header */
+            $header = $attribute->newInstance();
+            $headers[$header->name] = $header->value;
+        }
+
+        return new Response(
+            $response->getContent(),
+            $statusCode,
+            $headers
+        );
     }
 
     /**
