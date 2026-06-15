@@ -118,3 +118,9 @@ Run the lightweight API core test suite:
 ```sh
 composer test
 ```
+
+## Release Process
+
+Every pull request must have exactly one version label, for example `v0.6`.
+
+After a versioned PR is merged into `master`, GitHub Actions creates the matching git tag and GitHub Release automatically.
