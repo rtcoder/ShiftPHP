@@ -5,7 +5,7 @@ namespace Console\Commands;
 use Engine\Console\Cli;
 use Engine\Console\CommandInterface;
 use Engine\Modules\ModuleLoader;
-use Engine\Router;
+use Engine\Routing\Router\Router;
 
 class RouteList implements CommandInterface
 {

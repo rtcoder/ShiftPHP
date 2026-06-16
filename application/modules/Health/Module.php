@@ -3,8 +3,8 @@
 namespace Modules\Health;
 
 use Engine\Modules\AbstractModule;
-use Engine\Router;
 use Engine\Routing\AttributeRouteLoader;
+use Engine\Routing\Router\Router;
 use Engine\Service\ServiceContainer;
 use Modules\Health\Controllers\HealthController;
 use Modules\Health\Services\HealthService;

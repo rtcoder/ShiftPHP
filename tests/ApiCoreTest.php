@@ -7,7 +7,6 @@ use Engine\Modules\ModuleLoader;
 use Engine\Request;
 use Engine\Response\JsonResponse;
 use Engine\Response\ResponseEmitter;
-use Engine\Router;
 use Engine\Routing\AttributeRouteLoader;
 use Engine\Routing\Attributes\Body;
 use Engine\Routing\Attributes\Get;
@@ -17,6 +16,7 @@ use Engine\Routing\Attributes\Post;
 use Engine\Routing\Attributes\QueryParam;
 use Engine\Routing\Attributes\RoutePrefix;
 use Engine\Routing\Attributes\Status;
+use Engine\Routing\Router\Router;
 use Engine\Service\ServiceContainer;
 use Modules\Health\Services\HealthService;
 
@@ -112,7 +112,7 @@ $tests['attribute loader registers controller routes'] = function (): void {
     (new AttributeRouteLoader())->load($router, [TestAttributeController::class]);
 
     $routes = array_map(
-        static fn (\Engine\Route $route): string => $route->getMethod() . ' ' . $route->getPath(),
+        static fn (Router\Route $route): string => $route->getMethod() . ' ' . $route->getPath(),
         $router->getRoutes()
     );
 
@@ -224,7 +224,7 @@ $tests['module loader registers services and routes'] = function (): void {
     assertSameValue(true, $container->has(HealthService::class), 'Health module service should be registered.');
 
     $routes = array_map(
-        static fn (\Engine\Route $route): string => $route->getMethod() . ' ' . $route->getPath(),
+        static fn (Router\Route $route): string => $route->getMethod() . ' ' . $route->getPath(),
         $router->getRoutes()
     );
 

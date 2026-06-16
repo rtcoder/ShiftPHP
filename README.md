@@ -26,10 +26,7 @@ Routes are owned by modules and registered from each module boundary:
 ```php
 namespace Modules\Health;
 
-use Engine\Modules\AbstractModule;
-use Engine\Router;
-use Engine\Routing\AttributeRouteLoader;
-use Modules\Health\Controllers\HealthController;
+use Engine\Modules\AbstractModule;use Engine\Routing\AttributeRouteLoader;use Engine\Routing\Router\Router;use Modules\Health\Controllers\HealthController;
 
 class Module extends AbstractModule
 {
@@ -177,7 +174,7 @@ A module registers itself through `Module.php`:
 ```php
 namespace Modules\Health;
 
-use Engine\Modules\AbstractModule;use Engine\Router;use Engine\Routing\AttributeRouteLoader;use Engine\Service\ServiceContainer;use Modules\Health\Controllers\HealthController;use Modules\Health\Services\HealthService;
+use Engine\Modules\AbstractModule;use Engine\Routing\AttributeRouteLoader;use Engine\Routing\Router\Router;use Engine\Service\ServiceContainer;use Modules\Health\Controllers\HealthController;use Modules\Health\Services\HealthService;
 
 class Module extends AbstractModule
 {

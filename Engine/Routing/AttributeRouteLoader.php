@@ -2,9 +2,9 @@
 
 namespace Engine\Routing;
 
-use Engine\Router;
 use Engine\Routing\Attributes\Route;
 use Engine\Routing\Attributes\RoutePrefix;
+use Engine\Routing\Router\Router;
 use ReflectionClass;
 
 class AttributeRouteLoader
@@ -33,7 +33,7 @@ class AttributeRouteLoader
 
         foreach ($reflectionClass->getMethods() as $method) {
             foreach ($method->getAttributes(Route::class, \ReflectionAttribute::IS_INSTANCEOF) as $attribute) {
-                /** @var Route $route */
+                /** @var \Engine\Routing\Router\Route $route */
                 $route = $attribute->newInstance();
 
                 $router->add(

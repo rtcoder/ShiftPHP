@@ -2,7 +2,7 @@
 
 namespace Engine\Modules;
 
-use Engine\Router;
+use Engine\Routing\Router\Router;
 use Engine\Service\ServiceContainer;
 
 abstract class AbstractModule implements ModuleInterface
