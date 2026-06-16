@@ -2,8 +2,8 @@
 
 namespace Engine\Modules;
 
-use Engine\Router;
-use Engine\ServiceContainer;
+use Engine\Routing\Router\Router;
+use Engine\Service\ServiceContainer;
 
 interface ModuleInterface
 {

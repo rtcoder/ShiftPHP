@@ -1,6 +1,6 @@
 <?php
 
-namespace Engine;
+namespace Engine\Routing\Router;
 
 readonly class RouteMatch
 {

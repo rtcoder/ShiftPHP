@@ -26,10 +26,7 @@ Routes are owned by modules and registered from each module boundary:
 ```php
 namespace Modules\Health;
 
-use Engine\Modules\AbstractModule;
-use Engine\Router;
-use Engine\Routing\AttributeRouteLoader;
-use Modules\Health\Controllers\HealthController;
+use Engine\Modules\AbstractModule;use Engine\Routing\AttributeRouteLoader;use Engine\Routing\Router\Router;use Modules\Health\Controllers\HealthController;
 
 class Module extends AbstractModule
 {
@@ -58,12 +55,12 @@ Controllers extend `Engine\Controller` and return a response object:
 namespace Modules\Users\Controllers;
 
 use Engine\Controller;
-use Engine\JsonResponse;
+use Engine\Response\JsonResponse;
 use Engine\Routing\Attributes\Body;
 use Engine\Routing\Attributes\Get;
 use Engine\Routing\Attributes\Header;
-use Engine\Routing\Attributes\Post;
 use Engine\Routing\Attributes\PathParam;
+use Engine\Routing\Attributes\Post;
 use Engine\Routing\Attributes\QueryParam;
 use Engine\Routing\Attributes\RoutePrefix;
 use Engine\Routing\Attributes\Status;
@@ -177,12 +174,7 @@ A module registers itself through `Module.php`:
 ```php
 namespace Modules\Health;
 
-use Engine\Modules\AbstractModule;
-use Engine\Router;
-use Engine\Routing\AttributeRouteLoader;
-use Engine\ServiceContainer;
-use Modules\Health\Controllers\HealthController;
-use Modules\Health\Services\HealthService;
+use Engine\Modules\AbstractModule;use Engine\Routing\AttributeRouteLoader;use Engine\Routing\Router\Router;use Engine\Service\ServiceContainer;use Modules\Health\Controllers\HealthController;use Modules\Health\Services\HealthService;
 
 class Module extends AbstractModule
 {

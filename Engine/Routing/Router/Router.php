@@ -1,8 +1,9 @@
 <?php
 
-namespace Engine;
+namespace Engine\Routing\Router;
 
 use Engine\Error\HttpError;
+use Engine\Request;
 
 class Router
 {

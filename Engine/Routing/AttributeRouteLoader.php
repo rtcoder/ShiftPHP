@@ -2,9 +2,9 @@
 
 namespace Engine\Routing;
 
-use Engine\Router;
 use Engine\Routing\Attributes\Route;
 use Engine\Routing\Attributes\RoutePrefix;
+use Engine\Routing\Router\Router;
 use ReflectionClass;
 
 class AttributeRouteLoader
