@@ -33,7 +33,7 @@ class AttributeRouteLoader
 
         foreach ($reflectionClass->getMethods() as $method) {
             foreach ($method->getAttributes(Route::class, \ReflectionAttribute::IS_INSTANCEOF) as $attribute) {
-                /** @var \Engine\Routing\Router\Route $route */
+                /** @var Route $route */
                 $route = $attribute->newInstance();
 
                 $router->add(
