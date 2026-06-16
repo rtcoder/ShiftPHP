@@ -4,6 +4,10 @@ namespace Shift\Service;
 
 use Closure;
 use InvalidArgumentException;
+use ReflectionClass;
+use ReflectionException;
+use ReflectionNamedType;
+use ReflectionParameter;
 
 /**
  * Class ServiceContainer
@@ -76,10 +80,68 @@ class ServiceContainer
         }
 
         if (is_string($service) && class_exists($service)) {
-            return new $service();
+            return $this->make($service);
         }
 
         return $service;
+    }
+
+    /**
+     * @template T of object
+     * @param class-string<T> $class
+     * @return T
+     */
+    public function make(string $class): object
+    {
+        if (!class_exists($class)) {
+            throw new InvalidArgumentException("Class '{$class}' not found");
+        }
+
+        try {
+            $reflectionClass = new ReflectionClass($class);
+        } catch (ReflectionException $exception) {
+            throw new InvalidArgumentException("Class '{$class}' cannot be reflected", 0, $exception);
+        }
+
+        if (!$reflectionClass->isInstantiable()) {
+            throw new InvalidArgumentException("Class '{$class}' is not instantiable");
+        }
+
+        $constructor = $reflectionClass->getConstructor();
+
+        if ($constructor === null) {
+            return new $class();
+        }
+
+        $dependencies = array_map(
+            fn (ReflectionParameter $parameter): mixed => $this->resolveParameter($parameter),
+            $constructor->getParameters()
+        );
+
+        return $reflectionClass->newInstanceArgs($dependencies);
+    }
+
+    private function resolveParameter(ReflectionParameter $parameter): mixed
+    {
+        $type = $parameter->getType();
+
+        if ($type instanceof ReflectionNamedType && !$type->isBuiltin()) {
+            $name = $type->getName();
+
+            if ($this->has($name)) {
+                return $this->resolve($name);
+            }
+
+            if (class_exists($name)) {
+                return $this->make($name);
+            }
+        }
+
+        if ($parameter->isDefaultValueAvailable()) {
+            return $parameter->getDefaultValue();
+        }
+
+        throw new InvalidArgumentException("Unable to resolve parameter '{$parameter->getName()}'");
     }
 
     /**

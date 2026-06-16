@@ -85,6 +85,37 @@ final class HeaderMiddleware implements MiddlewareInterface
     }
 }
 
+final class AutowiredGreetingService
+{
+    public function message(): string
+    {
+        return 'autowired';
+    }
+}
+
+final class AutowiredConsumer
+{
+    public function __construct(public readonly AutowiredGreetingService $service)
+    {
+    }
+}
+
+#[RoutePrefix('/autowired')]
+final class AutowiredController extends Controller
+{
+    public function __construct(private readonly AutowiredGreetingService $service)
+    {
+    }
+
+    #[Get('/service')]
+    public function service(): array
+    {
+        return [
+            'message' => $this->service->message(),
+        ];
+    }
+}
+
 function assertSameValue(mixed $expected, mixed $actual, string $message): void
 {
     if ($expected !== $actual) {
@@ -199,6 +230,30 @@ $tests['app dispatches route to controller'] = function (): void {
 
     assertSameValue(200, $emitter->statusCode, 'App should emit successful status.');
     assertSameValue('demo', $payload['data']['routeParams']['argument'] ?? null, 'App should pass route params to controller.');
+};
+
+$tests['app autowires controller constructor dependencies'] = function (): void {
+    $router = new Router();
+    (new AttributeRouteLoader())->load($router, [AutowiredController::class]);
+    $emitter = new CapturingEmitter();
+
+    $app = new App(makeRequest('GET', '/autowired/service'), $router, $emitter);
+    $app->getContainer()->singleton(AutowiredGreetingService::class, AutowiredGreetingService::class);
+    $app->start();
+
+    $payload = json_decode($emitter->content, true);
+
+    assertSameValue(200, $emitter->statusCode, 'Autowired controller should emit successful status.');
+    assertSameValue('autowired', $payload['message'] ?? null, 'Controller dependency should be injected from the container.');
+};
+
+$tests['service container makes classes with typed dependencies'] = function (): void {
+    $container = new ServiceContainer();
+    $container->singleton(AutowiredGreetingService::class, AutowiredGreetingService::class);
+
+    $consumer = $container->make(AutowiredConsumer::class);
+
+    assertSameValue('autowired', $consumer->service->message(), 'Container should autowire typed constructor dependencies.');
 };
 
 $tests['app binds path and query params from attributes'] = function (): void {
