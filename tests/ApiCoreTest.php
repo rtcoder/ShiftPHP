@@ -3,9 +3,9 @@
 use Engine\App;
 use Engine\Controller;
 use Engine\Error\HttpError;
-use Engine\JsonResponse;
 use Engine\Modules\ModuleLoader;
 use Engine\Request;
+use Engine\Response\JsonResponse;
 use Engine\Response\ResponseEmitter;
 use Engine\Router;
 use Engine\Routing\AttributeRouteLoader;

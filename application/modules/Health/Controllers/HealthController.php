@@ -3,7 +3,7 @@
 namespace Modules\Health\Controllers;
 
 use Engine\Controller;
-use Engine\JsonResponse;
+use Engine\Response\JsonResponse;
 use Engine\Routing\Attributes\Get;
 use Engine\Routing\Attributes\RoutePrefix;
 use Modules\Health\Services\HealthService;

@@ -3,6 +3,7 @@
 namespace Engine;
 
 use Engine\Error\HttpError;
+use Engine\Response\JsonResponse;
 use Engine\Response\Response;
 use Engine\Response\ResponseEmitter;
 use Engine\Routing\Attributes\Body;

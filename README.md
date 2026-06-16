@@ -58,12 +58,12 @@ Controllers extend `Engine\Controller` and return a response object:
 namespace Modules\Users\Controllers;
 
 use Engine\Controller;
-use Engine\JsonResponse;
+use Engine\Response\JsonResponse;
 use Engine\Routing\Attributes\Body;
 use Engine\Routing\Attributes\Get;
 use Engine\Routing\Attributes\Header;
-use Engine\Routing\Attributes\Post;
 use Engine\Routing\Attributes\PathParam;
+use Engine\Routing\Attributes\Post;
 use Engine\Routing\Attributes\QueryParam;
 use Engine\Routing\Attributes\RoutePrefix;
 use Engine\Routing\Attributes\Status;

@@ -2,6 +2,7 @@
 
 namespace Engine;
 
+use Engine\Response\JsonResponse;
 use Engine\Response\Response;
 use JsonException;
 

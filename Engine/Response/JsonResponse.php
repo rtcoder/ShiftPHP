@@ -1,8 +1,7 @@
 <?php
 
-namespace Engine;
+namespace Engine\Response;
 
-use Engine\Response\Response;
 use JsonException;
 
 class JsonResponse extends Response
