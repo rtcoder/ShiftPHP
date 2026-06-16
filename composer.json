@@ -23,7 +23,8 @@
       "Console\\": "Engine/Console",
       "AppConsole\\": "application/console",
       "Engine\\": "Engine",
-      "Controllers\\": "application/controller"
+      "Controllers\\": "application/controller",
+      "Modules\\": "application/modules"
     }
   }
 }

@@ -18,7 +18,29 @@ Implemented in this branch:
 - `route:list` CLI command,
 - PHP 8 attributes for controller routing,
 - PHP 8 attributes for response metadata and parameter binding,
+- modular monolith support through `application/modules/*/Module.php`,
 - removal of view storage and example page assets from runtime.
+
+## Modular Monolith Direction
+
+Each module can own:
+
+- controllers,
+- routes,
+- services,
+- commands.
+
+Module layout:
+
+```text
+application/modules/{ModuleName}/
+├── Module.php
+├── Controllers/
+├── Services/
+└── Commands/
+```
+
+`Module.php` is the module boundary. It registers services into the container, routes into the router, and command mappings into the CLI.
 
 ## Runtime Flow
 
