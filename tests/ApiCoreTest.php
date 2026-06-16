@@ -3,9 +3,11 @@
 use Shift\App;
 use Shift\Controller;
 use Shift\Error\HttpError;
+use Shift\Middleware\MiddlewareInterface;
 use Shift\Modules\ModuleLoader;
 use Shift\Request;
 use Shift\Response\JsonResponse;
+use Shift\Response\Response;
 use Shift\Response\ResponseEmitter;
 use Shift\Routing\AttributeRouteLoader;
 use Shift\Routing\Attributes\Body;
@@ -66,6 +68,20 @@ final class TestAttributeController extends Controller
             'name' => $name,
             'created' => true,
         ];
+    }
+}
+
+final class HeaderMiddleware implements MiddlewareInterface
+{
+    public function handle(Request $request, callable $next): Response
+    {
+        $response = $next($request);
+
+        return new Response(
+            $response->getContent(),
+            $response->getStatusCode(),
+            $response->getHeaders() + ['X-Middleware' => 'class']
+        );
     }
 }
 
@@ -212,6 +228,57 @@ $tests['app applies status header and body attributes'] = function (): void {
     assertSameValue(201, $emitter->statusCode, 'Status attribute should override response status.');
     assertArrayHasKeyValue('X-Test', 'created', $emitter->headers, 'Header attribute should add response header.');
     assertSameValue('Shift', $payload['name'] ?? null, 'Body attribute should bind JSON body key.');
+};
+
+$tests['app runs middleware around controller dispatch'] = function (): void {
+    $router = new Router();
+    $router->get('/test/api/{argument}', [TestAttributeController::class, 'api']);
+    $emitter = new CapturingEmitter();
+    $events = [];
+
+    $app = new App(makeRequest('GET', '/test/api/demo'), $router, $emitter);
+    $app->middleware(function (Request $request, callable $next) use (&$events): Response {
+        $events[] = 'before';
+        $response = $next($request);
+        $events[] = 'after';
+
+        return new Response(
+            $response->getContent(),
+            $response->getStatusCode(),
+            $response->getHeaders() + ['X-Middleware' => 'callable']
+        );
+    });
+    $app->start();
+
+    assertSameValue(['before', 'after'], $events, 'Middleware should wrap controller dispatch.');
+    assertArrayHasKeyValue('X-Middleware', 'callable', $emitter->headers, 'Middleware should be able to modify response headers.');
+};
+
+$tests['app supports middleware classes'] = function (): void {
+    $router = new Router();
+    $router->get('/test/api/{argument}', [TestAttributeController::class, 'api']);
+    $emitter = new CapturingEmitter();
+
+    $app = new App(makeRequest('GET', '/test/api/demo'), $router, $emitter);
+    $app->middleware(HeaderMiddleware::class);
+    $app->start();
+
+    assertArrayHasKeyValue('X-Middleware', 'class', $emitter->headers, 'Middleware class should be resolved and executed.');
+};
+
+$tests['middleware can short-circuit request handling'] = function (): void {
+    $router = new Router();
+    $router->get('/test/api/{argument}', [TestAttributeController::class, 'api']);
+    $emitter = new CapturingEmitter();
+
+    $app = new App(makeRequest('GET', '/test/api/demo'), $router, $emitter);
+    $app->middleware(static fn (Request $request, callable $next): Response => JsonResponse::error('Blocked', 403));
+    $app->start();
+
+    $payload = json_decode($emitter->content, true);
+
+    assertSameValue(403, $emitter->statusCode, 'Middleware should be able to short-circuit the request.');
+    assertSameValue('Blocked', $payload['error']['message'] ?? null, 'Short-circuit response should be emitted.');
 };
 
 $tests['module loader registers services and routes'] = function (): void {

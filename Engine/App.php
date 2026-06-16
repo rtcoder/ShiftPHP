@@ -3,6 +3,8 @@
 namespace Shift;
 
 use Shift\Error\HttpError;
+use Shift\Middleware\MiddlewareInterface;
+use Shift\Middleware\MiddlewarePipeline;
 use Shift\Response\JsonResponse;
 use Shift\Response\Response;
 use Shift\Response\ResponseEmitter;
@@ -31,6 +33,7 @@ final class App
     private ServiceContainer $container;
     private Router $router;
     private ResponseEmitter $emitter;
+    private array $middleware = [];
 
     public function __construct(Request $request, ?Router $router = null, ?ResponseEmitter $emitter = null)
     {
@@ -44,7 +47,7 @@ final class App
     public function start(): void
     {
         try {
-            $response = $this->dispatch();
+            $response = $this->handleRequest();
         } catch (HttpError $exception) {
             $response = JsonResponse::error(
                 $exception->getMessage(),
@@ -59,13 +62,37 @@ final class App
         $this->emitter->emit($response);
     }
 
+    public function middleware(MiddlewareInterface|callable|string $middleware): self
+    {
+        $this->middleware[] = $middleware;
+
+        return $this;
+    }
+
+    /**
+     * @return array<int, MiddlewareInterface|callable|class-string>
+     */
+    public function getMiddleware(): array
+    {
+        return $this->middleware;
+    }
+
+    private function handleRequest(): Response
+    {
+        return (new MiddlewarePipeline($this->container))->handle(
+            $this->request,
+            $this->middleware,
+            fn (Request $request): Response => $this->dispatch($request)
+        );
+    }
+
     /**
      * @throws ReflectionException
      */
-    private function dispatch(): Response
+    private function dispatch(Request $request): Response
     {
-        $match = $this->router->match($this->request);
-        $this->request->setRouteParams($match->getParameters());
+        $match = $this->router->match($request);
+        $request->setRouteParams($match->getParameters());
 
         [$controllerClass, $methodName] = $match->getHandler();
 
@@ -73,7 +100,7 @@ final class App
             throw new HttpError('Endpoint not found', 404);
         }
 
-        $controller = new $controllerClass($this->request, $this->container);
+        $controller = new $controllerClass($request, $this->container);
         $reflectionClass = new ReflectionClass($controller);
 
         if (!$reflectionClass->hasMethod($methodName)) {
@@ -83,7 +110,7 @@ final class App
         $method = $reflectionClass->getMethod($methodName);
         $result = $method->invokeArgs(
             $controller,
-            $this->resolveMethodArguments($method->getParameters(), $match->getParameters())
+            $this->resolveMethodArguments($method->getParameters(), $match->getParameters(), $request)
         );
 
         return $this->applyResponseAttributes(
@@ -95,7 +122,7 @@ final class App
     /**
      * @param ReflectionParameter[] $parameters
      */
-    private function resolveMethodArguments(array $parameters, array $routeParameters): array
+    private function resolveMethodArguments(array $parameters, array $routeParameters, Request $request): array
     {
         $arguments = [];
         $orderedRouteParameters = array_values($routeParameters);
@@ -104,7 +131,7 @@ final class App
             $type = $parameter->getType();
 
             if ($type instanceof ReflectionNamedType && $type->getName() === Request::class) {
-                $arguments[] = $this->request;
+                $arguments[] = $request;
                 continue;
             }
 
@@ -122,7 +149,7 @@ final class App
             if ($queryParam instanceof QueryParam) {
                 $name = $queryParam->name ?? $parameter->getName();
                 $arguments[] = $this->castParameterValue(
-                    $this->request->query($name, $queryParam->default ?? $this->getDefaultParameterValue($parameter)),
+                    $request->query($name, $queryParam->default ?? $this->getDefaultParameterValue($parameter)),
                     $parameter
                 );
                 continue;
@@ -130,7 +157,7 @@ final class App
 
             $body = $this->getParameterAttribute($parameter, Body::class);
             if ($body instanceof Body) {
-                $json = $this->request->getJson();
+                $json = $request->getJson();
                 $value = $body->key === null
                     ? $json
                     : ($json[$body->key] ?? $this->getDefaultParameterValue($parameter));

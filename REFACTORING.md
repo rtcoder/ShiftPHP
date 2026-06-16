@@ -18,6 +18,7 @@ ShiftPHP is moving toward an API-only modular monolith. View templates, compiled
 - [x] PHP 8 attributes for response metadata and parameter binding.
 - [x] Modular monolith support through `application/modules/*/Module.php`.
 - [x] Module-owned controllers, routes, services and commands.
+- [x] Middleware pipeline.
 - [x] Removal of view storage and example page assets from runtime.
 - [x] Removal of legacy `application/controllers` and `application/routes.php`.
 - [x] Domain-oriented framework namespaces:
@@ -56,6 +57,7 @@ application/modules/{ModuleName}/
 ```text
 Request
   -> App
+  -> Middleware pipeline
   -> Router
   -> Controller action
   -> Response
@@ -141,7 +143,6 @@ Internal errors return a generic `500` message unless `display_errors` is enable
 
 ## Next
 
-- [ ] Middleware pipeline.
 - [ ] Controller autowiring through the container.
 - [ ] Validation helpers and typed request DTOs.
 - [ ] CORS middleware.
