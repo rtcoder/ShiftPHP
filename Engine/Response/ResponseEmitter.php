@@ -1,6 +1,6 @@
 <?php
 
-namespace Engine;
+namespace Engine\Response;
 
 class ResponseEmitter
 {

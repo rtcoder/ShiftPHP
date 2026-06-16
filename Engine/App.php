@@ -3,6 +3,8 @@
 namespace Engine;
 
 use Engine\Error\HttpError;
+use Engine\Response\Response;
+use Engine\Response\ResponseEmitter;
 use Engine\Routing\Attributes\Body;
 use Engine\Routing\Attributes\Header;
 use Engine\Routing\Attributes\PathParam;

@@ -4,10 +4,10 @@ use Engine\App;
 use Engine\Controller;
 use Engine\Error\HttpError;
 use Engine\JsonResponse;
+use Engine\Modules\ModuleLoader;
 use Engine\Request;
-use Engine\ResponseEmitter;
+use Engine\Response\ResponseEmitter;
 use Engine\Router;
-use Engine\ServiceContainer;
 use Engine\Routing\AttributeRouteLoader;
 use Engine\Routing\Attributes\Body;
 use Engine\Routing\Attributes\Get;
@@ -17,7 +17,7 @@ use Engine\Routing\Attributes\Post;
 use Engine\Routing\Attributes\QueryParam;
 use Engine\Routing\Attributes\RoutePrefix;
 use Engine\Routing\Attributes\Status;
-use Engine\Modules\ModuleLoader;
+use Engine\ServiceContainer;
 use Modules\Health\Services\HealthService;
 
 require_once __DIR__ . '/../bootstrap.php';
@@ -28,7 +28,7 @@ final class CapturingEmitter extends ResponseEmitter
     public array $headers = [];
     public string $content = '';
 
-    public function emit(\Engine\Response $response): void
+    public function emit(\Engine\Response\Response $response): void
     {
         $this->statusCode = $response->getStatusCode();
         $this->headers = $response->getHeaders();
