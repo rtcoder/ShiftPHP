@@ -2,24 +2,33 @@
 
 ShiftPHP is moving toward an API-only modular monolith. View templates, compiled view storage, page assets and MVC rendering are out of scope for this line.
 
-## 0.5 Scope
+## Completed
 
-Implemented in this branch:
-
-- module-owned routing,
-- route parameters with `{name}` placeholders,
-- controller actions returning response objects,
-- `Response`, `JsonResponse` and `ResponseEmitter`,
-- JSON response helpers on the base controller,
-- request helpers for query, post, input, raw body, JSON and route params,
-- JSON errors for `400`, `404` and `500`,
-- `405 Method Not Allowed` with an `Allow` header,
-- lightweight API core tests through `composer test`,
-- `route:list` CLI command,
-- PHP 8 attributes for controller routing,
-- PHP 8 attributes for response metadata and parameter binding,
-- modular monolith support through `application/modules/*/Module.php`,
-- removal of view storage and example page assets from runtime.
+- [x] API-only runtime direction.
+- [x] Route parameters with `{name}` placeholders.
+- [x] Controller actions returning response objects.
+- [x] `Engine\Response\Response`, `JsonResponse` and `ResponseEmitter`.
+- [x] JSON response helpers on the base controller.
+- [x] Request helpers for query, post, input, raw body, JSON and route params.
+- [x] JSON errors for `400`, `404` and `500`.
+- [x] `405 Method Not Allowed` with an `Allow` header.
+- [x] Lightweight API core tests through `composer test`.
+- [x] `route:list` CLI command.
+- [x] PHP 8 attributes for controller routing.
+- [x] PHP 8 attributes for response metadata and parameter binding.
+- [x] Modular monolith support through `application/modules/*/Module.php`.
+- [x] Module-owned controllers, routes, services and commands.
+- [x] Removal of view storage and example page assets from runtime.
+- [x] Removal of legacy `application/controllers` and `application/routes.php`.
+- [x] Domain-oriented engine namespaces:
+  - `Engine\Response`
+  - `Engine\Routing\Router`
+  - `Engine\Routing\Attributes`
+  - `Engine\Service`
+  - `Engine\Modules`
+- [x] GitHub API workflow with PHP 8.3 checks.
+- [x] PR version label validation.
+- [x] Release workflow using PR summary as release notes.
 
 ## Modular Monolith Direction
 
@@ -127,11 +136,19 @@ Internal errors return a generic `500` message unless `display_errors` is enable
 - `Engine/Error/StorageError.php`
 - example CSS and JS page assets
 - `View\\` composer namespace
+- `application/controllers`
+- `application/routes.php`
 
-## Next After 0.5
+## Next
 
-- Middleware pipeline.
-- Controller autowiring through the container.
-- Validation helpers and typed request DTOs.
-- CORS and auth middleware.
-- Structured logging for exceptions.
+- [ ] Middleware pipeline.
+- [ ] Controller autowiring through the container.
+- [ ] Validation helpers and typed request DTOs.
+- [ ] CORS middleware.
+- [ ] Authentication and authorization middleware contracts.
+- [ ] Structured logging for exceptions.
+- [ ] Module configuration loading.
+- [ ] Module lifecycle hooks, for example `boot()` after service registration.
+- [ ] Module discovery cache for production.
+- [ ] CLI command namespaces and command metadata.
+- [ ] Basic package-quality checks, for example static analysis and coding style.
