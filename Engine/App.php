@@ -250,7 +250,6 @@ final class App
         }
 
         $locations = [
-            APP_PATH . '/controller/',
             APP_PATH . '/model/',
             APP_ROOT,
         ];

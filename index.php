@@ -16,10 +16,4 @@ $modules = (new ModuleLoader())->load();
 $modules->registerServices($app->getContainer());
 $modules->registerRoutes($app->getRouter());
 
-$routes = APP_PATH . '/routes.php';
-if (file_exists($routes)) {
-    $registerRoutes = require $routes;
-    $registerRoutes($app->getRouter());
-}
-
 $app->start();

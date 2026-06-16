@@ -21,9 +21,7 @@
     "psr-4": {
       "Tools\\": "Engine/Tools",
       "Console\\": "Engine/Console",
-      "AppConsole\\": "application/console",
       "Engine\\": "Engine",
-      "Controllers\\": "application/controller",
       "Modules\\": "application/modules"
     }
   }

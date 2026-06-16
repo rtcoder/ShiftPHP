@@ -14,15 +14,6 @@ class RouteList implements CommandInterface
         $cli = new Cli();
         $router = new Router();
         (new ModuleLoader())->load()->registerRoutes($router);
-        $routesFile = APP_PATH . '/routes.php';
-
-        if (!file_exists($routesFile)) {
-            $cli->warning('No routes file found.');
-            return;
-        }
-
-        $registerRoutes = require $routesFile;
-        $registerRoutes($router);
 
         $rows = [];
         foreach ($router->getRoutes() as $route) {
