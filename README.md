@@ -2,9 +2,12 @@
 
 ShiftPHP is a small API-only PHP framework.
 
-Version `0.5` focuses on the HTTP API core:
+The current architecture focuses on an API-only modular monolith:
 
-- explicit routes,
+- module-owned routes,
+- module-owned controllers,
+- module-owned services,
+- module-owned CLI commands,
 - controller actions,
 - JSON responses,
 - request helpers,
@@ -18,18 +21,25 @@ Version `0.5` focuses on the HTTP API core:
 
 ## Routing
 
-Routes are registered in `application/routes.php`:
+Routes are owned by modules and registered from each module boundary:
 
 ```php
-use Controllers\HelloController;
+namespace Modules\Health;
+
+use Engine\Modules\AbstractModule;
 use Engine\Router;
 use Engine\Routing\AttributeRouteLoader;
+use Modules\Health\Controllers\HealthController;
 
-return static function (Router $router): void {
-    (new AttributeRouteLoader())->load($router, [
-        HelloController::class,
-    ]);
-};
+class Module extends AbstractModule
+{
+    public function registerRoutes(Router $router): void
+    {
+        (new AttributeRouteLoader())->load($router, [
+            HealthController::class,
+        ]);
+    }
+}
 ```
 
 Supported methods:
@@ -45,7 +55,7 @@ Supported methods:
 Controllers extend `Engine\Controller` and return a response object:
 
 ```php
-namespace Controllers;
+namespace Modules\Users\Controllers;
 
 use Engine\Controller;
 use Engine\JsonResponse;
@@ -131,8 +141,7 @@ php -S 127.0.0.1:8000 index.php
 Then open:
 
 ```text
-http://127.0.0.1:8000/hello
-http://127.0.0.1:8000/hello/api/example
+http://127.0.0.1:8000/health
 ```
 
 ## CLI

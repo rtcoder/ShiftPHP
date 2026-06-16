@@ -1,7 +1,7 @@
 <?php
 
-use Controllers\HelloController;
 use Engine\App;
+use Engine\Controller;
 use Engine\Error\HttpError;
 use Engine\JsonResponse;
 use Engine\Request;
@@ -9,6 +9,14 @@ use Engine\ResponseEmitter;
 use Engine\Router;
 use Engine\ServiceContainer;
 use Engine\Routing\AttributeRouteLoader;
+use Engine\Routing\Attributes\Body;
+use Engine\Routing\Attributes\Get;
+use Engine\Routing\Attributes\Header;
+use Engine\Routing\Attributes\PathParam;
+use Engine\Routing\Attributes\Post;
+use Engine\Routing\Attributes\QueryParam;
+use Engine\Routing\Attributes\RoutePrefix;
+use Engine\Routing\Attributes\Status;
 use Engine\Modules\ModuleLoader;
 use Modules\Health\Services\HealthService;
 
@@ -25,6 +33,38 @@ final class CapturingEmitter extends ResponseEmitter
         $this->statusCode = $response->getStatusCode();
         $this->headers = $response->getHeaders();
         $this->content = $response->getContent();
+    }
+}
+
+#[RoutePrefix('/test')]
+final class TestAttributeController extends Controller
+{
+    #[Get('/api/{argument}')]
+    public function api(#[PathParam] ?string $argument = null, #[QueryParam('include')] ?string $include = null): JsonResponse
+    {
+        $arguments = [];
+        if ($argument !== null) {
+            $arguments[] = $argument;
+        }
+
+        return $this->json([
+            'data' => [
+                'arguments' => $arguments,
+                'include' => $include,
+                'routeParams' => $this->request->getRouteParams(),
+            ],
+        ]);
+    }
+
+    #[Post('/created')]
+    #[Status(201)]
+    #[Header('X-Test', 'created')]
+    public function created(#[Body('name')] string $name): array
+    {
+        return [
+            'name' => $name,
+            'created' => true,
+        ];
     }
 }
 
@@ -60,16 +100,16 @@ $tests = [];
 
 $tests['router matches route params'] = function (): void {
     $router = new Router();
-    $router->get('/hello/api/{argument}', [HelloController::class, 'api']);
+    $router->get('/test/api/{argument}', [TestAttributeController::class, 'api']);
 
-    $match = $router->match(makeRequest('GET', '/hello/api/example'));
+    $match = $router->match(makeRequest('GET', '/test/api/example'));
 
     assertSameValue(['argument' => 'example'], $match->getParameters(), 'Route parameters should be extracted.');
 };
 
 $tests['attribute loader registers controller routes'] = function (): void {
     $router = new Router();
-    (new AttributeRouteLoader())->load($router, [HelloController::class]);
+    (new AttributeRouteLoader())->load($router, [TestAttributeController::class]);
 
     $routes = array_map(
         static fn (\Engine\Route $route): string => $route->getMethod() . ' ' . $route->getPath(),
@@ -78,24 +118,20 @@ $tests['attribute loader registers controller routes'] = function (): void {
 
     assertSameValue(
         [
-            'GET /hello',
-            'GET /hello/about',
-            'GET /hello/api',
-            'GET /hello/api/{argument}',
-            'POST /hello/echo',
-            'POST /hello/created',
+            'GET /test/api/{argument}',
+            'POST /test/created',
         ],
         $routes,
-        'Attribute loader should register all HelloController routes.'
+        'Attribute loader should register all test controller routes.'
     );
 };
 
 $tests['router returns 405 with Allow header'] = function (): void {
     $router = new Router();
-    $router->get('/hello', [HelloController::class, 'index']);
+    $router->get('/test/api/{argument}', [TestAttributeController::class, 'api']);
 
     try {
-        $router->match(makeRequest('POST', '/hello'));
+        $router->match(makeRequest('POST', '/test/api/example'));
     } catch (HttpError $error) {
         assertSameValue(405, $error->getStatusCode(), 'Wrong method should return 405.');
         assertArrayHasKeyValue('Allow', 'GET', $error->getHeaders(), '405 should expose allowed methods.');
@@ -106,7 +142,7 @@ $tests['router returns 405 with Allow header'] = function (): void {
 };
 
 $tests['request parses json and headers'] = function (): void {
-    $request = makeRequest('POST', '/hello/echo', '{"name":"Shift"}');
+    $request = makeRequest('POST', '/test/created', '{"name":"Shift"}');
 
     assertSameValue(['name' => 'Shift'], $request->getJson(), 'JSON body should parse.');
     assertSameValue('Shift', $request->input('name'), 'Input should read JSON body.');
@@ -114,7 +150,7 @@ $tests['request parses json and headers'] = function (): void {
 };
 
 $tests['request rejects malformed json'] = function (): void {
-    $request = makeRequest('POST', '/hello/echo', '{bad');
+    $request = makeRequest('POST', '/test/created', '{bad');
 
     try {
         $request->getJson();
@@ -136,10 +172,10 @@ $tests['json response encodes payload'] = function (): void {
 
 $tests['app dispatches route to controller'] = function (): void {
     $router = new Router();
-    $router->get('/hello/api/{argument}', [HelloController::class, 'api']);
+    $router->get('/test/api/{argument}', [TestAttributeController::class, 'api']);
     $emitter = new CapturingEmitter();
 
-    $app = new App(makeRequest('GET', '/hello/api/demo'), $router, $emitter);
+    $app = new App(makeRequest('GET', '/test/api/demo'), $router, $emitter);
     $app->start();
 
     $payload = json_decode($emitter->content, true);
@@ -150,10 +186,10 @@ $tests['app dispatches route to controller'] = function (): void {
 
 $tests['app binds path and query params from attributes'] = function (): void {
     $router = new Router();
-    (new AttributeRouteLoader())->load($router, [HelloController::class]);
+    (new AttributeRouteLoader())->load($router, [TestAttributeController::class]);
     $emitter = new CapturingEmitter();
 
-    $app = new App(makeRequest('GET', '/hello/api/demo', '', ['include' => 'details']), $router, $emitter);
+    $app = new App(makeRequest('GET', '/test/api/demo', '', ['include' => 'details']), $router, $emitter);
     $app->start();
 
     $payload = json_decode($emitter->content, true);
@@ -164,16 +200,16 @@ $tests['app binds path and query params from attributes'] = function (): void {
 
 $tests['app applies status header and body attributes'] = function (): void {
     $router = new Router();
-    (new AttributeRouteLoader())->load($router, [HelloController::class]);
+    (new AttributeRouteLoader())->load($router, [TestAttributeController::class]);
     $emitter = new CapturingEmitter();
 
-    $app = new App(makeRequest('POST', '/hello/created', '{"name":"Shift"}'), $router, $emitter);
+    $app = new App(makeRequest('POST', '/test/created', '{"name":"Shift"}'), $router, $emitter);
     $app->start();
 
     $payload = json_decode($emitter->content, true);
 
     assertSameValue(201, $emitter->statusCode, 'Status attribute should override response status.');
-    assertArrayHasKeyValue('X-ShiftPHP-Example', 'created', $emitter->headers, 'Header attribute should add response header.');
+    assertArrayHasKeyValue('X-Test', 'created', $emitter->headers, 'Header attribute should add response header.');
     assertSameValue('Shift', $payload['name'] ?? null, 'Body attribute should bind JSON body key.');
 };
 

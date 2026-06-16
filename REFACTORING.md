@@ -1,12 +1,12 @@
-# ShiftPHP 0.5 - API-only refactoring
+# ShiftPHP - API-only modular monolith
 
-ShiftPHP 0.5 turns the framework into an API-only HTTP core. View templates, compiled view storage, page assets and MVC rendering are out of scope for this line.
+ShiftPHP is moving toward an API-only modular monolith. View templates, compiled view storage, page assets and MVC rendering are out of scope for this line.
 
 ## 0.5 Scope
 
 Implemented in this branch:
 
-- explicit `application/routes.php` routing,
+- module-owned routing,
 - route parameters with `{name}` placeholders,
 - controller actions returning response objects,
 - `Response`, `JsonResponse` and `ResponseEmitter`,
@@ -55,14 +55,18 @@ Request
 
 ## Routes
 
-Routes live in `application/routes.php`:
+Routes live inside modules:
 
 ```php
-return static function (Router $router): void {
-    (new AttributeRouteLoader())->load($router, [
-        HelloController::class,
-    ]);
-};
+class Module extends AbstractModule
+{
+    public function registerRoutes(Router $router): void
+    {
+        (new AttributeRouteLoader())->load($router, [
+            HealthController::class,
+        ]);
+    }
+}
 ```
 
 Supported methods:
@@ -78,7 +82,7 @@ Supported methods:
 Controllers receive the current `Request` and `ServiceContainer` through the constructor. Actions should return `Response` or `JsonResponse`.
 
 ```php
-class HelloController extends \Engine\Controller
+class HealthController extends \Engine\Controller
 {
     #[Get('/api/{argument}')]
     public function api(#[PathParam] string $argument, #[QueryParam('include')] ?string $include = null): JsonResponse
