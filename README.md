@@ -11,6 +11,7 @@ The current architecture focuses on an API-only modular monolith:
 - controller actions,
 - JSON responses,
 - request helpers,
+- middleware pipeline,
 - JSON error responses,
 - a small service container.
 
@@ -128,6 +129,44 @@ $request->routeParam('id');
 ```
 
 Malformed JSON bodies are returned as `400 Bad Request`.
+
+## Middleware
+
+Middleware can wrap or stop request handling before the controller action runs:
+
+```php
+use Shift\Middleware\MiddlewareInterface;
+use Shift\Request;
+use Shift\Response\Response;
+
+class AuthMiddleware implements MiddlewareInterface
+{
+    public function handle(Request $request, callable $next): Response
+    {
+        if ($request->getHeader('Authorization') === null) {
+            return new Response('Unauthorized', 401);
+        }
+
+        return $next($request);
+    }
+}
+
+$app->middleware(AuthMiddleware::class);
+```
+
+Callable middleware is also supported:
+
+```php
+$app->middleware(function (Request $request, callable $next): Response {
+    $response = $next($request);
+
+    return new Response(
+        $response->getContent(),
+        $response->getStatusCode(),
+        $response->getHeaders() + ['X-Api' => 'Shift']
+    );
+});
+```
 
 ## Run Locally
 
