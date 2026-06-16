@@ -1,10 +1,351 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Docs</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ShiftPHP Developer Documentation</title>
 </head>
 <body>
+    <header>
+        <h1>ShiftPHP Developer Documentation</h1>
+        <p>ShiftPHP is an API-only PHP 8.3 framework for modular monolith applications.</p>
+    </header>
 
+    <nav aria-label="Documentation sections">
+        <h2>Contents</h2>
+        <ol>
+            <li><a href="#requirements">Requirements</a></li>
+            <li><a href="#architecture">Architecture</a></li>
+            <li><a href="#bootstrap">Bootstrap</a></li>
+            <li><a href="#modules">Modules</a></li>
+            <li><a href="#routing">Routing</a></li>
+            <li><a href="#controllers">Controllers</a></li>
+            <li><a href="#requests">Requests</a></li>
+            <li><a href="#responses">Responses</a></li>
+            <li><a href="#middleware">Middleware</a></li>
+            <li><a href="#services">Service Container</a></li>
+            <li><a href="#cli">CLI</a></li>
+            <li><a href="#errors">Errors</a></li>
+            <li><a href="#testing">Testing</a></li>
+        </ol>
+    </nav>
+
+    <main>
+        <section id="requirements">
+            <h2>Requirements</h2>
+            <ul>
+                <li>PHP 8.3 or newer</li>
+                <li>Composer</li>
+                <li>The <code>json</code> PHP extension</li>
+            </ul>
+        </section>
+
+        <section id="architecture">
+            <h2>Architecture</h2>
+            <p>The public framework namespace is <code>Shift\</code>. Composer currently maps it to the <code>Engine/</code> directory.</p>
+            <p>Application code lives under <code>application/</code>. Modules live under <code>application/modules/{ModuleName}</code> and are autoloaded with the <code>Modules\</code> namespace.</p>
+
+            <h3>Request Flow</h3>
+            <pre><code>Request
+  -&gt; Shift\App
+  -&gt; Middleware pipeline
+  -&gt; Router
+  -&gt; Controller action
+  -&gt; Response
+  -&gt; ResponseEmitter</code></pre>
+
+            <h3>Core Namespaces</h3>
+            <dl>
+                <dt><code>Shift</code></dt>
+                <dd>Application kernel, request object, and base controller.</dd>
+                <dt><code>Shift\Response</code></dt>
+                <dd>Response objects and response emitter.</dd>
+                <dt><code>Shift\Routing</code></dt>
+                <dd>Attribute route loader and routing attributes.</dd>
+                <dt><code>Shift\Routing\Router</code></dt>
+                <dd>Router, route, and route match objects.</dd>
+                <dt><code>Shift\Middleware</code></dt>
+                <dd>Middleware contract and middleware pipeline.</dd>
+                <dt><code>Shift\Modules</code></dt>
+                <dd>Module contracts and module loader.</dd>
+                <dt><code>Shift\Service</code></dt>
+                <dd>Small service container and service interface.</dd>
+                <dt><code>Shift\Console</code></dt>
+                <dd>CLI command dispatcher and built-in commands.</dd>
+                <dt><code>Shift\Error</code></dt>
+                <dd>HTTP and framework error handling.</dd>
+            </dl>
+        </section>
+
+        <section id="bootstrap">
+            <h2>Bootstrap</h2>
+            <p>The HTTP entry point is <code>index.php</code>. It creates a request, creates the app, loads modules, registers module services and routes, then starts the app.</p>
+
+            <pre><code>use Shift\App;
+use Shift\Modules\ModuleLoader;
+use Shift\Request;
+
+require_once 'bootstrap.php';
+
+$request = new Request();
+$app = new App($request);
+
+$modules = (new ModuleLoader())-&gt;load();
+$modules-&gt;registerServices($app-&gt;getContainer());
+$modules-&gt;registerRoutes($app-&gt;getRouter());
+
+$app-&gt;start();</code></pre>
+
+            <p>Run the application locally with PHP's built-in server:</p>
+            <pre><code>php -S 127.0.0.1:8000 index.php</code></pre>
+        </section>
+
+        <section id="modules">
+            <h2>Modules</h2>
+            <p>A module owns its controllers, routes, services, and CLI commands.</p>
+
+            <pre><code>application/modules/Health/
+|-- Module.php
+|-- Controllers/
+|-- Services/
+`-- Commands/</code></pre>
+
+            <p>Every module boundary implements <code>Shift\Modules\ModuleInterface</code>. Most modules can extend <code>Shift\Modules\AbstractModule</code> and override only the methods they need.</p>
+
+            <pre><code>namespace Modules\Health;
+
+use Shift\Modules\AbstractModule;
+use Shift\Routing\AttributeRouteLoader;
+use Shift\Routing\Router\Router;
+use Shift\Service\ServiceContainer;
+use Modules\Health\Controllers\HealthController;
+use Modules\Health\Services\HealthService;
+
+class Module extends AbstractModule
+{
+    public function getName(): string
+    {
+        return 'health';
+    }
+
+    public function registerServices(ServiceContainer $container): void
+    {
+        $container-&gt;singleton(HealthService::class, HealthService::class);
+    }
+
+    public function registerRoutes(Router $router): void
+    {
+        (new AttributeRouteLoader())-&gt;load($router, [
+            HealthController::class,
+        ]);
+    }
+
+    public function getCommandMappings(): array
+    {
+        return [
+            [
+                'dir' =&gt; __DIR__ . '/Commands/',
+                'namespace' =&gt; 'Modules\\Health\\Commands\\',
+            ],
+        ];
+    }
+}</code></pre>
+
+            <p><code>Shift\Modules\ModuleLoader</code> discovers modules by convention from <code>application/modules/*/Module.php</code>.</p>
+        </section>
+
+        <section id="routing">
+            <h2>Routing</h2>
+            <p>Routes are registered on <code>Shift\Routing\Router\Router</code>. Modules usually register routes through attributes and <code>Shift\Routing\AttributeRouteLoader</code>.</p>
+
+            <h3>Supported HTTP Method Attributes</h3>
+            <ul>
+                <li><code>#[Get('/path')]</code></li>
+                <li><code>#[Post('/path')]</code></li>
+                <li><code>#[Put('/path')]</code></li>
+                <li><code>#[Patch('/path')]</code></li>
+                <li><code>#[Delete('/path')]</code></li>
+            </ul>
+
+            <h3>Route Metadata Attributes</h3>
+            <ul>
+                <li><code>#[RoutePrefix('/prefix')]</code> on controller classes</li>
+                <li><code>#[Status(201)]</code> on controller actions</li>
+                <li><code>#[Header('X-Name', 'value')]</code> on controller actions</li>
+            </ul>
+
+            <h3>Parameter Binding Attributes</h3>
+            <ul>
+                <li><code>#[PathParam('id')]</code> reads a route placeholder</li>
+                <li><code>#[QueryParam('include')]</code> reads a query string value</li>
+                <li><code>#[Body]</code> reads the decoded JSON body</li>
+                <li><code>#[Body('name')]</code> reads one JSON body field</li>
+            </ul>
+
+            <pre><code>#[RoutePrefix('/users')]
+final class UserController extends Controller
+{
+    #[Get('/{id}')]
+    public function show(
+        #[PathParam] int $id,
+        #[QueryParam('include')] ?string $include = null
+    ): JsonResponse {
+        return $this-&gt;json([
+            'id' =&gt; $id,
+            'include' =&gt; $include,
+        ]);
+    }
+}</code></pre>
+
+            <p>The router supports path placeholders such as <code>/users/{id}</code>. Unsupported HTTP methods return <code>405 Method Not Allowed</code> with an <code>Allow</code> header.</p>
+        </section>
+
+        <section id="controllers">
+            <h2>Controllers</h2>
+            <p>Controllers extend <code>Shift\Controller</code>. The current <code>Shift\Request</code> and <code>Shift\Service\ServiceContainer</code> are injected through the constructor.</p>
+
+            <p>Controller actions can return:</p>
+            <ul>
+                <li><code>Shift\Response\Response</code></li>
+                <li><code>Shift\Response\JsonResponse</code></li>
+                <li>an array, which is normalized to <code>JsonResponse</code></li>
+                <li><code>null</code>, which is normalized to a <code>204 No Content</code> response</li>
+                <li>a scalar value, which is normalized to a plain <code>Response</code></li>
+            </ul>
+
+            <h3>Controller Helpers</h3>
+            <ul>
+                <li><code>$this-&gt;json(array $data, int $statusCode = 200)</code></li>
+                <li><code>$this-&gt;error(string $message, int $statusCode = 400, array $context = [], array $headers = [])</code></li>
+                <li><code>$this-&gt;noContent()</code></li>
+                <li><code>$this-&gt;getRequest()</code></li>
+                <li><code>$this-&gt;getContainer()</code></li>
+            </ul>
+        </section>
+
+        <section id="requests">
+            <h2>Requests</h2>
+            <p><code>Shift\Request</code> wraps server data, query values, post data, route parameters, headers, and JSON request bodies.</p>
+
+            <pre><code>$request-&gt;getMethod();
+$request-&gt;getPath();
+$request-&gt;getQueryParams();
+$request-&gt;getPostData();
+$request-&gt;query('page', 1);
+$request-&gt;post('name');
+$request-&gt;input('name');
+$request-&gt;getRawBody();
+$request-&gt;getJson();
+$request-&gt;getHeader('Authorization');
+$request-&gt;getUserAgent();
+$request-&gt;getIpAddress();
+$request-&gt;getRouteParams();
+$request-&gt;routeParam('id');</code></pre>
+
+            <p><code>getJson()</code> returns an empty array for an empty body. Malformed JSON throws an HTTP error and is returned as <code>400 Bad Request</code>.</p>
+        </section>
+
+        <section id="responses">
+            <h2>Responses</h2>
+            <p><code>Shift\Response\Response</code> stores response content, status code, and headers. <code>Shift\Response\ResponseEmitter</code> emits those values to PHP's HTTP response.</p>
+
+            <pre><code>use Shift\Response\Response;
+use Shift\Response\JsonResponse;
+
+return new Response('Accepted', 202, ['X-State' =&gt; 'queued']);
+return JsonResponse::ok(['status' =&gt; 'ok']);
+return JsonResponse::created(['id' =&gt; 10]);
+return JsonResponse::error('Invalid payload', 422);</code></pre>
+
+            <p><code>JsonResponse</code> automatically sets <code>Content-Type: application/json</code>.</p>
+        </section>
+
+        <section id="middleware">
+            <h2>Middleware</h2>
+            <p>Middleware runs before controller dispatch. It can continue the request by calling <code>$next($request)</code>, modify the returned response, or return a response immediately.</p>
+
+            <pre><code>namespace Modules\Users\Middleware;
+
+use Shift\Middleware\MiddlewareInterface;
+use Shift\Request;
+use Shift\Response\JsonResponse;
+use Shift\Response\Response;
+
+final class AuthMiddleware implements MiddlewareInterface
+{
+    public function handle(Request $request, callable $next): Response
+    {
+        if ($request-&gt;getHeader('Authorization') === null) {
+            return JsonResponse::error('Unauthorized', 401);
+        }
+
+        return $next($request);
+    }
+}</code></pre>
+
+            <p>Register class middleware on the app:</p>
+            <pre><code>$app-&gt;middleware(AuthMiddleware::class);</code></pre>
+
+            <p>Callable middleware is also supported:</p>
+            <pre><code>$app-&gt;middleware(function (Request $request, callable $next): Response {
+    $response = $next($request);
+
+    return new Response(
+        $response-&gt;getContent(),
+        $response-&gt;getStatusCode(),
+        $response-&gt;getHeaders() + ['X-Api' =&gt; 'Shift']
+    );
+});</code></pre>
+
+            <p>Middleware may be a class string, an object implementing <code>MiddlewareInterface</code>, or a callable. Class strings are resolved from the service container when registered there.</p>
+        </section>
+
+        <section id="services">
+            <h2>Service Container</h2>
+            <p><code>Shift\Service\ServiceContainer</code> stores regular services and singletons. It can resolve closures, class names, and already-created objects.</p>
+
+            <pre><code>$container-&gt;register(UserRepository::class, UserRepository::class);
+$container-&gt;singleton(HealthService::class, HealthService::class);
+$container-&gt;singleton('request', $request);
+
+$service = $container-&gt;resolve(HealthService::class);
+$exists = $container-&gt;has(HealthService::class);</code></pre>
+
+            <p>The app registers the current request and router as default singleton services under <code>request</code> and <code>router</code>.</p>
+        </section>
+
+        <section id="cli">
+            <h2>CLI</h2>
+            <p>The CLI entry point is <code>shift.php</code>. Built-in commands live under <code>Shift\Console\Commands</code>, and module commands are loaded from module command mappings.</p>
+
+            <pre><code>php shift.php route:list
+php shift.php health</code></pre>
+
+            <p>Commands implement <code>Shift\Console\CommandInterface</code>.</p>
+        </section>
+
+        <section id="errors">
+            <h2>Errors</h2>
+            <p>Framework HTTP errors are represented by <code>Shift\Error\HttpError</code>. The app normalizes HTTP errors to JSON responses.</p>
+
+            <pre><code>{
+  "error": {
+    "message": "Endpoint not found",
+    "status": 404
+  }
+}</code></pre>
+
+            <p>Malformed JSON returns <code>400</code>. Missing routes return <code>404</code>. Wrong methods return <code>405</code> with an <code>Allow</code> header. Unexpected runtime errors return a generic <code>500 Internal Server Error</code>.</p>
+        </section>
+
+        <section id="testing">
+            <h2>Testing</h2>
+            <p>The current lightweight test suite is in <code>tests/ApiCoreTest.php</code>.</p>
+
+            <pre><code>composer test</code></pre>
+
+            <p>The API workflow also validates Composer configuration, dumps autoload files, lints PHP files, runs the API tests, and verifies the route list command.</p>
+        </section>
+    </main>
 </body>
 </html>
