@@ -7,7 +7,7 @@ ShiftPHP is moving toward an API-only modular monolith. View templates, compiled
 - [x] API-only runtime direction.
 - [x] Route parameters with `{name}` placeholders.
 - [x] Controller actions returning response objects.
-- [x] `Engine\Response\Response`, `JsonResponse` and `ResponseEmitter`.
+- [x] `Shift\Response\Response`, `JsonResponse` and `ResponseEmitter`.
 - [x] JSON response helpers on the base controller.
 - [x] Request helpers for query, post, input, raw body, JSON and route params.
 - [x] JSON errors for `400`, `404` and `500`.
@@ -20,12 +20,12 @@ ShiftPHP is moving toward an API-only modular monolith. View templates, compiled
 - [x] Module-owned controllers, routes, services and commands.
 - [x] Removal of view storage and example page assets from runtime.
 - [x] Removal of legacy `application/controllers` and `application/routes.php`.
-- [x] Domain-oriented engine namespaces:
-  - `Engine\Response`
-  - `Engine\Routing\Router`
-  - `Engine\Routing\Attributes`
-  - `Engine\Service`
-  - `Engine\Modules`
+- [x] Domain-oriented framework namespaces:
+  - `Shift\Response`
+  - `Shift\Routing\Router`
+  - `Shift\Routing\Attributes`
+  - `Shift\Service`
+  - `Shift\Modules`
 - [x] GitHub API workflow with PHP 8.3 checks.
 - [x] PR version label validation.
 - [x] Release workflow using PR summary as release notes.
@@ -91,7 +91,7 @@ Supported methods:
 Controllers receive the current `Request` and `ServiceContainer` through the constructor. Actions should return `Response` or `JsonResponse`.
 
 ```php
-class HealthController extends \Engine\Controller
+class HealthController extends \Shift\Controller
 {
     #[Get('/api/{argument}')]
     public function api(#[PathParam] string $argument, #[QueryParam('include')] ?string $include = null): JsonResponse
@@ -111,7 +111,7 @@ class HealthController extends \Engine\Controller
 }
 ```
 
-Action arguments are resolved from route parameter names. An action can also type-hint `Engine\Request`.
+Action arguments are resolved from route parameter names. An action can also type-hint `Shift\Request`.
 
 ## Error Format
 
@@ -131,7 +131,7 @@ Internal errors return a generic `500` message unless `display_errors` is enable
 ## Removed From Runtime
 
 - `Engine/View`
-- `Engine\View`
+- legacy view namespace
 - `Engine/Utils/Storage.php`
 - `Engine/Error/StorageError.php`
 - example CSS and JS page assets

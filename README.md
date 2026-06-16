@@ -26,7 +26,7 @@ Routes are owned by modules and registered from each module boundary:
 ```php
 namespace Modules\Health;
 
-use Engine\Modules\AbstractModule;use Engine\Routing\AttributeRouteLoader;use Engine\Routing\Router\Router;use Modules\Health\Controllers\HealthController;
+use Shift\Modules\AbstractModule;use Shift\Routing\AttributeRouteLoader;use Shift\Routing\Router\Router;use Modules\Health\Controllers\HealthController;
 
 class Module extends AbstractModule
 {
@@ -49,21 +49,21 @@ Supported methods:
 
 ## Controllers
 
-Controllers extend `Engine\Controller` and return a response object:
+Controllers extend `Shift\Controller` and return a response object:
 
 ```php
 namespace Modules\Users\Controllers;
 
-use Engine\Controller;
-use Engine\Response\JsonResponse;
-use Engine\Routing\Attributes\Body;
-use Engine\Routing\Attributes\Get;
-use Engine\Routing\Attributes\Header;
-use Engine\Routing\Attributes\PathParam;
-use Engine\Routing\Attributes\Post;
-use Engine\Routing\Attributes\QueryParam;
-use Engine\Routing\Attributes\RoutePrefix;
-use Engine\Routing\Attributes\Status;
+use Shift\Controller;
+use Shift\Response\JsonResponse;
+use Shift\Routing\Attributes\Body;
+use Shift\Routing\Attributes\Get;
+use Shift\Routing\Attributes\Header;
+use Shift\Routing\Attributes\PathParam;
+use Shift\Routing\Attributes\Post;
+use Shift\Routing\Attributes\QueryParam;
+use Shift\Routing\Attributes\RoutePrefix;
+use Shift\Routing\Attributes\Status;
 
 #[RoutePrefix('/users')]
 class UserController extends Controller
@@ -87,7 +87,7 @@ class UserController extends Controller
 }
 ```
 
-Route parameters are passed by method parameter name. A controller action can also request the current `Engine\Request`.
+Route parameters are passed by method parameter name. A controller action can also request the current `Shift\Request`.
 
 You can use these routing attributes:
 
@@ -174,7 +174,7 @@ A module registers itself through `Module.php`:
 ```php
 namespace Modules\Health;
 
-use Engine\Modules\AbstractModule;use Engine\Routing\AttributeRouteLoader;use Engine\Routing\Router\Router;use Engine\Service\ServiceContainer;use Modules\Health\Controllers\HealthController;use Modules\Health\Services\HealthService;
+use Shift\Modules\AbstractModule;use Shift\Routing\AttributeRouteLoader;use Shift\Routing\Router\Router;use Shift\Service\ServiceContainer;use Modules\Health\Controllers\HealthController;use Modules\Health\Services\HealthService;
 
 class Module extends AbstractModule
 {

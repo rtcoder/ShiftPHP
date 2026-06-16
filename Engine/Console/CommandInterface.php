@@ -6,7 +6,7 @@
  * Time: 12:51
  */
 
-namespace Engine\Console;
+namespace Shift\Console;
 
 
 interface CommandInterface

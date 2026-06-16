@@ -1,8 +1,8 @@
 #!/usr/bin/php
 <?php
 
-use Engine\App;
-use Engine\Console\Shift;
+use Shift\App;
+use Shift\Console\Shift;
 
 require_once 'bootstrap.php';
 App::setHelpers();

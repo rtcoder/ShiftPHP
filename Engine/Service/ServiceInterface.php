@@ -1,10 +1,10 @@
 <?php
 
-namespace Engine\Service;
+namespace Shift\Service;
 
 /**
  * Interface ServiceInterface
- * @package Engine
+ * @package Shift
  */
 interface ServiceInterface
 {

@@ -1,9 +1,9 @@
 <?php
 
-namespace Engine\Modules;
+namespace Shift\Modules;
 
-use Engine\Routing\Router\Router;
-use Engine\Service\ServiceContainer;
+use Shift\Routing\Router\Router;
+use Shift\Service\ServiceContainer;
 
 class ModuleLoader
 {

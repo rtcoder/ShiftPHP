@@ -1,6 +1,6 @@
 <?php
 
-namespace Engine\Error;
+namespace Shift\Error;
 
 use Throwable;
 

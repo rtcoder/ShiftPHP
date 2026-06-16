@@ -6,7 +6,7 @@
  * Time: 11:00
  */
 
-namespace Engine\Tools;
+namespace Shift\Tools;
 
 class ClassFinder
 {

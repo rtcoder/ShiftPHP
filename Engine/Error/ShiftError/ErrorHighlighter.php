@@ -6,7 +6,7 @@
  * Time: 23:15
  */
 
-namespace Engine\Error\ShiftError;
+namespace Shift\Error\ShiftError;
 
 
 final class ErrorHighlighter

@@ -19,9 +19,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Tools\\": "Engine/Tools",
-      "Console\\": "Engine/Console",
-      "Engine\\": "Engine",
+      "Shift\\": "Engine",
       "Modules\\": "application/modules"
     }
   }

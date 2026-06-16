@@ -1,6 +1,6 @@
 <?php
 
-namespace Engine\Response;
+namespace Shift\Response;
 
 use JsonException;
 

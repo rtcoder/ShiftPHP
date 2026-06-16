@@ -7,7 +7,7 @@
  * Updated: 2025-06-22
  */
 
-namespace Engine\Console;
+namespace Shift\Console;
 
 /**
  * Główna klasa konsolowa
