@@ -8,7 +8,7 @@
 
 namespace Console\Commands;
 
-use Engine\Console\CommandInterface;
+use Shift\Console\CommandInterface;
 
 class Help implements CommandInterface
 {

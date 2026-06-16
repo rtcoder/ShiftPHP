@@ -1,6 +1,6 @@
 <?php
 
-namespace Engine\Routing\Attributes;
+namespace Shift\Routing\Attributes;
 
 use Attribute;
 

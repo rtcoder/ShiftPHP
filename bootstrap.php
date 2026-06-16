@@ -1,8 +1,8 @@
 <?php
 
 // Define application constants
-use Engine\App;
-use Engine\Error\ErrorHandler;
+use Shift\App;
+use Shift\Error\ErrorHandler;
 
 define('APP_ROOT', realpath(__DIR__ . '/'));
 define('APP_PATH', realpath(__DIR__ . '/application/'));
@@ -13,7 +13,7 @@ define('PUBLIC_PATH', realpath(APP_ROOT . '/public/'));
 require_once VENDOR_PATH . '/autoload.php';
 
 // Register custom autoloader
-spl_autoload_register(['Engine\App', 'autoload']);
+spl_autoload_register(['Shift\App', 'autoload']);
 
 // Register error handler
 ErrorHandler::register();

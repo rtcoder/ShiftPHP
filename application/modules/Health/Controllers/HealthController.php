@@ -2,10 +2,10 @@
 
 namespace Modules\Health\Controllers;
 
-use Engine\Controller;
-use Engine\Response\JsonResponse;
-use Engine\Routing\Attributes\Get;
-use Engine\Routing\Attributes\RoutePrefix;
+use Shift\Controller;
+use Shift\Response\JsonResponse;
+use Shift\Routing\Attributes\Get;
+use Shift\Routing\Attributes\RoutePrefix;
 use Modules\Health\Services\HealthService;
 
 #[RoutePrefix('/health')]

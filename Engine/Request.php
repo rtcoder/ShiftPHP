@@ -1,12 +1,12 @@
 <?php
 
-namespace Engine;
+namespace Shift;
 
-use Engine\Error\HttpError;
+use Shift\Error\HttpError;
 
 /**
  * Class Request
- * @package Engine
+ * @package Shift
  */
 class Request
 {

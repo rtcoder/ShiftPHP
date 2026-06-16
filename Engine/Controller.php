@@ -1,15 +1,15 @@
 <?php
 
-namespace Engine;
+namespace Shift;
 
-use Engine\Response\JsonResponse;
-use Engine\Response\Response;
-use Engine\Service\ServiceContainer;
+use Shift\Response\JsonResponse;
+use Shift\Response\Response;
+use Shift\Service\ServiceContainer;
 use JsonException;
 
 /**
  * Class Controller
- * @package Engine
+ * @package Shift
  */
 abstract class Controller
 {

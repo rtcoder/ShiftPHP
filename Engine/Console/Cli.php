@@ -3,7 +3,7 @@
  * Klasa do obsługi wyjścia na terminal
  */
 
-namespace Engine\Console;
+namespace Shift\Console;
 
 class Cli
 {

@@ -1,13 +1,13 @@
 <?php
 
-namespace Engine\Service;
+namespace Shift\Service;
 
 use Closure;
 use InvalidArgumentException;
 
 /**
  * Class ServiceContainer
- * @package Engine
+ * @package Shift
  */
 class ServiceContainer
 {

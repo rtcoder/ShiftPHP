@@ -6,14 +6,14 @@
  * Time: 17:58
  */
 
-namespace Engine\Error;
+namespace Shift\Error;
 
 
 use Throwable;
 
 /**
  * Class ShiftError
- * @package Engine\Error
+ * @package Shift\Error
  */
 class ShiftError extends \Error
 {

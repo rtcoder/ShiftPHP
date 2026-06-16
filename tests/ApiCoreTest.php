@@ -1,24 +1,24 @@
 <?php
 
-use Engine\App;
-use Engine\Controller;
-use Engine\Error\HttpError;
-use Engine\Modules\ModuleLoader;
-use Engine\Request;
-use Engine\Response\JsonResponse;
-use Engine\Response\ResponseEmitter;
-use Engine\Routing\AttributeRouteLoader;
-use Engine\Routing\Attributes\Body;
-use Engine\Routing\Attributes\Get;
-use Engine\Routing\Attributes\Header;
-use Engine\Routing\Attributes\PathParam;
-use Engine\Routing\Attributes\Post;
-use Engine\Routing\Attributes\QueryParam;
-use Engine\Routing\Attributes\RoutePrefix;
-use Engine\Routing\Attributes\Status;
-use Engine\Routing\Router\Route;
-use Engine\Routing\Router\Router;
-use Engine\Service\ServiceContainer;
+use Shift\App;
+use Shift\Controller;
+use Shift\Error\HttpError;
+use Shift\Modules\ModuleLoader;
+use Shift\Request;
+use Shift\Response\JsonResponse;
+use Shift\Response\ResponseEmitter;
+use Shift\Routing\AttributeRouteLoader;
+use Shift\Routing\Attributes\Body;
+use Shift\Routing\Attributes\Get;
+use Shift\Routing\Attributes\Header;
+use Shift\Routing\Attributes\PathParam;
+use Shift\Routing\Attributes\Post;
+use Shift\Routing\Attributes\QueryParam;
+use Shift\Routing\Attributes\RoutePrefix;
+use Shift\Routing\Attributes\Status;
+use Shift\Routing\Router\Route;
+use Shift\Routing\Router\Router;
+use Shift\Service\ServiceContainer;
 use Modules\Health\Services\HealthService;
 
 require_once __DIR__ . '/../bootstrap.php';
@@ -29,7 +29,7 @@ final class CapturingEmitter extends ResponseEmitter
     public array $headers = [];
     public string $content = '';
 
-    public function emit(\Engine\Response\Response $response): void
+    public function emit(\Shift\Response\Response $response): void
     {
         $this->statusCode = $response->getStatusCode();
         $this->headers = $response->getHeaders();

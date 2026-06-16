@@ -1,9 +1,9 @@
 <?php
 
-namespace Engine\Routing\Router;
+namespace Shift\Routing\Router;
 
-use Engine\Error\HttpError;
-use Engine\Request;
+use Shift\Error\HttpError;
+use Shift\Request;
 
 class Router
 {

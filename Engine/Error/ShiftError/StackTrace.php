@@ -6,7 +6,7 @@
  * Time: 23:02
  */
 
-namespace Engine\Error\ShiftError;
+namespace Shift\Error\ShiftError;
 
 
 class StackTrace

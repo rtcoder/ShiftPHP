@@ -9,7 +9,7 @@
 namespace Console\Commands;
 
 
-use Engine\Console\CommandInterface;
+use Shift\Console\CommandInterface;
 
 class Serve implements CommandInterface
 {

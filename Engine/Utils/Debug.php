@@ -6,7 +6,7 @@
  * Time: 01:53
  */
 
-namespace Engine\Utils;
+namespace Shift\Utils;
 
 
 class Debug

@@ -1,12 +1,12 @@
 <?php
 
-namespace Engine\Error;
+namespace Shift\Error;
 
 use Throwable;
 
 /**
  * Class ErrorHandler
- * @package Engine\Error
+ * @package Shift\Error
  */
 class ErrorHandler
 {

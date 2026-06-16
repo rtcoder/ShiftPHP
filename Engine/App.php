@@ -1,18 +1,18 @@
 <?php
 
-namespace Engine;
+namespace Shift;
 
-use Engine\Error\HttpError;
-use Engine\Response\JsonResponse;
-use Engine\Response\Response;
-use Engine\Response\ResponseEmitter;
-use Engine\Routing\Attributes\Body;
-use Engine\Routing\Attributes\Header;
-use Engine\Routing\Attributes\PathParam;
-use Engine\Routing\Attributes\QueryParam;
-use Engine\Routing\Attributes\Status;
-use Engine\Routing\Router\Router;
-use Engine\Service\ServiceContainer;
+use Shift\Error\HttpError;
+use Shift\Response\JsonResponse;
+use Shift\Response\Response;
+use Shift\Response\ResponseEmitter;
+use Shift\Routing\Attributes\Body;
+use Shift\Routing\Attributes\Header;
+use Shift\Routing\Attributes\PathParam;
+use Shift\Routing\Attributes\QueryParam;
+use Shift\Routing\Attributes\Status;
+use Shift\Routing\Router\Router;
+use Shift\Service\ServiceContainer;
 use JsonException;
 use ReflectionClass;
 use ReflectionException;
@@ -23,7 +23,7 @@ use Throwable;
 
 /**
  * Class App
- * @package Engine
+ * @package Shift
  */
 final class App
 {

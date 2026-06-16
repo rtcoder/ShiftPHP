@@ -20,7 +20,7 @@ function __(string $str): string
  */
 function dd(...$args): void
 {
-    \Engine\Utils\Debug::dd(...$args);
+    \Shift\Utils\Debug::dd(...$args);
 }
 
 /**
@@ -28,7 +28,7 @@ function dd(...$args): void
  */
 function d(...$args): void
 {
-    \Engine\Utils\Debug::d(...$args);
+    \Shift\Utils\Debug::d(...$args);
 }
 
 /**

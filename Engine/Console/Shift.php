@@ -6,9 +6,9 @@
  * Time: 11:57
  */
 
-namespace Engine\Console;
+namespace Shift\Console;
 
-use Engine\Modules\ModuleLoader;
+use Shift\Modules\ModuleLoader;
 use ReflectionClass;
 use ReflectionException;
 

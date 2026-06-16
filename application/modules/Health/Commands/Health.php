@@ -2,8 +2,8 @@
 
 namespace Modules\Health\Commands;
 
-use Engine\Console\Cli;
-use Engine\Console\CommandInterface;
+use Shift\Console\Cli;
+use Shift\Console\CommandInterface;
 use Modules\Health\Services\HealthService;
 
 class Health implements CommandInterface
