@@ -11,6 +11,7 @@ use Engine\Routing\Attributes\Header;
 use Engine\Routing\Attributes\PathParam;
 use Engine\Routing\Attributes\QueryParam;
 use Engine\Routing\Attributes\Status;
+use Engine\Service\ServiceContainer;
 use JsonException;
 use ReflectionClass;
 use ReflectionException;

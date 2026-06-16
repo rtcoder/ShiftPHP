@@ -17,7 +17,7 @@ use Engine\Routing\Attributes\Post;
 use Engine\Routing\Attributes\QueryParam;
 use Engine\Routing\Attributes\RoutePrefix;
 use Engine\Routing\Attributes\Status;
-use Engine\ServiceContainer;
+use Engine\Service\ServiceContainer;
 use Modules\Health\Services\HealthService;
 
 require_once __DIR__ . '/../bootstrap.php';

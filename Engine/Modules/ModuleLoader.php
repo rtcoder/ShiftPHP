@@ -3,7 +3,7 @@
 namespace Engine\Modules;
 
 use Engine\Router;
-use Engine\ServiceContainer;
+use Engine\Service\ServiceContainer;
 
 class ModuleLoader
 {

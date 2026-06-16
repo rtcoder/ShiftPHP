@@ -177,12 +177,7 @@ A module registers itself through `Module.php`:
 ```php
 namespace Modules\Health;
 
-use Engine\Modules\AbstractModule;
-use Engine\Router;
-use Engine\Routing\AttributeRouteLoader;
-use Engine\ServiceContainer;
-use Modules\Health\Controllers\HealthController;
-use Modules\Health\Services\HealthService;
+use Engine\Modules\AbstractModule;use Engine\Router;use Engine\Routing\AttributeRouteLoader;use Engine\Service\ServiceContainer;use Modules\Health\Controllers\HealthController;use Modules\Health\Services\HealthService;
 
 class Module extends AbstractModule
 {

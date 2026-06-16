@@ -1,6 +1,6 @@
 <?php
 
-namespace Engine;
+namespace Engine\Service;
 
 use Closure;
 use InvalidArgumentException;
