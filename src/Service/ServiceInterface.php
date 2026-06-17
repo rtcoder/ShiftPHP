@@ -22,4 +22,4 @@ interface ServiceInterface
      * Get service name
      */
     public function getName(): string;
-} 
+}

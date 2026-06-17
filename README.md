@@ -451,6 +451,15 @@ Run the test suite:
 ./shift test
 ```
 
+Run local quality checks:
+
+```sh
+./shift lint
+./shift qa
+```
+
+`shift lint` checks PHP syntax and basic file hygiene. `shift qa` runs Composer validation, lint checks, the test suite, and route listing.
+
 Run the example module command:
 
 ```sh

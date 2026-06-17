@@ -297,6 +297,7 @@
                 <ul>
                     <li><a href="#logging">Logging</a></li>
                     <li><a href="#cache">Cache</a></li>
+                    <li><a href="#quality-checks">Quality Checks</a></li>
                     <li><a href="#doctor">Doctor</a></li>
                     <li><a href="#testing">Testing</a></li>
                     <li><a href="#releases">Releases</a></li>
@@ -325,7 +326,8 @@ php -S 127.0.0.1:8000 index.php</code></pre>
 
                 <p>Run the framework checks:</p>
 
-                <pre><code>./shift doctor</code></pre>
+                <pre><code>./shift doctor
+./shift qa</code></pre>
             </section>
 
             <section id="configuration">
@@ -806,13 +808,26 @@ $app-&gt;getContainer()-&gt;singleton(LoggerInterface::class, new CustomLogger()
                 <p>Rebuild the module cache after changing module boundaries, module config, or module command mappings.</p>
             </section>
 
+            <section id="quality-checks">
+                <h2>Quality Checks</h2>
+                <p>The CLI includes zero-dependency quality gates for local development and pull request preparation.</p>
+
+                <pre><code>./shift lint
+./shift qa</code></pre>
+
+                <p><code>shift lint</code> checks PHP syntax and basic file hygiene, including trailing whitespace and missing final newlines. <code>shift qa</code> runs Composer validation, lint checks, the test suite, and the route list command.</p>
+
+                <pre><code>./shift help lint
+./shift help qa</code></pre>
+            </section>
+
             <section id="doctor">
                 <h2>Doctor</h2>
                 <p>The doctor command runs local diagnostics and returns a non-zero exit code when a required check fails.</p>
 
                 <pre><code>./shift doctor</code></pre>
 
-                <p>It checks PHP version, required extensions, Composer JSON validity, PHP lint, the test suite, environment presence, database config, and module cache status.</p>
+                <p>It checks PHP version, required extensions, Composer JSON validity, PHP syntax, the test suite, environment presence, database config, and module cache status.</p>
             </section>
 
             <section id="testing">
@@ -822,7 +837,7 @@ $app-&gt;getContainer()-&gt;singleton(LoggerInterface::class, new CustomLogger()
                 <pre><code>composer test
 ./shift test</code></pre>
 
-                <p>The GitHub workflow validates Composer config, dumps autoload files, lints PHP files, runs tests, and verifies the route list command.</p>
+                <p>The GitHub workflow validates Composer config, dumps autoload files, lints PHP files, runs tests, and verifies the route list command. Locally, <code>./shift qa</code> runs the same kind of pre-PR quality gate.</p>
             </section>
 
             <section id="releases">

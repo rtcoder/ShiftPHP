@@ -4,6 +4,7 @@ namespace Console\Commands;
 
 use Shift\Console\Cli;
 use Shift\Console\CommandInterface;
+use Shift\Console\Quality\QualityChecks;
 use Shift\Database\DatabaseConfig;
 use Shift\Modules\ModuleLoader;
 use Throwable;
@@ -14,12 +15,13 @@ class Doctor implements CommandInterface
     public function execute(mixed ...$args): void
     {
         $cli = new Cli();
+        $quality = new QualityChecks();
         $checks = [
             $this->phpVersion(),
             $this->extensions(),
             $this->composerConfig(),
-            $this->phpLint(),
-            $this->testSuite(),
+            $quality->phpSyntax()->toRow(),
+            $quality->testSuite()->toRow(),
             $this->environment(),
             $this->databaseConfig(),
             $this->moduleCache(),
@@ -87,41 +89,6 @@ class Doctor implements CommandInterface
         ];
     }
 
-    private function phpLint(): array
-    {
-        $files = array_merge(
-            $this->phpFiles(APP_ROOT . '/src'),
-            $this->phpFiles(APP_ROOT . '/application'),
-            $this->phpFiles(APP_ROOT . '/tests'),
-            [APP_ROOT . '/shift']
-        );
-
-        foreach ($files as $file) {
-            if (!is_file($file)) {
-                continue;
-            }
-
-            exec(escapeshellarg(PHP_BINARY) . ' -l ' . escapeshellarg($file) . ' 2>&1', $output, $exitCode);
-
-            if ($exitCode !== 0) {
-                return ['PHP lint', 'fail', basename($file) . ': ' . trim(implode(' ', $output))];
-            }
-        }
-
-        return ['PHP lint', 'ok', count($files) . ' file(s) checked'];
-    }
-
-    private function testSuite(): array
-    {
-        exec('composer test 2>&1', $output, $exitCode);
-
-        return [
-            'Test suite',
-            $exitCode === 0 ? 'ok' : 'fail',
-            $exitCode === 0 ? 'composer test passed' : trim(implode(' ', array_slice($output, -3))),
-        ];
-    }
-
     private function environment(): array
     {
         return [
@@ -157,25 +124,4 @@ class Doctor implements CommandInterface
         ];
     }
 
-    private function phpFiles(string $path): array
-    {
-        if (!is_dir($path)) {
-            return [];
-        }
-
-        $files = [];
-        $iterator = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS)
-        );
-
-        foreach ($iterator as $file) {
-            if ($file->isFile() && $file->getExtension() === 'php') {
-                $files[] = $file->getPathname();
-            }
-        }
-
-        sort($files);
-
-        return $files;
-    }
 }
