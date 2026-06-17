@@ -6,8 +6,16 @@ use ReflectionClass;
 use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionParameter;
+use ReflectionProperty;
+use Shift\OpenApi\Attributes\Deprecated;
+use Shift\OpenApi\Attributes\Description;
+use Shift\OpenApi\Attributes\Response as OpenApiResponse;
+use Shift\OpenApi\Attributes\Schema;
+use Shift\OpenApi\Attributes\Security;
+use Shift\OpenApi\Attributes\Summary;
+use Shift\OpenApi\Attributes\Tag;
 use Shift\Response\JsonResponse;
-use Shift\Response\Response;
+use Shift\Response\Response as HttpResponse;
 use Shift\Routing\Attributes\Body;
 use Shift\Routing\Attributes\BodyDto;
 use Shift\Routing\Attributes\Header;
@@ -56,11 +64,31 @@ final class OpenApiGenerator
         $statusCode = $this->statusCode($method);
         $operation = [
             'operationId' => $this->operationId($controller, $method),
-            'tags' => [$this->tag($controller)],
-            'responses' => [
-                (string) $statusCode => $this->response($method, $statusCode),
-            ],
+            'tags' => $this->tags($controller, $method),
+            'responses' => $this->responses($method, $statusCode),
         ];
+
+        $summary = $this->summary($method);
+
+        if ($summary !== null) {
+            $operation['summary'] = $summary;
+        }
+
+        $description = $this->description($method);
+
+        if ($description !== null) {
+            $operation['description'] = $description;
+        }
+
+        if ($method->getAttributes(Deprecated::class) !== []) {
+            $operation['deprecated'] = true;
+        }
+
+        $security = $this->security($controller, $method);
+
+        if ($security !== []) {
+            $operation['security'] = $security;
+        }
 
         $parameters = $this->parameters($route, $method);
 
@@ -77,10 +105,29 @@ final class OpenApiGenerator
         return $operation;
     }
 
-    private function response(ReflectionMethod $method, int $statusCode): array
+    private function responses(ReflectionMethod $method, int $defaultStatusCode): array
+    {
+        $responses = [];
+
+        foreach ($method->getAttributes(OpenApiResponse::class) as $attribute) {
+            /** @var OpenApiResponse $response */
+            $response = $attribute->newInstance();
+            $responses[(string) $response->status] = $this->response($method, $response->status, $response->description, $response->type);
+        }
+
+        if ($responses === []) {
+            $responses[(string) $defaultStatusCode] = $this->response($method, $defaultStatusCode);
+        }
+
+        ksort($responses);
+
+        return $responses;
+    }
+
+    private function response(ReflectionMethod $method, int $statusCode, ?string $description = null, ?string $type = null): array
     {
         $response = [
-            'description' => $this->responseDescription($statusCode),
+            'description' => $description ?? $this->responseDescription($statusCode),
         ];
 
         $headers = $this->responseHeaders($method);
@@ -89,12 +136,10 @@ final class OpenApiGenerator
             $response['headers'] = $headers;
         }
 
-        if ($statusCode !== 204 && $this->returnsJson($method)) {
+        if ($statusCode !== 204 && ($type !== null || $this->returnsJson($method))) {
             $response['content'] = [
                 'application/json' => [
-                    'schema' => [
-                        'type' => 'object',
-                    ],
+                    'schema' => $this->schemaForPhpType($type ?? 'object'),
                 ],
             ];
         }
@@ -142,7 +187,7 @@ final class OpenApiGenerator
             $queryParameter = $this->queryParameterName($parameter);
 
             if ($queryParameter !== null) {
-                $parameters[] = $this->parameter($queryParameter, 'query', $parameter, !$parameter->allowsNull() && !$parameter->isDefaultValueAvailable());
+                $parameters[] = $this->parameter($queryParameter, 'query', $parameter, $this->isRequiredParameter($parameter));
             }
         }
 
@@ -191,7 +236,7 @@ final class OpenApiGenerator
 
             $properties[$bodyKey] = $this->schemaForParameter($parameter);
 
-            if (!$parameter->allowsNull() && !$parameter->isDefaultValueAvailable()) {
+            if ($this->isRequiredParameter($parameter)) {
                 $required[] = $bodyKey;
             }
         }
@@ -229,9 +274,10 @@ final class OpenApiGenerator
 
         if (is_subclass_of($class, RequestDto::class)) {
             foreach ($class::rules() as $field => $rules) {
-                $schema['properties'][$field] = $this->schemaForRules($rules);
+                $property = $this->dtoProperty($class, (string) $field);
+                $schema['properties'][$field] = $this->schemaForRules($rules, $property);
 
-                if ($this->rulesRequireField($rules)) {
+                if ($this->rulesRequireField($rules, $property)) {
                     $required[] = $field;
                 }
             }
@@ -244,35 +290,51 @@ final class OpenApiGenerator
         return $schema;
     }
 
-    private function schemaForRules(mixed $rules): array
+    private function schemaForRules(mixed $rules, ?ReflectionProperty $property = null): array
     {
-        $rules = is_array($rules) ? $rules : explode('|', (string) $rules);
-        $rules = array_map(static fn (string $rule): string => strtolower(strtok($rule, ':') ?: $rule), $rules);
+        $normalizedRules = $this->normalizeRules($rules);
+        $schemaAttribute = $this->schemaAttribute($property);
 
-        if (in_array('integer', $rules, true) || in_array('int', $rules, true)) {
-            return ['type' => 'integer'];
+        if ($schemaAttribute?->type !== null) {
+            $schema = $this->schemaForPhpType($schemaAttribute->type);
+        } elseif ($property !== null && $property->getType() instanceof ReflectionNamedType) {
+            $schema = $this->schemaForPhpType($property->getType()->getName());
+        } elseif (in_array('integer', $normalizedRules, true) || in_array('int', $normalizedRules, true)) {
+            $schema = ['type' => 'integer'];
+        } elseif (in_array('numeric', $normalizedRules, true) || in_array('float', $normalizedRules, true)) {
+            $schema = ['type' => 'number'];
+        } elseif (in_array('boolean', $normalizedRules, true) || in_array('bool', $normalizedRules, true)) {
+            $schema = ['type' => 'boolean'];
+        } elseif (in_array('array', $normalizedRules, true)) {
+            $schema = ['type' => 'array', 'items' => ['type' => $schemaAttribute?->itemsType ?? 'string']];
+        } else {
+            $schema = ['type' => 'string'];
         }
 
-        if (in_array('numeric', $rules, true) || in_array('float', $rules, true)) {
-            return ['type' => 'number'];
+        if (in_array('email', $normalizedRules, true)) {
+            $schema['format'] = 'email';
         }
 
-        if (in_array('boolean', $rules, true) || in_array('bool', $rules, true)) {
-            return ['type' => 'boolean'];
+        if (in_array('date', $normalizedRules, true)) {
+            $schema['format'] = 'date';
         }
 
-        if (in_array('array', $rules, true)) {
-            return ['type' => 'array', 'items' => ['type' => 'string']];
+        if (in_array('datetime', $normalizedRules, true) || in_array('date_time', $normalizedRules, true)) {
+            $schema['format'] = 'date-time';
         }
 
-        return ['type' => 'string'];
+        return $this->applySchemaAttribute($schema, $schemaAttribute);
     }
 
-    private function rulesRequireField(mixed $rules): bool
+    private function rulesRequireField(mixed $rules, ?ReflectionProperty $property = null): bool
     {
-        $rules = is_array($rules) ? $rules : explode('|', (string) $rules);
+        $schemaAttribute = $this->schemaAttribute($property);
 
-        return in_array('required', array_map('strtolower', $rules), true);
+        if ($schemaAttribute?->required !== null) {
+            return $schemaAttribute->required;
+        }
+
+        return in_array('required', $this->normalizeRules($rules), true);
     }
 
     private function bodyDtoClass(ReflectionParameter $parameter): ?string
@@ -346,27 +408,42 @@ final class OpenApiGenerator
             'in' => $in,
             'required' => $required,
             'schema' => $this->schemaForParameter($parameter),
-        ];
+        ] + $this->descriptionFragment($parameter);
     }
 
     private function schemaForParameter(ReflectionParameter $parameter): array
     {
+        $schemaAttribute = $this->schemaAttribute($parameter);
+
+        if ($schemaAttribute?->type !== null) {
+            return $this->applySchemaAttribute($this->schemaForPhpType($schemaAttribute->type), $schemaAttribute);
+        }
+
         $type = $parameter->getType();
 
         if (!$type instanceof ReflectionNamedType) {
-            return ['type' => 'string'];
+            return $this->applySchemaAttribute(['type' => 'string'], $schemaAttribute);
         }
 
-        return $this->schemaForPhpType($type->getName());
+        $schema = $this->schemaForPhpType($type->getName());
+
+        if ($parameter->allowsNull()) {
+            $schema['nullable'] = true;
+        }
+
+        return $this->applySchemaAttribute($schema, $schemaAttribute);
     }
 
     private function schemaForPhpType(string $type): array
     {
         return match (ltrim($type, '\\')) {
-            'int' => ['type' => 'integer'],
-            'float' => ['type' => 'number'],
-            'bool' => ['type' => 'boolean'],
+            'int', 'integer' => ['type' => 'integer'],
+            'float', 'number' => ['type' => 'number'],
+            'bool', 'boolean' => ['type' => 'boolean'],
+            'string' => ['type' => 'string'],
+            'object' => ['type' => 'object'],
             'array' => ['type' => 'array', 'items' => ['type' => 'string']],
+            'DateTimeInterface', 'DateTimeImmutable', 'DateTime' => ['type' => 'string', 'format' => 'date-time'],
             default => ['type' => 'string'],
         };
     }
@@ -398,7 +475,7 @@ final class OpenApiGenerator
         return $name === 'array'
             || $name === JsonResponse::class
             || is_subclass_of($name, JsonResponse::class)
-            || $name !== Response::class;
+            || $name !== HttpResponse::class;
     }
 
     private function responseDescription(int $statusCode): string
@@ -442,5 +519,162 @@ final class OpenApiGenerator
     private function tag(ReflectionClass $controller): string
     {
         return preg_replace('/Controller$/', '', $controller->getShortName()) ?: $controller->getShortName();
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function tags(ReflectionClass $controller, ReflectionMethod $method): array
+    {
+        $tags = [];
+
+        foreach ([$controller, $method] as $reflection) {
+            foreach ($reflection->getAttributes(Tag::class) as $attribute) {
+                /** @var Tag $tag */
+                $tag = $attribute->newInstance();
+                $tags[] = $tag->name;
+            }
+        }
+
+        return array_values(array_unique($tags !== [] ? $tags : [$this->tag($controller)]));
+    }
+
+    /**
+     * @return list<array<string, list<string>>>
+     */
+    private function security(ReflectionClass $controller, ReflectionMethod $method): array
+    {
+        $security = [];
+
+        foreach ([$controller, $method] as $reflection) {
+            foreach ($reflection->getAttributes(Security::class) as $attribute) {
+                /** @var Security $item */
+                $item = $attribute->newInstance();
+                $security[] = [$item->name => $item->scopes];
+            }
+        }
+
+        return $security;
+    }
+
+    private function summary(ReflectionMethod $method): ?string
+    {
+        $attributes = $method->getAttributes(Summary::class);
+
+        if ($attributes === []) {
+            return null;
+        }
+
+        /** @var Summary $summary */
+        $summary = $attributes[0]->newInstance();
+
+        return $summary->text;
+    }
+
+    private function description(ReflectionMethod $method): ?string
+    {
+        $attributes = $method->getAttributes(Description::class);
+
+        if ($attributes === []) {
+            return null;
+        }
+
+        /** @var Description $description */
+        $description = $attributes[0]->newInstance();
+
+        return $description->text;
+    }
+
+    private function descriptionFragment(ReflectionParameter $parameter): array
+    {
+        $attributes = $parameter->getAttributes(Description::class);
+
+        if ($attributes === []) {
+            return [];
+        }
+
+        /** @var Description $description */
+        $description = $attributes[0]->newInstance();
+
+        return ['description' => $description->text];
+    }
+
+    private function isRequiredParameter(ReflectionParameter $parameter): bool
+    {
+        $schemaAttribute = $this->schemaAttribute($parameter);
+
+        if ($schemaAttribute?->required !== null) {
+            return $schemaAttribute->required;
+        }
+
+        return !$parameter->allowsNull() && !$parameter->isDefaultValueAvailable();
+    }
+
+    private function schemaAttribute(ReflectionParameter|ReflectionProperty|null $reflection): ?Schema
+    {
+        if ($reflection === null) {
+            return null;
+        }
+
+        $attributes = $reflection->getAttributes(Schema::class);
+
+        if ($attributes === []) {
+            return null;
+        }
+
+        /** @var Schema $schema */
+        $schema = $attributes[0]->newInstance();
+
+        return $schema;
+    }
+
+    private function applySchemaAttribute(array $schema, ?Schema $attribute): array
+    {
+        if ($attribute === null) {
+            return $schema;
+        }
+
+        if ($attribute->format !== null) {
+            $schema['format'] = $attribute->format;
+        }
+
+        if ($attribute->description !== null) {
+            $schema['description'] = $attribute->description;
+        }
+
+        if ($attribute->itemsType !== null && ($schema['type'] ?? null) === 'array') {
+            $schema['items'] = ['type' => $attribute->itemsType];
+        }
+
+        if ($attribute->enum !== []) {
+            $schema['enum'] = $attribute->enum;
+        }
+
+        if ($attribute->nullable !== null) {
+            $schema['nullable'] = $attribute->nullable;
+        }
+
+        return $schema;
+    }
+
+    private function dtoProperty(string $class, string $field): ?ReflectionProperty
+    {
+        if (!class_exists($class)) {
+            return null;
+        }
+
+        $reflection = new ReflectionClass($class);
+
+        return $reflection->hasProperty($field) ? $reflection->getProperty($field) : null;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function normalizeRules(mixed $rules): array
+    {
+        $rules = is_array($rules) ? $rules : explode('|', (string) $rules);
+
+        return array_map(static fn (string $rule): string => strtolower(strtok($rule, ':') ?: $rule), $rules);
     }
 }

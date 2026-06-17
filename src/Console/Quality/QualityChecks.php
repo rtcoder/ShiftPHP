@@ -96,34 +96,9 @@ final class QualityChecks
 
     public function openApiDocument(): CheckResult
     {
-        $command = escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($this->projectRoot() . '/shift') . ' openapi 2>&1';
-        $previousDirectory = getcwd();
+        $command = escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($this->projectRoot() . '/shift') . ' openapi --validate 2>&1';
 
-        if ($previousDirectory !== false) {
-            chdir($this->projectRoot());
-        }
-
-        try {
-            exec($command, $output, $exitCode);
-        } finally {
-            if ($previousDirectory !== false) {
-                chdir($previousDirectory);
-            }
-        }
-
-        if ($exitCode !== 0) {
-            $details = trim(implode(' ', array_slice($output, -3)));
-
-            return CheckResult::fail('OpenAPI document', $details !== '' ? $details : 'Command failed with exit code ' . $exitCode);
-        }
-
-        $document = json_decode(implode("\n", $output), true);
-
-        if (!is_array($document) || ($document['openapi'] ?? null) !== '3.0.3') {
-            return CheckResult::fail('OpenAPI document', 'Generated document is not valid OpenAPI JSON');
-        }
-
-        return CheckResult::ok('OpenAPI document', './shift openapi passed');
+        return $this->runShellCheck('OpenAPI document', $command, './shift openapi --validate passed');
     }
 
     private function runShellCheck(string $name, string $command, string $successDetails): CheckResult
