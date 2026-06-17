@@ -423,6 +423,50 @@ class UserService
 }</code></pre>
 
             <p>Use <code>query()</code> for prepared queries, <code>execute()</code> for write statements, <code>pdo()</code> for raw PDO access, and <code>transaction()</code> for transactional work.</p>
+
+            <h3>Query Builder</h3>
+            <pre><code>$users = $db-&gt;table('users')
+    -&gt;select('id', 'email')
+    -&gt;where('active', true)
+    -&gt;orderBy('id', 'desc')
+    -&gt;limit(10)
+    -&gt;get();</code></pre>
+
+            <h3>Models</h3>
+            <p>Models extend <code>Shift\Database\Model</code>. Public properties are database columns, and model attributes describe primary keys, guarded fields, and casts.</p>
+
+            <pre><code>use Shift\Database\Attributes\Cast;
+use Shift\Database\Attributes\Guarded;
+use Shift\Database\Attributes\PrimaryKey;
+use Shift\Database\Model;
+
+class User extends Model
+{
+    protected string $table = 'users';
+
+    #[PrimaryKey]
+    #[Cast('int')]
+    public ?int $id = null;
+
+    public string $email = '';
+
+    #[Guarded]
+    public string $role = 'user';
+
+    #[Cast('array')]
+    public array $meta = [];
+
+    #[Cast('datetime')]
+    public ?DateTimeImmutable $created_at = null;
+}</code></pre>
+
+            <pre><code>$user = User::query($db)-&gt;where('email', 'dev@example.com')-&gt;first();
+$user = User::find(1, $db);
+$user = User::create(['email' =&gt; 'dev@example.com'], $db);
+$user-&gt;role = 'admin';
+$user-&gt;save($db);</code></pre>
+
+            <p><code>#[Guarded]</code> fields are ignored during mass assignment through <code>create()</code> and query <code>update()</code>, but can be set explicitly before <code>save()</code>. Supported casts include <code>int</code>, <code>float</code>, <code>bool</code>, <code>string</code>, <code>array</code>, <code>date</code>, <code>datetime</code>, and class names. Class casts use <code>fromArray()</code> when available.</p>
         </section>
 
         <section id="cli">

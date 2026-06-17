@@ -25,6 +25,7 @@ class CreateModel implements CommandInterface
         $this->writeAndReport($path, $this->renderStub('model', [
             'module' => $module,
             'class' => $class,
+            'table' => NameFormatter::tableName($class),
         ]));
     }
 

@@ -30,6 +30,13 @@ final class NameFormatter
         return implode(':', $parts);
     }
 
+    public static function tableName(string $className): string
+    {
+        $snake = strtolower((string) preg_replace('/(?<!^)[A-Z]/', '_$0', $className));
+
+        return str_ends_with($snake, 's') ? $snake : $snake . 's';
+    }
+
     public static function slug(string $name): string
     {
         $parts = preg_split('/[^a-zA-Z0-9]+/', $name, -1, PREG_SPLIT_NO_EMPTY) ?: [];

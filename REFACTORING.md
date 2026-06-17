@@ -29,6 +29,7 @@ ShiftPHP is moving toward an API-only modular monolith. View templates, compiled
 - [x] CLI create generators for modules and module-owned classes with file-based stubs.
 - [x] `.env` loading for application configuration.
 - [x] Native PDO database configuration, lazy connection, and basic query API.
+- [x] Fluent query builder and attribute-driven database models.
 - [x] Removal of view storage and example page assets from runtime.
 - [x] Removal of legacy `application/controllers` and `application/routes.php`.
 - [x] Domain-oriented framework namespaces:

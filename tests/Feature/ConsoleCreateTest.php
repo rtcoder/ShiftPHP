@@ -63,7 +63,10 @@ return [
             assertFileExists($modulesPath . '/Billing/Middleware/AuditMiddleware.php', 'Middleware suffix should be added.');
             assertFileExists($modulesPath . '/Billing/Dto/CreateInvoiceDto.php', 'DTO suffix should be added.');
 
+            $model = file_get_contents($modulesPath . '/Billing/Models/Invoice.php');
             $command = file_get_contents($modulesPath . '/Billing/Commands/SyncInvoices.php');
+            assertStringContains('class Invoice extends Model', $model, 'Generated models should extend the base model.');
+            assertStringContains("protected string \$table = 'invoices';", $model, 'Generated models should define a table name.');
             assertStringContains('return \'Usage: php shift.php sync:invoices\';', $command, 'Generated command help should use CLI command syntax.');
         } finally {
             removeDirectory(dirname($modulesPath));

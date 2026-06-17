@@ -50,6 +50,11 @@ final class Database
         }
     }
 
+    public function table(string $table): QueryBuilder
+    {
+        return new QueryBuilder($this, $table);
+    }
+
     public function execute(string $sql, array $parameters = []): int
     {
         return $this->query($sql, $parameters)->affectedRows();
@@ -69,6 +74,11 @@ final class Database
             $pdo->rollBack();
             throw $exception;
         }
+    }
+
+    public function lastInsertId(?string $name = null): string
+    {
+        return $this->pdo()->lastInsertId($name);
     }
 
     private function options(): array
