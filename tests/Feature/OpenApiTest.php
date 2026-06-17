@@ -3,6 +3,7 @@
 use Console\Commands\OpenApi;
 use Shift\Console\CommandRegistry;
 use Shift\OpenApi\OpenApiGenerator;
+use Shift\OpenApi\OpenApiLivePage;
 use Shift\Routing\AttributeRouteLoader;
 use Shift\Routing\Router\Router;
 
@@ -62,5 +63,21 @@ return [
         } finally {
             removeDirectory($root);
         }
+    },
+    'openapi live page renders swagger-like shell' => function (): void {
+        $html = (new OpenApiLivePage())->render();
+
+        assertStringContains('ShiftPHP OpenAPI', $html, 'Live page should include the OpenAPI title.');
+        assertStringContains("fetch('openapi.json')", $html, 'Live page should load generated OpenAPI JSON.');
+        assertStringContains('Responses', $html, 'Live page should render response sections.');
+    },
+    'openapi help documents live server options' => function (): void {
+        ob_start();
+        (new \Console\Commands\Help())->execute('openapi');
+        $output = ob_get_clean();
+
+        assertStringContains('--live', $output, 'OpenAPI help should document live mode.');
+        assertStringContains('--host=127.0.0.1', $output, 'OpenAPI help should document host option.');
+        assertStringContains('--port=8088', $output, 'OpenAPI help should document port option.');
     },
 ];

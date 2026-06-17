@@ -693,12 +693,16 @@ final class SyncBilling implements CommandInterface
                 <p>The OpenAPI command generates an OpenAPI 3.0 JSON document from the routes registered in loaded modules.</p>
 
                 <pre><code>./shift openapi
-./shift openapi --output=docs/openapi.json</code></pre>
+./shift openapi --output=docs/openapi.json
+./shift openapi --live</code></pre>
 
                 <p>The generator reads route paths, HTTP methods, controller handlers, path parameters, query parameters, request body attributes, request DTO rules, response status attributes, and response header attributes.</p>
 
                 <pre><code>./shift help openapi
-./shift api:docs --output=storage/openapi.json</code></pre>
+./shift api:docs --output=storage/openapi.json
+./shift openapi --live --host=127.0.0.1 --port=8088</code></pre>
+
+                <p>Live mode writes the generated JSON into a temporary directory and starts a local documentation server with a lightweight Swagger-like HTML viewer.</p>
             </section>
 
             <section id="database">
