@@ -504,6 +504,7 @@ return new class extends Migration
         <section id="cli">
             <h2>CLI</h2>
             <p>The CLI entry point is <code>shift</code>. Built-in commands live under <code>Console\Commands</code>, and module commands are loaded from module command mappings.</p>
+            <p><code>Shift\Console\CommandRegistry</code> discovers framework, application, and module commands. It normalizes command names, so <code>migrate:status</code>, <code>migrate-status</code>, and <code>migrate_status</code> resolve to the same command.</p>
 
             <pre><code>./shift help
 ./shift help migrate
