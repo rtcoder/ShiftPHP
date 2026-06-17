@@ -41,6 +41,7 @@ ShiftPHP is moving toward an API-only modular monolith. View templates, compiled
 - [x] Request id lifecycle with generated `X-Request-Id` response headers and log context.
 - [x] Developer documentation organized into a Laravel-like guide.
 - [x] CLI quality gate with `shift lint` and `shift qa`.
+- [x] OpenAPI JSON generation from registered module routes with `shift openapi`.
 - [x] Removal of view storage and example page assets from runtime.
 - [x] Removal of legacy `application/controllers` and `application/routes.php`.
 - [x] Domain-oriented framework namespaces:
