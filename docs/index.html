@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ShiftPHP Documentation</title>
     <style>
-        :root {
+        :root,
+        [data-theme="light"] {
             color-scheme: light;
             --bg: #ffffff;
             --panel: #f8fafc;
@@ -16,6 +17,19 @@
             --accent-soft: #fff1ef;
             --code-bg: #111827;
             --code-text: #f8fafc;
+        }
+
+        [data-theme="dark"] {
+            color-scheme: dark;
+            --bg: #0f1419;
+            --panel: #151d26;
+            --text: #e7edf4;
+            --muted: #a9b5c2;
+            --line: #2b3745;
+            --accent: #f26a5b;
+            --accent-soft: #2a1818;
+            --code-bg: #070b10;
+            --code-text: #f4f7fb;
         }
 
         * {
@@ -83,6 +97,31 @@
             margin: 0 0 1rem;
             color: var(--muted);
             font-size: 0.92rem;
+        }
+
+        .theme-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            width: 100%;
+            margin: 0 0 0.5rem;
+            padding: 0.45rem 0.6rem;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: var(--bg);
+            color: var(--text);
+            cursor: pointer;
+            font: inherit;
+            font-size: 0.9rem;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--accent);
+        }
+
+        .theme-toggle-icon {
+            width: 1rem;
+            text-align: center;
         }
 
         nav h2 {
@@ -214,6 +253,10 @@
         <aside>
             <h1>ShiftPHP</h1>
             <p>API-only PHP 8.3 framework for modular monolith applications.</p>
+            <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to dark theme">
+                <span class="theme-toggle-icon" aria-hidden="true">L</span>
+                <span data-theme-toggle-label>Light theme</span>
+            </button>
 
             <nav aria-label="Documentation">
                 <h2>Getting Started</h2>
@@ -793,5 +836,44 @@ automatic tag and release</code></pre>
             </section>
         </main>
     </div>
+    <script>
+        const themeButton = document.querySelector('[data-theme-toggle]');
+        const themeLabel = document.querySelector('[data-theme-toggle-label]');
+        const themeIcon = document.querySelector('.theme-toggle-icon');
+        const storageKey = 'shiftphp-docs-theme';
+        const storedTheme = getStoredTheme();
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        function getStoredTheme() {
+            try {
+                return window.localStorage.getItem(storageKey);
+            } catch (error) {
+                return null;
+            }
+        }
+
+        function storeTheme(theme) {
+            try {
+                window.localStorage.setItem(storageKey, theme);
+            } catch (error) {
+            }
+        }
+
+        function setTheme(theme) {
+            document.documentElement.dataset.theme = theme;
+            storeTheme(theme);
+
+            const isDark = theme === 'dark';
+            themeLabel.textContent = isDark ? 'Dark theme' : 'Light theme';
+            themeIcon.textContent = isDark ? 'D' : 'L';
+            themeButton.setAttribute('aria-label', isDark ? 'Switch to light theme' : 'Switch to dark theme');
+        }
+
+        setTheme(storedTheme || (prefersDark ? 'dark' : 'light'));
+
+        themeButton.addEventListener('click', () => {
+            setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+        });
+    </script>
 </body>
 </html>
