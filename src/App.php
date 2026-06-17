@@ -5,6 +5,9 @@ namespace Shift;
 use Shift\Error\HttpError;
 use Shift\Database\Database;
 use Shift\Database\DatabaseConfig;
+use Shift\Logging\ExceptionLogger;
+use Shift\Logging\LoggerFactory;
+use Shift\Logging\LoggerInterface;
 use Shift\Middleware\MiddlewareInterface;
 use Shift\Middleware\MiddlewarePipeline;
 use Shift\Response\JsonResponse;
@@ -54,6 +57,7 @@ final class App
         try {
             $response = $this->handleRequest();
         } catch (ValidationException $exception) {
+            $this->logException($exception, $exception->getStatusCode());
             $response = JsonResponse::error(
                 $exception->getMessage(),
                 $exception->getStatusCode(),
@@ -61,6 +65,7 @@ final class App
                 $exception->getHeaders()
             );
         } catch (HttpError $exception) {
+            $this->logException($exception, $exception->getStatusCode());
             $response = JsonResponse::error(
                 $exception->getMessage(),
                 $exception->getStatusCode(),
@@ -68,6 +73,7 @@ final class App
                 $exception->getHeaders()
             );
         } catch (Throwable $exception) {
+            $this->logException($exception, 500);
             $response = JsonResponse::error('Internal Server Error', 500);
         }
 
@@ -367,6 +373,7 @@ final class App
             $container->resolve(DatabaseConfig::class)
         ));
         $this->container->singleton('db', fn (ServiceContainer $container): Database => $container->resolve(Database::class));
+        $this->container->singleton(LoggerInterface::class, fn (): LoggerInterface => LoggerFactory::fromEnv());
     }
 
     public function getContainer(): ServiceContainer
@@ -382,5 +389,13 @@ final class App
     public function resolve(string $service)
     {
         return $this->container->resolve($service);
+    }
+
+    private function logException(Throwable $exception, int $statusCode): void
+    {
+        try {
+            (new ExceptionLogger($this->container->resolve(LoggerInterface::class)))->log($exception, $this->request, $statusCode);
+        } catch (Throwable) {
+        }
     }
 }

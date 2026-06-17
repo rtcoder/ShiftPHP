@@ -5,5 +5,7 @@
 Engine/storage/views/
 storage/cache/*
 !storage/cache/.gitkeep
+storage/logs/*
+!storage/logs/.gitkeep
 
 \.idea/

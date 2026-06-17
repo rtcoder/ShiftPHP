@@ -168,3 +168,13 @@ final class AllowAuthorizer implements AuthorizerInterface
         return $ability === 'view';
     }
 }
+
+#[RoutePrefix('/errors')]
+final class FailingController extends Controller
+{
+    #[Get('/boom')]
+    public function boom(): array
+    {
+        throw new RuntimeException('Controller exploded');
+    }
+}
