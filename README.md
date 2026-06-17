@@ -269,6 +269,42 @@ class UserService
 
 Available helpers are `query($sql, $parameters)`, `execute($sql, $parameters)`, `pdo()`, and `transaction($callback)`. Query results expose `all()`, `first()`, `value()`, `affectedRows()`, and the raw `PDOStatement`.
 
+### Migrations
+
+Create migration files under `database/migrations`:
+
+```sh
+./shift create:migration create_users_table
+```
+
+Migration files return an anonymous `Shift\Database\Migration` instance:
+
+```php
+use Shift\Database\Database;
+use Shift\Database\Migration;
+
+return new class extends Migration
+{
+    public function up(Database $db): void
+    {
+        $db->execute('create table users (id integer primary key autoincrement, email text not null)');
+    }
+
+    public function down(Database $db): void
+    {
+        $db->execute('drop table users');
+    }
+};
+```
+
+Run pending migrations, inspect their status, or roll back the latest batch:
+
+```sh
+./shift migrate
+./shift migrate:status
+./shift migrate:rollback
+```
+
 ### Query Builder and Models
 
 Use the table query builder for simple fluent queries:
@@ -347,6 +383,13 @@ http://127.0.0.1:8000/health
 
 ## CLI
 
+Show all commands or command-specific help:
+
+```sh
+./shift help
+./shift help migrate
+```
+
 List registered API routes:
 
 ```sh
@@ -382,6 +425,15 @@ List discovered modules:
 
 ```sh
 ./shift module:list
+```
+
+Run database migrations:
+
+```sh
+./shift create:migration create_users_table
+./shift migrate
+./shift migrate:status
+./shift migrate:rollback
 ```
 
 Generate module scaffolding:

@@ -8,70 +8,139 @@
 
 namespace Console\Commands;
 
+use Shift\Console\Cli;
 use Shift\Console\CommandInterface;
+use Shift\Modules\ModuleLoader;
 
 class Help implements CommandInterface
 {
-    /** @var array<array{dir: string, namespace: string}> */
-    private array $mappings = [
-        [
-            'dir' => APP_PATH . '/console/',
-            'namespace' => 'AppConsole\\Commands\\'
-        ],
-        [
-            'dir' => APP_ROOT . '/src/Console/Commands/',
-            'namespace' => 'Console\\Commands\\'
-        ],
-    ];
-
-    /**
-     * @param mixed ...$args
-     */
     public function execute(mixed ...$args): void
     {
-        $commandName = $args[0] ?? '';
+        $commandName = $args[0] ?? null;
 
-        if ($commandName) {
+        if (is_string($commandName) && $commandName !== '') {
             $this->displayHelpForCommand($commandName);
-        } else {
-            $this->displayFullHelp();
+            return;
         }
+
+        $this->displayFullHelp();
     }
 
-    /**
-     * @param string $command
-     */
     private function displayHelpForCommand(string $command): void
     {
-        $found = false;
+        $cli = new Cli();
+        $class = $this->findCommandClass($this->normalizeCommandName($command));
 
-        foreach ($this->mappings as $mapping) {
-            if (!$found && file_exists($mapping['dir'] . $command . '.php')) {
-                require_once($mapping['dir'] . $command . '.php');
-                $found = $mapping['namespace'] . $command;
-            }
+        if ($class === null) {
+            $cli->error('Command not found: ' . $command);
+            return;
         }
+
+        $instance = new $class();
+        $cli->info($this->classToCommand($this->shortClass($class)));
+        $cli->debug($instance->getDescription());
+        $cli->debug($instance->getHelp());
     }
 
     private function displayFullHelp(): void
     {
+        $cli = new Cli();
+        $rows = [];
+
+        foreach ($this->commandClasses() as $className => $class) {
+            $instance = new $class();
+            $rows[] = [
+                $this->classToCommand($className),
+                $instance->getDescription(),
+            ];
+        }
+
+        usort($rows, static fn (array $left, array $right): int => strcmp($left[0], $right[0]));
+
+        $cli->table(['Command', 'Description'], $rows);
     }
 
-    /**
-     * @return string
-     */
     public function getHelp(): string
     {
-        // TODO: Implement getHelp() method.
-        return '';
+        return 'Usage: ./shift help [command]';
+    }
+
+    public function getDescription(): string
+    {
+        return 'Show available commands.';
+    }
+
+    private function findCommandClass(string $className): ?string
+    {
+        return $this->commandClasses()[$className] ?? null;
     }
 
     /**
-     * @return string
+     * @return array<string, class-string<CommandInterface>>
      */
-    public function getDescription(): string
+    private function commandClasses(): array
     {
-        // TODO: Implement getDescription() method.
-        return '';
+        $classes = [];
+
+        foreach ($this->mappings() as $mapping) {
+            if (!is_dir($mapping['dir'])) {
+                continue;
+            }
+
+            foreach (glob($mapping['dir'] . '*.php') ?: [] as $file) {
+                $className = pathinfo($file, PATHINFO_FILENAME);
+                require_once $file;
+                $class = $mapping['namespace'] . $className;
+
+                if (class_exists($class) && is_subclass_of($class, CommandInterface::class)) {
+                    $classes[$className] = $class;
+                }
+            }
+        }
+
+        return $classes;
+    }
+
+    /**
+     * @return list<array{dir: string, namespace: string}>
+     */
+    private function mappings(): array
+    {
+        return array_merge(
+            [
+                [
+                    'dir' => APP_PATH . '/console/',
+                    'namespace' => 'AppConsole\\Commands\\',
+                ],
+                [
+                    'dir' => APP_ROOT . '/src/Console/Commands/',
+                    'namespace' => 'Console\\Commands\\',
+                ],
+            ],
+            (new ModuleLoader())->load()->getCommandMappings()
+        );
+    }
+
+    private function normalizeCommandName(string $command): string
+    {
+        $parts = preg_split('/[:\-_]/', $command) ?: [];
+        $parts = array_map(static fn (string $part): string => ucfirst($part), $parts);
+
+        return implode('', $parts);
+    }
+
+    private function classToCommand(string $class): string
+    {
+        $parts = preg_split('/(?=[A-Z])/', $class, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        $parts = array_map(static fn (string $part): string => strtolower($part), $parts);
+
+        return implode(':', $parts);
+    }
+
+    private function shortClass(string $class): string
+    {
+        $parts = explode('\\', $class);
+
+        return end($parts) ?: $class;
     }
 }

@@ -24,11 +24,12 @@
             <li><a href="#responses">Responses</a></li>
             <li><a href="#validation">Validation and DTOs</a></li>
             <li><a href="#middleware">Middleware</a></li>
-            <li><a href="#services">Service Container</a></li>
-            <li><a href="#database">Environment and Database</a></li>
-            <li><a href="#cli">CLI</a></li>
-            <li><a href="#errors">Errors</a></li>
-            <li><a href="#testing">Testing</a></li>
+                <li><a href="#services">Service Container</a></li>
+                <li><a href="#database">Environment and Database</a></li>
+                <li><a href="#migrations">Migrations</a></li>
+                <li><a href="#cli">CLI</a></li>
+                <li><a href="#errors">Errors</a></li>
+                <li><a href="#testing">Testing</a></li>
         </ol>
     </nav>
 
@@ -469,11 +470,44 @@ $user-&gt;save($db);</code></pre>
             <p><code>#[Guarded]</code> fields are ignored during mass assignment through <code>create()</code> and query <code>update()</code>, but can be set explicitly before <code>save()</code>. Supported casts include <code>int</code>, <code>float</code>, <code>bool</code>, <code>string</code>, <code>array</code>, <code>date</code>, <code>datetime</code>, and class names. Class casts use <code>fromArray()</code> when available.</p>
         </section>
 
+        <section id="migrations">
+            <h2>Migrations</h2>
+            <p>Migration files live in <code>database/migrations</code>. Create a migration with the CLI:</p>
+
+            <pre><code>./shift create:migration create_users_table</code></pre>
+
+            <p>A migration returns an anonymous class extending <code>Shift\Database\Migration</code>.</p>
+
+            <pre><code>use Shift\Database\Database;
+use Shift\Database\Migration;
+
+return new class extends Migration
+{
+    public function up(Database $db): void
+    {
+        $db-&gt;execute('create table users (id integer primary key autoincrement, email text not null)');
+    }
+
+    public function down(Database $db): void
+    {
+        $db-&gt;execute('drop table users');
+    }
+};</code></pre>
+
+            <p>The migration runner stores applied migrations in the <code>migrations</code> table and runs each migration inside a database transaction.</p>
+
+            <pre><code>./shift migrate
+./shift migrate:status
+./shift migrate:rollback</code></pre>
+        </section>
+
         <section id="cli">
             <h2>CLI</h2>
             <p>The CLI entry point is <code>shift</code>. Built-in commands live under <code>Console\Commands</code>, and module commands are loaded from module command mappings.</p>
 
-            <pre><code>./shift route:list
+            <pre><code>./shift help
+./shift help migrate
+./shift route:list
 ./shift test
 ./shift health
 ./shift about
@@ -490,7 +524,14 @@ $user-&gt;save($db);</code></pre>
 ./shift create:service Billing:Invoice
 ./shift create:command Billing:SyncInvoices
 ./shift create:middleware Billing:Audit
-./shift create:dto Billing:CreateInvoice</code></pre>
+./shift create:dto Billing:CreateInvoice
+./shift create:migration create_users_table</code></pre>
+
+            <p>Migration commands manage database schema changes:</p>
+
+            <pre><code>./shift migrate
+./shift migrate:status
+./shift migrate:rollback</code></pre>
 
             <p>Controller, service, middleware, and DTO generators add the expected class suffix when it is missing. Commands accept either <code>--module=Billing Name</code> or <code>Billing:Name</code>.</p>
             <p>Generator templates live in <code>src/Console/Generator/stubs</code>.</p>
