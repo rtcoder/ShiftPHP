@@ -9,12 +9,15 @@ use Shift\Response\JsonResponse;
 use Shift\Response\Response;
 use Shift\Response\ResponseEmitter;
 use Shift\Routing\Attributes\Body;
+use Shift\Routing\Attributes\BodyDto;
 use Shift\Routing\Attributes\Header;
 use Shift\Routing\Attributes\PathParam;
 use Shift\Routing\Attributes\QueryParam;
 use Shift\Routing\Attributes\Status;
 use Shift\Routing\Router\Router;
 use Shift\Service\ServiceContainer;
+use Shift\Validation\RequestDto;
+use Shift\Validation\ValidationException;
 use JsonException;
 use ReflectionClass;
 use ReflectionException;
@@ -48,6 +51,13 @@ final class App
     {
         try {
             $response = $this->handleRequest();
+        } catch (ValidationException $exception) {
+            $response = JsonResponse::error(
+                $exception->getMessage(),
+                $exception->getStatusCode(),
+                ['errors' => $exception->getErrors()],
+                $exception->getHeaders()
+            );
         } catch (HttpError $exception) {
             $response = JsonResponse::error(
                 $exception->getMessage(),
@@ -100,7 +110,7 @@ final class App
             throw new HttpError('Endpoint not found', 404);
         }
 
-        $controller = $this->createController($controllerClass);
+        $controller = $this->createController($controllerClass, $request);
         $reflectionClass = new ReflectionClass($controller);
 
         if (!$reflectionClass->hasMethod($methodName)) {
@@ -119,13 +129,19 @@ final class App
         );
     }
 
-    private function createController(string $controllerClass): object
+    private function createController(string $controllerClass, Request $request): object
     {
         if ($this->container->has($controllerClass)) {
             return $this->container->resolve($controllerClass);
         }
 
-        return $this->container->make($controllerClass);
+        $controller = $this->container->make($controllerClass);
+
+        if ($controller instanceof Controller) {
+            $controller->setContext($request, $this->container);
+        }
+
+        return $controller;
     }
 
     /**
@@ -141,6 +157,22 @@ final class App
 
             if ($type instanceof ReflectionNamedType && $type->getName() === Request::class) {
                 $arguments[] = $request;
+                continue;
+            }
+
+            $bodyDto = $this->getParameterAttribute($parameter, BodyDto::class);
+            if ($bodyDto instanceof BodyDto) {
+                $dtoClass = $bodyDto->class ?? ($type instanceof ReflectionNamedType ? $type->getName() : null);
+                $arguments[] = $this->makeRequestDto($dtoClass, $request);
+                continue;
+            }
+
+            if (
+                $type instanceof ReflectionNamedType
+                && !$type->isBuiltin()
+                && is_subclass_of($type->getName(), RequestDto::class)
+            ) {
+                $arguments[] = $this->makeRequestDto($type->getName(), $request);
                 continue;
             }
 
@@ -204,6 +236,15 @@ final class App
         }
 
         return $attributes[0]->newInstance();
+    }
+
+    private function makeRequestDto(?string $dtoClass, Request $request): RequestDto
+    {
+        if ($dtoClass === null || !is_subclass_of($dtoClass, RequestDto::class)) {
+            throw new HttpError('Endpoint not found', 404);
+        }
+
+        return $dtoClass::fromRequest($request);
     }
 
     private function getDefaultParameterValue(ReflectionParameter $parameter): mixed

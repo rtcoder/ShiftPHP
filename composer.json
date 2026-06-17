@@ -19,7 +19,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Shift\\": "Engine",
+      "Shift\\": "src",
       "Modules\\": "application/modules"
     }
   }

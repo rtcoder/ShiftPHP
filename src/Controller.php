@@ -18,8 +18,13 @@ abstract class Controller
 
     public function __construct(Request $request, ?ServiceContainer $container = null)
     {
+        $this->setContext($request, $container ?? new ServiceContainer());
+    }
+
+    public function setContext(Request $request, ServiceContainer $container): void
+    {
         $this->request = $request;
-        $this->container = $container ?? new ServiceContainer();
+        $this->container = $container;
     }
 
     /**

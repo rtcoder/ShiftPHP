@@ -19,7 +19,7 @@ class Help implements CommandInterface
             'namespace' => 'AppConsole\\Commands\\'
         ],
         [
-            'dir' => APP_ROOT . '/Engine/Console/Commands/',
+            'dir' => APP_ROOT . '/src/Console/Commands/',
             'namespace' => 'Console\\Commands\\'
         ],
     ];

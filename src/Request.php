@@ -15,6 +15,7 @@ class Request
     private array $postData;
     private array $serverData;
     private array $routeParams = [];
+    private array $attributes = [];
     private ?array $jsonData = null;
     private string $rawBody;
 
@@ -152,5 +153,20 @@ class Request
     public function routeParam(string $key, mixed $default = null): mixed
     {
         return $this->routeParams[$key] ?? $default;
+    }
+
+    public function setAttribute(string $key, mixed $value): void
+    {
+        $this->attributes[$key] = $value;
+    }
+
+    public function getAttribute(string $key, mixed $default = null): mixed
+    {
+        return $this->attributes[$key] ?? $default;
+    }
+
+    public function getAttributes(): array
+    {
+        return $this->attributes;
     }
 }

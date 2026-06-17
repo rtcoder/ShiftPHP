@@ -22,6 +22,7 @@
             <li><a href="#controllers">Controllers</a></li>
             <li><a href="#requests">Requests</a></li>
             <li><a href="#responses">Responses</a></li>
+            <li><a href="#validation">Validation and DTOs</a></li>
             <li><a href="#middleware">Middleware</a></li>
             <li><a href="#services">Service Container</a></li>
             <li><a href="#cli">CLI</a></li>
@@ -42,7 +43,7 @@
 
         <section id="architecture">
             <h2>Architecture</h2>
-            <p>The public framework namespace is <code>Shift\</code>. Composer currently maps it to the <code>Engine/</code> directory.</p>
+            <p>The public framework namespace is <code>Shift\</code>. Composer maps it to the <code>src/</code> directory.</p>
             <p>Application code lives under <code>application/</code>. Modules live under <code>application/modules/{ModuleName}</code> and are autoloaded with the <code>Modules\</code> namespace.</p>
 
             <h3>Request Flow</h3>
@@ -102,7 +103,7 @@ $app-&gt;start();</code></pre>
 
         <section id="modules">
             <h2>Modules</h2>
-            <p>A module owns its controllers, routes, services, and CLI commands.</p>
+            <p>A module owns its controllers, routes, services, config, lifecycle hooks, and CLI commands.</p>
 
             <pre><code>application/modules/Health/
 |-- Module.php
@@ -149,9 +150,14 @@ class Module extends AbstractModule
             ],
         ];
     }
+
+    public function boot(ServiceContainer $container): void
+    {
+        $container-&gt;singleton('health.booted', true);
+    }
 }</code></pre>
 
-            <p><code>Shift\Modules\ModuleLoader</code> discovers modules by convention from <code>application/modules/*/Module.php</code>.</p>
+            <p><code>Shift\Modules\ModuleLoader</code> discovers modules by convention from <code>application/modules/*/Module.php</code>. Module config can be returned from <code>getConfig()</code> or from a module-level <code>config.php</code> file. Merged config is available through <code>$modules-&gt;getConfig()</code> and the container singleton <code>modules.config</code>.</p>
         </section>
 
         <section id="routing">
@@ -180,6 +186,7 @@ class Module extends AbstractModule
                 <li><code>#[QueryParam('include')]</code> reads a query string value</li>
                 <li><code>#[Body]</code> reads the decoded JSON body</li>
                 <li><code>#[Body('name')]</code> reads one JSON body field</li>
+                <li><code>#[BodyDto]</code> validates the JSON body into a request DTO</li>
             </ul>
 
             <pre><code>#[RoutePrefix('/users')]
@@ -278,6 +285,43 @@ return JsonResponse::error('Invalid payload', 422);</code></pre>
             <p><code>JsonResponse</code> automatically sets <code>Content-Type: application/json</code>.</p>
         </section>
 
+        <section id="validation">
+            <h2>Validation and DTOs</h2>
+            <p><code>Shift\Validation\Validator</code> validates arrays and returns validated values. Validation failures throw <code>Shift\Validation\ValidationException</code>, which the app emits as a <code>422</code> JSON response.</p>
+
+            <p>Supported rules are <code>required</code>, <code>string</code>, <code>int</code>, <code>bool</code>, <code>array</code>, <code>email</code>, <code>min</code>, and <code>max</code>.</p>
+
+            <pre><code>use Shift\Validation\RequestDto;
+
+final class CreateUserDto extends RequestDto
+{
+    public function __construct(
+        public readonly string $email,
+        public readonly int $age
+    ) {
+    }
+
+    public static function rules(): array
+    {
+        return [
+            'email' =&gt; 'required|string|email',
+            'age' =&gt; 'required|int|min:18',
+        ];
+    }
+}</code></pre>
+
+            <p>DTOs can be bound by type or with <code>#[BodyDto]</code>:</p>
+
+            <pre><code>#[Post('/users')]
+public function create(#[BodyDto] CreateUserDto $dto): array
+{
+    return [
+        'email' =&gt; $dto-&gt;email,
+        'age' =&gt; $dto-&gt;age,
+    ];
+}</code></pre>
+        </section>
+
         <section id="middleware">
             <h2>Middleware</h2>
             <p>Middleware runs before controller dispatch. It can continue the request by calling <code>$next($request)</code>, modify the returned response, or return a response immediately.</p>
@@ -316,6 +360,13 @@ final class AuthMiddleware implements MiddlewareInterface
 });</code></pre>
 
             <p>Middleware may be a class string, an object implementing <code>MiddlewareInterface</code>, or a callable. Class strings are resolved from the service container when registered there.</p>
+
+            <h3>Built-in Middleware</h3>
+            <ul>
+                <li><code>Shift\Middleware\CorsMiddleware</code> handles CORS headers and preflight requests.</li>
+                <li><code>Shift\Middleware\AuthMiddleware</code> uses <code>Shift\Auth\AuthenticatorInterface</code> to authenticate a request.</li>
+                <li><code>Shift\Middleware\AuthorizationMiddleware</code> uses <code>Shift\Auth\AuthorizerInterface</code> to authorize an authenticated user.</li>
+            </ul>
         </section>
 
         <section id="services">

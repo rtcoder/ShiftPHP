@@ -20,6 +20,12 @@ ShiftPHP is moving toward an API-only modular monolith. View templates, compiled
 - [x] Module-owned controllers, routes, services and commands.
 - [x] Middleware pipeline.
 - [x] Controller autowiring through the container.
+- [x] Validation helpers and typed request DTOs.
+- [x] CORS middleware.
+- [x] Authentication and authorization middleware contracts.
+- [x] Module configuration loading.
+- [x] Module lifecycle hooks, for example `boot()` after service registration.
+- [x] Framework source moved to `src/` for package split preparation.
 - [x] Removal of view storage and example page assets from runtime.
 - [x] Removal of legacy `application/controllers` and `application/routes.php`.
 - [x] Domain-oriented framework namespaces:
@@ -133,10 +139,10 @@ Internal errors return a generic `500` message unless `display_errors` is enable
 
 ## Removed From Runtime
 
-- `Engine/View`
+- legacy `Engine/View`
 - legacy view namespace
-- `Engine/Utils/Storage.php`
-- `Engine/Error/StorageError.php`
+- legacy `Engine/Utils/Storage.php`
+- legacy `Engine/Error/StorageError.php`
 - example CSS and JS page assets
 - `View\\` composer namespace
 - `application/controllers`
@@ -144,12 +150,7 @@ Internal errors return a generic `500` message unless `display_errors` is enable
 
 ## Next
 
-- [ ] Validation helpers and typed request DTOs.
-- [ ] CORS middleware.
-- [ ] Authentication and authorization middleware contracts.
 - [ ] Structured logging for exceptions.
-- [ ] Module configuration loading.
-- [ ] Module lifecycle hooks, for example `boot()` after service registration.
 - [ ] Module discovery cache for production.
 - [ ] CLI command namespaces and command metadata.
 - [ ] Basic package-quality checks, for example static analysis and coding style.
