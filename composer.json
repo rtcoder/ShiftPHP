@@ -20,6 +20,7 @@
   "autoload": {
     "psr-4": {
       "Shift\\": "src",
+      "Console\\Commands\\": "src/Console/Commands",
       "Modules\\": "application/modules"
     }
   }

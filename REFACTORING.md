@@ -26,6 +26,7 @@ ShiftPHP is moving toward an API-only modular monolith. View templates, compiled
 - [x] Module configuration loading.
 - [x] Module lifecycle hooks, for example `boot()` after service registration.
 - [x] Framework source moved to `src/` for package split preparation.
+- [x] CLI create generators for modules and module-owned classes.
 - [x] Removal of view storage and example page assets from runtime.
 - [x] Removal of legacy `application/controllers` and `application/routes.php`.
 - [x] Domain-oriented framework namespaces:
