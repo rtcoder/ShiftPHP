@@ -1,6 +1,7 @@
 <?php
 
 use Shift\App;
+use Shift\Logging\LoggerInterface;
 use Shift\Routing\AttributeRouteLoader;
 use Shift\Routing\Router\Router;
 use Shift\Service\ServiceContainer;
@@ -72,5 +73,32 @@ return [
         assertSameValue(201, $emitter->statusCode, 'Status attribute should override response status.');
         assertArrayHasKeyValue('X-Test', 'created', $emitter->headers, 'Header attribute should add response header.');
         assertSameValue('Shift', $payload['name'] ?? null, 'Body attribute should bind JSON body key.');
+    },
+    'app logs unhandled exceptions with request context' => function (): void {
+        $router = new Router();
+        (new AttributeRouteLoader())->load($router, [FailingController::class]);
+        $emitter = new CapturingEmitter();
+        $logger = new class implements LoggerInterface {
+            public array $records = [];
+
+            public function log(string $level, string $message, array $context = []): void
+            {
+                $this->records[] = compact('level', 'message', 'context');
+            }
+        };
+
+        $app = new App(makeRequest('GET', '/errors/boom'), $router, $emitter);
+        $app->getContainer()->singleton(LoggerInterface::class, $logger);
+        $app->start();
+
+        $payload = json_decode($emitter->content, true);
+        $record = $logger->records[0] ?? null;
+
+        assertSameValue(500, $emitter->statusCode, 'Unhandled exceptions should emit a 500 response.');
+        assertSameValue('Internal Server Error', $payload['error']['message'] ?? null, 'Unhandled exception details should not leak.');
+        assertSameValue('error', $record['level'] ?? null, 'Unhandled exceptions should be logged as errors.');
+        assertSameValue('Controller exploded', $record['message'] ?? null, 'Log message should contain the exception message.');
+        assertSameValue(RuntimeException::class, $record['context']['exception'] ?? null, 'Log context should include the exception class.');
+        assertSameValue('/errors/boom', $record['context']['request']['path'] ?? null, 'Log context should include request path.');
     },
 ];

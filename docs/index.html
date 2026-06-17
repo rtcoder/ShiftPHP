@@ -24,12 +24,13 @@
             <li><a href="#responses">Responses</a></li>
             <li><a href="#validation">Validation and DTOs</a></li>
             <li><a href="#middleware">Middleware</a></li>
-                <li><a href="#services">Service Container</a></li>
-                <li><a href="#database">Environment and Database</a></li>
-                <li><a href="#migrations">Migrations</a></li>
-                <li><a href="#cli">CLI</a></li>
-                <li><a href="#errors">Errors</a></li>
-                <li><a href="#testing">Testing</a></li>
+            <li><a href="#services">Service Container</a></li>
+            <li><a href="#database">Environment and Database</a></li>
+            <li><a href="#logging">Logging</a></li>
+            <li><a href="#migrations">Migrations</a></li>
+            <li><a href="#cli">CLI</a></li>
+            <li><a href="#errors">Errors</a></li>
+            <li><a href="#testing">Testing</a></li>
         </ol>
     </nav>
 
@@ -404,7 +405,9 @@ DB_PORT=3306
 DB_DATABASE=shift
 DB_USERNAME=root
 DB_PASSWORD=
-DB_CHARSET=utf8mb4</code></pre>
+DB_CHARSET=utf8mb4
+LOG_ENABLED=false
+LOG_PATH=storage/logs/shift.log</code></pre>
 
             <p>Database access uses native PDO. The app registers <code>Shift\Database\DatabaseConfig</code>, <code>Shift\Database\Database</code>, and the <code>db</code> alias lazily in the container.</p>
 
@@ -469,6 +472,20 @@ $user-&gt;role = 'admin';
 $user-&gt;save($db);</code></pre>
 
             <p><code>#[Guarded]</code> fields are ignored during mass assignment through <code>create()</code> and query <code>update()</code>, but can be set explicitly before <code>save()</code>. Supported casts include <code>int</code>, <code>float</code>, <code>bool</code>, <code>string</code>, <code>array</code>, <code>date</code>, <code>datetime</code>, and class names. Class casts use <code>fromArray()</code> when available.</p>
+        </section>
+
+        <section id="logging">
+            <h2>Logging</h2>
+            <p>Structured exception logging is available through <code>Shift\Logging\LoggerInterface</code>. Logging is disabled by default and can be enabled with environment variables.</p>
+
+            <pre><code>LOG_ENABLED=true
+LOG_PATH=storage/logs/shift.log</code></pre>
+
+            <p>The file logger writes JSON lines with <code>timestamp</code>, <code>level</code>, <code>message</code>, and <code>context</code>. Exception context includes exception class, status code, file, line, and request data such as method, path, IP, user agent, and <code>X-Request-Id</code> when present.</p>
+
+            <pre><code>use Shift\Logging\LoggerInterface;
+
+$app-&gt;getContainer()-&gt;singleton(LoggerInterface::class, new CustomLogger());</code></pre>
         </section>
 
         <section id="migrations">

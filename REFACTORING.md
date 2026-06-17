@@ -35,6 +35,7 @@ ShiftPHP is moving toward an API-only modular monolith. View templates, compiled
 - [x] Centralized CLI command registry shared by the dispatcher and help command.
 - [x] Database migrations with create, migrate, status, and rollback commands.
 - [x] Module discovery cache for production.
+- [x] Structured exception logging with JSON file logger and service container override.
 - [x] Removal of view storage and example page assets from runtime.
 - [x] Removal of legacy `application/controllers` and `application/routes.php`.
 - [x] Domain-oriented framework namespaces:
@@ -160,6 +161,5 @@ Internal errors return a generic `500` message unless `display_errors` is enable
 
 ## Next
 
-- [ ] Structured logging for exceptions.
 - [ ] CLI command aliases and richer command metadata.
 - [ ] Basic package-quality checks, for example static analysis and coding style.

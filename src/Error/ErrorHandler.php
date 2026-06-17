@@ -2,6 +2,7 @@
 
 namespace Shift\Error;
 
+use Shift\Logging\ExceptionLogger;
 use Throwable;
 
 /**
@@ -48,6 +49,11 @@ class ErrorHandler
 
     public static function handleException(Throwable $exception): void
     {
+        try {
+            ExceptionLogger::default()->log($exception);
+        } catch (Throwable) {
+        }
+
         if (self::$customHandler) {
             call_user_func(self::$customHandler, $exception);
             return;

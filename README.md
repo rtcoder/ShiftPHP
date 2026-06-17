@@ -234,6 +234,9 @@ Built-in middleware includes `Shift\Middleware\CorsMiddleware`, `Shift\Middlewar
 ShiftPHP loads `.env` from the project root during bootstrap. Use `.env.example` as the starting point:
 
 ```env
+APP_ENV=local
+LOG_ENABLED=false
+LOG_PATH=storage/logs/shift.log
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
@@ -244,6 +247,25 @@ DB_CHARSET=utf8mb4
 ```
 
 Existing server environment variables are not overwritten by `.env`.
+
+## Logging
+
+Structured exception logging is available through `Shift\Logging\LoggerInterface`. It uses a no-op logger by default and writes JSON lines when logging is enabled:
+
+```env
+LOG_ENABLED=true
+LOG_PATH=storage/logs/shift.log
+```
+
+Each log record contains `timestamp`, `level`, `message`, and `context`. Exception context includes the exception class, status code, file, line, and request data such as method, path, IP, user agent, and `X-Request-Id` when present.
+
+You can replace the logger through the service container:
+
+```php
+use Shift\Logging\LoggerInterface;
+
+$app->getContainer()->singleton(LoggerInterface::class, new CustomLogger());
+```
 
 ## Database
 
