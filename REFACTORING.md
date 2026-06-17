@@ -32,6 +32,7 @@ ShiftPHP is moving toward an API-only modular monolith. View templates, compiled
 - [x] Fluent query builder and attribute-driven database models.
 - [x] CLI diagnostics for tests, runtime info, environment, database, and modules.
 - [x] CLI help listing and command-specific usage.
+- [x] Centralized CLI command registry shared by the dispatcher and help command.
 - [x] Database migrations with create, migrate, status, and rollback commands.
 - [x] Removal of view storage and example page assets from runtime.
 - [x] Removal of legacy `application/controllers` and `application/routes.php`.
