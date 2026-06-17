@@ -1,0 +1,15 @@
+<?php
+
+use Shift\Database\Database;
+use Shift\Database\Migration;
+
+return new class extends Migration
+{
+    public function up(Database $db): void
+    {
+    }
+
+    public function down(Database $db): void
+    {
+    }
+};

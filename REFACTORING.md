@@ -31,6 +31,8 @@ ShiftPHP is moving toward an API-only modular monolith. View templates, compiled
 - [x] Native PDO database configuration, lazy connection, and basic query API.
 - [x] Fluent query builder and attribute-driven database models.
 - [x] CLI diagnostics for tests, runtime info, environment, database, and modules.
+- [x] CLI help listing and command-specific usage.
+- [x] Database migrations with create, migrate, status, and rollback commands.
 - [x] Removal of view storage and example page assets from runtime.
 - [x] Removal of legacy `application/controllers` and `application/routes.php`.
 - [x] Domain-oriented framework namespaces:
@@ -158,5 +160,5 @@ Internal errors return a generic `500` message unless `display_errors` is enable
 
 - [ ] Structured logging for exceptions.
 - [ ] Module discovery cache for production.
-- [ ] CLI command namespaces and command metadata.
+- [ ] CLI command aliases and richer command metadata.
 - [ ] Basic package-quality checks, for example static analysis and coding style.

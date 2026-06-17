@@ -45,13 +45,11 @@ class Serve implements CommandInterface
 
     public function getHelp(): string
     {
-        // TODO: Implement getHelp() method.
-        return '';
+        return 'Usage: ./shift serve [host:port]';
     }
 
     public function getDescription(): string
     {
-        // TODO: Implement getDescription() method.
-        return '';
+        return 'Start the local PHP development server.';
     }
 }
