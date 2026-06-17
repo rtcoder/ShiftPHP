@@ -458,7 +458,16 @@ Run local quality checks:
 ./shift qa
 ```
 
-`shift lint` checks PHP syntax and basic file hygiene. `shift qa` runs Composer validation, lint checks, the test suite, and route listing.
+`shift lint` checks PHP syntax and basic file hygiene. `shift qa` runs Composer validation, lint checks, the test suite, route listing, and OpenAPI generation.
+
+Generate OpenAPI documentation from registered routes:
+
+```sh
+./shift openapi
+./shift openapi --output=docs/openapi.json
+```
+
+The generator reads module routes from the same router used by the HTTP runtime and emits OpenAPI 3.0 JSON.
 
 Run the example module command:
 

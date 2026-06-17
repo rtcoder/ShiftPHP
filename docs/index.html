@@ -283,6 +283,7 @@
                     <li><a href="#modules">Modules</a></li>
                     <li><a href="#service-container">Service Container</a></li>
                     <li><a href="#commands">Console Commands</a></li>
+                    <li><a href="#openapi">OpenAPI</a></li>
                 </ul>
 
                 <h2>Database</h2>
@@ -687,6 +688,19 @@ final class SyncBilling implements CommandInterface
 ./shift sync-billing</code></pre>
             </section>
 
+            <section id="openapi">
+                <h2>OpenAPI</h2>
+                <p>The OpenAPI command generates an OpenAPI 3.0 JSON document from the routes registered in loaded modules.</p>
+
+                <pre><code>./shift openapi
+./shift openapi --output=docs/openapi.json</code></pre>
+
+                <p>The generator reads route paths, HTTP methods, controller handlers, path parameters, query parameters, request body attributes, request DTO rules, response status attributes, and response header attributes.</p>
+
+                <pre><code>./shift help openapi
+./shift api:docs --output=storage/openapi.json</code></pre>
+            </section>
+
             <section id="database">
                 <h2>Database</h2>
                 <p>ShiftPHP uses native PDO and registers <code>Shift\Database\Database</code> and the <code>db</code> alias lazily in the service container.</p>
@@ -815,7 +829,7 @@ $app-&gt;getContainer()-&gt;singleton(LoggerInterface::class, new CustomLogger()
                 <pre><code>./shift lint
 ./shift qa</code></pre>
 
-                <p><code>shift lint</code> checks PHP syntax and basic file hygiene, including trailing whitespace and missing final newlines. <code>shift qa</code> runs Composer validation, lint checks, the test suite, and the route list command.</p>
+                <p><code>shift lint</code> checks PHP syntax and basic file hygiene, including trailing whitespace and missing final newlines. <code>shift qa</code> runs Composer validation, lint checks, the test suite, route listing, and OpenAPI generation.</p>
 
                 <pre><code>./shift help lint
 ./shift help qa</code></pre>
@@ -837,7 +851,7 @@ $app-&gt;getContainer()-&gt;singleton(LoggerInterface::class, new CustomLogger()
                 <pre><code>composer test
 ./shift test</code></pre>
 
-                <p>The GitHub workflow validates Composer config, dumps autoload files, lints PHP files, runs tests, and verifies the route list command. Locally, <code>./shift qa</code> runs the same kind of pre-PR quality gate.</p>
+                <p>The GitHub workflow validates Composer config, dumps autoload files, lints PHP files, runs tests, and verifies the route list command. Locally, <code>./shift qa</code> runs the same kind of pre-PR quality gate and also checks OpenAPI generation.</p>
             </section>
 
             <section id="releases">

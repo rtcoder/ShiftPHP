@@ -32,6 +32,7 @@ final class QualityChecks
             $this->fileHygiene(),
             $this->testSuite(),
             $this->routeList(),
+            $this->openApiDocument(),
         ];
     }
 
@@ -91,6 +92,38 @@ final class QualityChecks
         $command = escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($this->projectRoot() . '/shift') . ' route:list 2>&1';
 
         return $this->runShellCheck('Route list', $command, './shift route:list passed');
+    }
+
+    public function openApiDocument(): CheckResult
+    {
+        $command = escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($this->projectRoot() . '/shift') . ' openapi 2>&1';
+        $previousDirectory = getcwd();
+
+        if ($previousDirectory !== false) {
+            chdir($this->projectRoot());
+        }
+
+        try {
+            exec($command, $output, $exitCode);
+        } finally {
+            if ($previousDirectory !== false) {
+                chdir($previousDirectory);
+            }
+        }
+
+        if ($exitCode !== 0) {
+            $details = trim(implode(' ', array_slice($output, -3)));
+
+            return CheckResult::fail('OpenAPI document', $details !== '' ? $details : 'Command failed with exit code ' . $exitCode);
+        }
+
+        $document = json_decode(implode("\n", $output), true);
+
+        if (!is_array($document) || ($document['openapi'] ?? null) !== '3.0.3') {
+            return CheckResult::fail('OpenAPI document', 'Generated document is not valid OpenAPI JSON');
+        }
+
+        return CheckResult::ok('OpenAPI document', './shift openapi passed');
     }
 
     private function runShellCheck(string $name, string $command, string $successDetails): CheckResult
