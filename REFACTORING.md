@@ -37,6 +37,7 @@ ShiftPHP is moving toward an API-only modular monolith. View templates, compiled
 - [x] GitHub API workflow with PHP 8.3 checks.
 - [x] PR version label validation.
 - [x] Release workflow using PR summary as release notes.
+- [x] Split API core tests into runner, support, fixtures, and feature files.
 
 ## Modular Monolith Direction
 

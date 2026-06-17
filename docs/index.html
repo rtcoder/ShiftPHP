@@ -410,9 +410,11 @@ php shift.php health</code></pre>
 
         <section id="testing">
             <h2>Testing</h2>
-            <p>The current lightweight test suite is in <code>tests/ApiCoreTest.php</code>.</p>
+            <p>The current lightweight test runner is <code>tests/ApiCoreTest.php</code>.</p>
 
             <pre><code>composer test</code></pre>
+
+            <p>Shared assertions, request helpers, and emitters live in <code>tests/Support</code>. Test-only controllers, DTOs, middleware, and auth fixtures live in <code>tests/Fixtures</code>. Feature test files live in <code>tests/Feature</code>.</p>
 
             <p>The API workflow also validates Composer configuration, dumps autoload files, lints PHP files, runs the API tests, and verifies the route list command.</p>
         </section>
