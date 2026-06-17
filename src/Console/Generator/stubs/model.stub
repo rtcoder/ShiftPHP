@@ -2,6 +2,9 @@
 
 namespace Modules\{{ module }}\Models;
 
-class {{ class }}
+use Shift\Database\Model;
+
+class {{ class }} extends Model
 {
+    protected string $table = '{{ table }}';
 }

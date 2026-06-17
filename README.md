@@ -269,6 +269,60 @@ class UserService
 
 Available helpers are `query($sql, $parameters)`, `execute($sql, $parameters)`, `pdo()`, and `transaction($callback)`. Query results expose `all()`, `first()`, `value()`, `affectedRows()`, and the raw `PDOStatement`.
 
+### Query Builder and Models
+
+Use the table query builder for simple fluent queries:
+
+```php
+$users = $db->table('users')
+    ->select('id', 'email')
+    ->where('active', true)
+    ->orderBy('id', 'desc')
+    ->limit(10)
+    ->get();
+```
+
+Models extend `Shift\Database\Model`. Public properties represent database columns:
+
+```php
+use Shift\Database\Attributes\Cast;
+use Shift\Database\Attributes\Guarded;
+use Shift\Database\Attributes\PrimaryKey;
+use Shift\Database\Model;
+
+class User extends Model
+{
+    protected string $table = 'users';
+
+    #[PrimaryKey]
+    #[Cast('int')]
+    public ?int $id = null;
+
+    public string $email = '';
+
+    #[Guarded]
+    public string $role = 'user';
+
+    #[Cast('array')]
+    public array $meta = [];
+
+    #[Cast('datetime')]
+    public ?DateTimeImmutable $created_at = null;
+}
+```
+
+Model queries return hydrated model instances:
+
+```php
+$user = User::query($db)->where('email', 'dev@example.com')->first();
+$user = User::find(1, $db);
+$user = User::create(['email' => 'dev@example.com'], $db);
+$user->role = 'admin';
+$user->save($db);
+```
+
+`#[Guarded]` fields are ignored during mass assignment through `create()` and query `update()`, but can be set explicitly on a model instance before `save()`. Supported casts include `int`, `float`, `bool`, `string`, `array`, `date`, `datetime`, and class names. Class casts use `fromArray()` when available.
+
 ## Service Container
 
 The container can resolve registered services and build classes with typed constructor dependencies:
