@@ -11,6 +11,8 @@ The current architecture focuses on an API-only modular monolith:
 - controller actions,
 - JSON responses,
 - request helpers,
+- environment configuration,
+- PDO database queries,
 - middleware pipeline,
 - validation helpers and typed request DTOs,
 - JSON error responses,
@@ -20,6 +22,7 @@ The current architecture focuses on an API-only modular monolith:
 
 - PHP 8.3 or higher
 - Composer
+- `json` and `pdo` PHP extensions
 
 ## Routing
 
@@ -225,6 +228,46 @@ $app->middleware(function (Request $request, callable $next): Response {
 ```
 
 Built-in middleware includes `Shift\Middleware\CorsMiddleware`, `Shift\Middleware\AuthMiddleware`, and `Shift\Middleware\AuthorizationMiddleware`. Auth middleware uses `Shift\Auth\AuthenticatorInterface`; authorization middleware uses `Shift\Auth\AuthorizerInterface`.
+
+## Environment
+
+ShiftPHP loads `.env` from the project root during bootstrap. Use `.env.example` as the starting point:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=shift
+DB_USERNAME=root
+DB_PASSWORD=
+DB_CHARSET=utf8mb4
+```
+
+Existing server environment variables are not overwritten by `.env`.
+
+## Database
+
+Database access uses native PDO and is registered lazily in the service container as `Shift\Database\Database` and `db`:
+
+```php
+use Shift\Database\Database;
+
+class UserService
+{
+    public function __construct(private readonly Database $db)
+    {
+    }
+
+    public function find(int $id): ?array
+    {
+        return $this->db
+            ->query('select * from users where id = :id', ['id' => $id])
+            ->first();
+    }
+}
+```
+
+Available helpers are `query($sql, $parameters)`, `execute($sql, $parameters)`, `pdo()`, and `transaction($callback)`. Query results expose `all()`, `first()`, `value()`, `affectedRows()`, and the raw `PDOStatement`.
 
 ## Service Container
 

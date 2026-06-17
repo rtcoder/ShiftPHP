@@ -12,7 +12,8 @@
   "minimum-stability": "dev",
   "require": {
     "php": ">=8.3",
-    "ext-json": "*"
+    "ext-json": "*",
+    "ext-pdo": "*"
   },
   "scripts": {
     "test": "XDEBUG_MODE=off php tests/ApiCoreTest.php"
