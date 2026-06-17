@@ -31,7 +31,7 @@ class CreateCommand implements CommandInterface
 
     public function getHelp(): string
     {
-        return 'Usage: php shift.php create:command --module={name} {CommandName}';
+        return 'Usage: ./shift create:command --module={name} {CommandName}';
     }
 
     public function getDescription(): string

@@ -35,13 +35,15 @@ jobs:
         run: composer dump-autoload
 
       - name: Lint PHP files
-        run: find src application tests -name '*.php' -print0 | xargs -0 -n1 php -l
+        run: |
+          php -l shift
+          find src application tests -name '*.php' -print0 | xargs -0 -n1 php -l
 
       - name: Run API core tests
         run: composer test
 
       - name: Verify route list command
-        run: php shift.php route:list
+        run: ./shift route:list
 
   version-label:
     name: Version label required

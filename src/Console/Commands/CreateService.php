@@ -30,7 +30,7 @@ class CreateService implements CommandInterface
 
     public function getHelp(): string
     {
-        return 'Usage: php shift.php create:service --module={name} {ServiceName}';
+        return 'Usage: ./shift create:service --module={name} {ServiceName}';
     }
 
     public function getDescription(): string

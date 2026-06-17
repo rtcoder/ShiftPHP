@@ -20,7 +20,7 @@ class Health implements CommandInterface
 
     public function getHelp(): string
     {
-        return 'Usage: php shift.php health';
+        return 'Usage: ./shift health';
     }
 
     public function getDescription(): string

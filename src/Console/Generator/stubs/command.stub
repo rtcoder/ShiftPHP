@@ -14,7 +14,7 @@ class {{ class }} implements CommandInterface
 
     public function getHelp(): string
     {
-        return 'Usage: php shift.php {{ command }}';
+        return 'Usage: ./shift {{ command }}';
     }
 
     public function getDescription(): string

@@ -67,7 +67,7 @@ return [
             $command = file_get_contents($modulesPath . '/Billing/Commands/SyncInvoices.php');
             assertStringContains('class Invoice extends Model', $model, 'Generated models should extend the base model.');
             assertStringContains("protected string \$table = 'invoices';", $model, 'Generated models should define a table name.');
-            assertStringContains('return \'Usage: php shift.php sync:invoices\';', $command, 'Generated command help should use CLI command syntax.');
+            assertStringContains('return \'Usage: ./shift sync:invoices\';', $command, 'Generated command help should use CLI command syntax.');
         } finally {
             removeDirectory(dirname($modulesPath));
         }

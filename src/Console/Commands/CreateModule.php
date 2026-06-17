@@ -38,7 +38,7 @@ class CreateModule implements CommandInterface
 
     public function getHelp(): string
     {
-        return 'Usage: php shift.php create:module {name}';
+        return 'Usage: ./shift create:module {name}';
     }
 
     public function getDescription(): string

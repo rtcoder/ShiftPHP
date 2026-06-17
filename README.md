@@ -350,31 +350,31 @@ http://127.0.0.1:8000/health
 List registered API routes:
 
 ```sh
-php shift.php route:list
+./shift route:list
 ```
 
 Run the example module command:
 
 ```sh
-php shift.php health
+./shift health
 ```
 
 Generate module scaffolding:
 
 ```sh
-php shift.php create:module Billing
+./shift create:module Billing
 ```
 
 Generate module-owned classes:
 
 ```sh
-php shift.php create:controller --module=Billing InvoiceController
-php shift.php create:controller Billing:InvoiceController
-php shift.php create:model Billing:Invoice
-php shift.php create:service Billing:Invoice
-php shift.php create:command Billing:SyncInvoices
-php shift.php create:middleware Billing:Audit
-php shift.php create:dto Billing:CreateInvoice
+./shift create:controller --module=Billing InvoiceController
+./shift create:controller Billing:InvoiceController
+./shift create:model Billing:Invoice
+./shift create:service Billing:Invoice
+./shift create:command Billing:SyncInvoices
+./shift create:middleware Billing:Audit
+./shift create:dto Billing:CreateInvoice
 ```
 
 Generator commands normalize module and class names to PHP class conventions. Missing suffixes are added for controllers, services, middleware, and DTOs.

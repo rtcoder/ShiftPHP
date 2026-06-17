@@ -30,7 +30,7 @@ class CreateDto implements CommandInterface
 
     public function getHelp(): string
     {
-        return 'Usage: php shift.php create:dto --module={name} {DtoName}';
+        return 'Usage: ./shift create:dto --module={name} {DtoName}';
     }
 
     public function getDescription(): string
