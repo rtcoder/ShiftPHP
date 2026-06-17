@@ -30,7 +30,7 @@ class CreateController implements CommandInterface
 
     public function getHelp(): string
     {
-        return 'Usage: php shift.php create:controller --module={name} {ControllerName}';
+        return 'Usage: ./shift create:controller --module={name} {ControllerName}';
     }
 
     public function getDescription(): string

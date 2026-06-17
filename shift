@@ -1,10 +1,10 @@
-#!/usr/bin/php
+#!/usr/bin/env php
 <?php
 
 use Shift\App;
 use Shift\Console\Shift;
 
-require_once 'bootstrap.php';
+require_once __DIR__ . '/bootstrap.php';
 App::setHelpers();
 $console = new Shift($argv);
 $console->run();

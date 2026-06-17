@@ -471,21 +471,21 @@ $user-&gt;save($db);</code></pre>
 
         <section id="cli">
             <h2>CLI</h2>
-            <p>The CLI entry point is <code>shift.php</code>. Built-in commands live under <code>Console\Commands</code>, and module commands are loaded from module command mappings.</p>
+            <p>The CLI entry point is <code>shift</code>. Built-in commands live under <code>Console\Commands</code>, and module commands are loaded from module command mappings.</p>
 
-            <pre><code>php shift.php route:list
-php shift.php health</code></pre>
+            <pre><code>./shift route:list
+./shift health</code></pre>
 
             <p>Create commands scaffold modules and module-owned classes:</p>
 
-            <pre><code>php shift.php create:module Billing
-php shift.php create:controller --module=Billing InvoiceController
-php shift.php create:controller Billing:InvoiceController
-php shift.php create:model Billing:Invoice
-php shift.php create:service Billing:Invoice
-php shift.php create:command Billing:SyncInvoices
-php shift.php create:middleware Billing:Audit
-php shift.php create:dto Billing:CreateInvoice</code></pre>
+            <pre><code>./shift create:module Billing
+./shift create:controller --module=Billing InvoiceController
+./shift create:controller Billing:InvoiceController
+./shift create:model Billing:Invoice
+./shift create:service Billing:Invoice
+./shift create:command Billing:SyncInvoices
+./shift create:middleware Billing:Audit
+./shift create:dto Billing:CreateInvoice</code></pre>
 
             <p>Controller, service, middleware, and DTO generators add the expected class suffix when it is missing. Commands accept either <code>--module=Billing Name</code> or <code>Billing:Name</code>.</p>
             <p>Generator templates live in <code>src/Console/Generator/stubs</code>.</p>

@@ -30,7 +30,7 @@ class CreateMiddleware implements CommandInterface
 
     public function getHelp(): string
     {
-        return 'Usage: php shift.php create:middleware --module={name} {MiddlewareName}';
+        return 'Usage: ./shift create:middleware --module={name} {MiddlewareName}';
     }
 
     public function getDescription(): string

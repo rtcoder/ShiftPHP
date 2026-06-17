@@ -31,7 +31,7 @@ class CreateModel implements CommandInterface
 
     public function getHelp(): string
     {
-        return 'Usage: php shift.php create:model --module={name} {ModelName}';
+        return 'Usage: ./shift create:model --module={name} {ModelName}';
     }
 
     public function getDescription(): string

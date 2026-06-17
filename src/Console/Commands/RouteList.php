@@ -35,7 +35,7 @@ class RouteList implements CommandInterface
 
     public function getHelp(): string
     {
-        return 'Usage: php shift.php route:list';
+        return 'Usage: ./shift route:list';
     }
 
     public function getDescription(): string
