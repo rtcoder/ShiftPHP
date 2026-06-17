@@ -90,6 +90,23 @@ class UserController extends Controller
 
 Route parameters are passed by method parameter name. A controller action can also request the current `Shift\Request`.
 
+Controllers are created through the service container, so constructor dependencies can be type-hinted:
+
+```php
+class UserController extends Controller
+{
+    public function __construct(private readonly UserService $users)
+    {
+    }
+
+    #[Get('/{id}')]
+    public function show(#[PathParam] int $id): array
+    {
+        return $this->users->find($id);
+    }
+}
+```
+
 You can use these routing attributes:
 
 - `#[RoutePrefix('/prefix')]`
@@ -166,6 +183,16 @@ $app->middleware(function (Request $request, callable $next): Response {
         $response->getHeaders() + ['X-Api' => 'Shift']
     );
 });
+```
+
+## Service Container
+
+The container can resolve registered services and build classes with typed constructor dependencies:
+
+```php
+$container->singleton(UserService::class, UserService::class);
+$service = $container->resolve(UserService::class);
+$controller = $container->make(UserController::class);
 ```
 
 ## Run Locally

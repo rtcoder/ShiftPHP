@@ -202,7 +202,7 @@ final class UserController extends Controller
 
         <section id="controllers">
             <h2>Controllers</h2>
-            <p>Controllers extend <code>Shift\Controller</code>. The current <code>Shift\Request</code> and <code>Shift\Service\ServiceContainer</code> are injected through the constructor.</p>
+            <p>Controllers extend <code>Shift\Controller</code>. Controllers are created through the service container, so typed constructor dependencies can be injected automatically.</p>
 
             <p>Controller actions can return:</p>
             <ul>
@@ -221,6 +221,24 @@ final class UserController extends Controller
                 <li><code>$this-&gt;getRequest()</code></li>
                 <li><code>$this-&gt;getContainer()</code></li>
             </ul>
+
+            <h3>Constructor Autowiring</h3>
+            <p>Register services in a module, then type-hint them in a controller constructor.</p>
+
+            <pre><code>final class UserController extends Controller
+{
+    public function __construct(private readonly UserService $users)
+    {
+    }
+
+    #[Get('/{id}')]
+    public function show(#[PathParam] int $id): array
+    {
+        return $this-&gt;users-&gt;find($id);
+    }
+}</code></pre>
+
+            <p>The app registers the current <code>Shift\Request</code>, <code>Shift\Routing\Router\Router</code>, and <code>Shift\Service\ServiceContainer</code> in the container by default.</p>
         </section>
 
         <section id="requests">
@@ -302,16 +320,17 @@ final class AuthMiddleware implements MiddlewareInterface
 
         <section id="services">
             <h2>Service Container</h2>
-            <p><code>Shift\Service\ServiceContainer</code> stores regular services and singletons. It can resolve closures, class names, and already-created objects.</p>
+            <p><code>Shift\Service\ServiceContainer</code> stores regular services and singletons. It can resolve closures, class names, and already-created objects. It can also build classes with typed constructor dependencies.</p>
 
             <pre><code>$container-&gt;register(UserRepository::class, UserRepository::class);
 $container-&gt;singleton(HealthService::class, HealthService::class);
 $container-&gt;singleton('request', $request);
 
 $service = $container-&gt;resolve(HealthService::class);
+$controller = $container-&gt;make(HealthController::class);
 $exists = $container-&gt;has(HealthService::class);</code></pre>
 
-            <p>The app registers the current request and router as default singleton services under <code>request</code> and <code>router</code>.</p>
+            <p>The app registers the current request and router as default singleton services under <code>request</code>, <code>Shift\Request</code>, <code>router</code>, and <code>Shift\Routing\Router\Router</code>. It also registers the current <code>Shift\Service\ServiceContainer</code> instance.</p>
         </section>
 
         <section id="cli">

@@ -100,7 +100,7 @@ final class App
             throw new HttpError('Endpoint not found', 404);
         }
 
-        $controller = new $controllerClass($request, $this->container);
+        $controller = $this->createController($controllerClass);
         $reflectionClass = new ReflectionClass($controller);
 
         if (!$reflectionClass->hasMethod($methodName)) {
@@ -117,6 +117,15 @@ final class App
             $this->normalizeResponse($result),
             $method
         );
+    }
+
+    private function createController(string $controllerClass): object
+    {
+        if ($this->container->has($controllerClass)) {
+            return $this->container->resolve($controllerClass);
+        }
+
+        return $this->container->make($controllerClass);
     }
 
     /**
@@ -306,7 +315,10 @@ final class App
     private function registerDefaultServices(): void
     {
         $this->container->singleton('request', $this->request);
+        $this->container->singleton(Request::class, $this->request);
         $this->container->singleton('router', $this->router);
+        $this->container->singleton(Router::class, $this->router);
+        $this->container->singleton(ServiceContainer::class, $this->container);
     }
 
     public function getContainer(): ServiceContainer
