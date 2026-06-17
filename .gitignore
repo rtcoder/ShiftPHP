@@ -1,5 +1,6 @@
 /nbproject/private/
 /vendor/
+/.env
 
 Engine/storage/views/
 

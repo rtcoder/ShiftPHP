@@ -25,6 +25,7 @@
             <li><a href="#validation">Validation and DTOs</a></li>
             <li><a href="#middleware">Middleware</a></li>
             <li><a href="#services">Service Container</a></li>
+            <li><a href="#database">Environment and Database</a></li>
             <li><a href="#cli">CLI</a></li>
             <li><a href="#errors">Errors</a></li>
             <li><a href="#testing">Testing</a></li>
@@ -38,6 +39,7 @@
                 <li>PHP 8.3 or newer</li>
                 <li>Composer</li>
                 <li>The <code>json</code> PHP extension</li>
+                <li>The <code>pdo</code> PHP extension</li>
             </ul>
         </section>
 
@@ -71,6 +73,10 @@
                 <dd>Module contracts and module loader.</dd>
                 <dt><code>Shift\Service</code></dt>
                 <dd>Small service container and service interface.</dd>
+                <dt><code>Shift\Config</code></dt>
+                <dd>Environment variable loading and lookup.</dd>
+                <dt><code>Shift\Database</code></dt>
+                <dd>PDO database configuration, connection, and query helpers.</dd>
                 <dt><code>Shift\Console</code></dt>
                 <dd>CLI command dispatcher and built-in commands.</dd>
                 <dt><code>Shift\Error</code></dt>
@@ -383,7 +389,40 @@ $service = $container-&gt;resolve(HealthService::class);
 $controller = $container-&gt;make(HealthController::class);
 $exists = $container-&gt;has(HealthService::class);</code></pre>
 
-            <p>The app registers the current request and router as default singleton services under <code>request</code>, <code>Shift\Request</code>, <code>router</code>, and <code>Shift\Routing\Router\Router</code>. It also registers the current <code>Shift\Service\ServiceContainer</code> instance.</p>
+            <p>The app registers the current request and router as default singleton services under <code>request</code>, <code>Shift\Request</code>, <code>router</code>, and <code>Shift\Routing\Router\Router</code>. It also registers the current <code>Shift\Service\ServiceContainer</code> instance, database config, and a lazy database service.</p>
+        </section>
+
+        <section id="database">
+            <h2>Environment and Database</h2>
+            <p><code>bootstrap.php</code> loads <code>.env</code> from the project root without overwriting variables that already exist in the server environment.</p>
+
+            <pre><code>DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=shift
+DB_USERNAME=root
+DB_PASSWORD=
+DB_CHARSET=utf8mb4</code></pre>
+
+            <p>Database access uses native PDO. The app registers <code>Shift\Database\DatabaseConfig</code>, <code>Shift\Database\Database</code>, and the <code>db</code> alias lazily in the container.</p>
+
+            <pre><code>use Shift\Database\Database;
+
+class UserService
+{
+    public function __construct(private readonly Database $db)
+    {
+    }
+
+    public function find(int $id): ?array
+    {
+        return $this-&gt;db
+            -&gt;query('select * from users where id = :id', ['id' =&gt; $id])
+            -&gt;first();
+    }
+}</code></pre>
+
+            <p>Use <code>query()</code> for prepared queries, <code>execute()</code> for write statements, <code>pdo()</code> for raw PDO access, and <code>transaction()</code> for transactional work.</p>
         </section>
 
         <section id="cli">
