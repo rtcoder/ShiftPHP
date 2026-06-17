@@ -3,6 +3,8 @@
 namespace Shift;
 
 use Shift\Error\HttpError;
+use Shift\Database\Database;
+use Shift\Database\DatabaseConfig;
 use Shift\Middleware\MiddlewareInterface;
 use Shift\Middleware\MiddlewarePipeline;
 use Shift\Response\JsonResponse;
@@ -360,6 +362,11 @@ final class App
         $this->container->singleton('router', $this->router);
         $this->container->singleton(Router::class, $this->router);
         $this->container->singleton(ServiceContainer::class, $this->container);
+        $this->container->singleton(DatabaseConfig::class, fn (): DatabaseConfig => DatabaseConfig::fromEnv());
+        $this->container->singleton(Database::class, fn (ServiceContainer $container): Database => new Database(
+            $container->resolve(DatabaseConfig::class)
+        ));
+        $this->container->singleton('db', fn (ServiceContainer $container): Database => $container->resolve(Database::class));
     }
 
     public function getContainer(): ServiceContainer

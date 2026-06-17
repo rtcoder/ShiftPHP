@@ -2,6 +2,7 @@
 
 // Define application constants
 use Shift\App;
+use Shift\Config\EnvLoader;
 use Shift\Error\ErrorHandler;
 
 define('APP_ROOT', realpath(__DIR__ . '/'));
@@ -11,6 +12,9 @@ define('PUBLIC_PATH', realpath(APP_ROOT . '/public/'));
 
 // Load Composer autoloader
 require_once VENDOR_PATH . '/autoload.php';
+
+// Load environment variables
+(new EnvLoader())->load(APP_ROOT . '/.env');
 
 // Register custom autoloader
 spl_autoload_register(['Shift\App', 'autoload']);
