@@ -281,6 +281,7 @@ php shift.php create:dto Billing:CreateInvoice
 ```
 
 Generator commands normalize module and class names to PHP class conventions. Missing suffixes are added for controllers, services, middleware, and DTOs.
+Generator templates live in `src/Console/Generator/stubs`.
 
 ## Modules
 

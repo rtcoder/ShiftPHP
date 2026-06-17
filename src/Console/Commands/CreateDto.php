@@ -22,7 +22,10 @@ class CreateDto implements CommandInterface
         $class = NameFormatter::className($rawName, 'Dto');
         $path = $this->modulePath($module) . '/Dto/' . $class . '.php';
 
-        $this->writeAndReport($path, $this->stub($module, $class));
+        $this->writeAndReport($path, $this->renderStub('dto', [
+            'module' => $module,
+            'class' => $class,
+        ]));
     }
 
     public function getHelp(): string
@@ -35,28 +38,4 @@ class CreateDto implements CommandInterface
         return 'Create a module request DTO.';
     }
 
-    private function stub(string $module, string $class): string
-    {
-        return <<<PHP
-<?php
-
-namespace Modules\\{$module}\\Dto;
-
-use Shift\\Validation\\RequestDto;
-
-class {$class} extends RequestDto
-{
-    public function __construct()
-    {
-    }
-
-    public static function rules(): array
-    {
-        return [
-        ];
-    }
-}
-
-PHP;
-    }
 }

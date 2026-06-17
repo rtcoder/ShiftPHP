@@ -22,7 +22,10 @@ class CreateModel implements CommandInterface
         $class = NameFormatter::className($rawName);
         $path = $this->modulePath($module) . '/Models/' . $class . '.php';
 
-        $this->writeAndReport($path, $this->stub($module, $class));
+        $this->writeAndReport($path, $this->renderStub('model', [
+            'module' => $module,
+            'class' => $class,
+        ]));
     }
 
     public function getHelp(): string
@@ -35,17 +38,4 @@ class CreateModel implements CommandInterface
         return 'Create a module model.';
     }
 
-    private function stub(string $module, string $class): string
-    {
-        return <<<PHP
-<?php
-
-namespace Modules\\{$module}\\Models;
-
-class {$class}
-{
-}
-
-PHP;
-    }
 }

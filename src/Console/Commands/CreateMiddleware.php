@@ -22,7 +22,10 @@ class CreateMiddleware implements CommandInterface
         $class = NameFormatter::className($rawName, 'Middleware');
         $path = $this->modulePath($module) . '/Middleware/' . $class . '.php';
 
-        $this->writeAndReport($path, $this->stub($module, $class));
+        $this->writeAndReport($path, $this->renderStub('middleware', [
+            'module' => $module,
+            'class' => $class,
+        ]));
     }
 
     public function getHelp(): string
@@ -35,25 +38,4 @@ class CreateMiddleware implements CommandInterface
         return 'Create a module middleware.';
     }
 
-    private function stub(string $module, string $class): string
-    {
-        return <<<PHP
-<?php
-
-namespace Modules\\{$module}\\Middleware;
-
-use Shift\\Middleware\\MiddlewareInterface;
-use Shift\\Request;
-use Shift\\Response\\Response;
-
-class {$class} implements MiddlewareInterface
-{
-    public function handle(Request \$request, callable \$next): Response
-    {
-        return \$next(\$request);
-    }
-}
-
-PHP;
-    }
 }

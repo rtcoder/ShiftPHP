@@ -8,12 +8,15 @@ trait GeneratesFiles
 {
     protected FileGenerator $files;
 
+    protected StubRenderer $stubs;
+
     protected Cli $cli;
 
     public function __construct(
         protected readonly string $modulesPath = APP_PATH . '/modules'
     ) {
         $this->files = new FileGenerator();
+        $this->stubs = new StubRenderer();
         $this->cli = new Cli();
     }
 
@@ -70,5 +73,13 @@ trait GeneratesFiles
         }
 
         $this->cli->success('Created: ' . $path);
+    }
+
+    /**
+     * @param array<string, string> $variables
+     */
+    protected function renderStub(string $stub, array $variables): string
+    {
+        return $this->stubs->render($stub, $variables);
     }
 }

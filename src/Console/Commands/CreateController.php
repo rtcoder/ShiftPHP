@@ -22,7 +22,10 @@ class CreateController implements CommandInterface
         $class = NameFormatter::className($rawName, 'Controller');
         $path = $this->modulePath($module) . '/Controllers/' . $class . '.php';
 
-        $this->writeAndReport($path, $this->stub($module, $class));
+        $this->writeAndReport($path, $this->renderStub('controller', [
+            'module' => $module,
+            'class' => $class,
+        ]));
     }
 
     public function getHelp(): string
@@ -35,26 +38,4 @@ class CreateController implements CommandInterface
         return 'Create a module controller.';
     }
 
-    private function stub(string $module, string $class): string
-    {
-        return <<<PHP
-<?php
-
-namespace Modules\\{$module}\\Controllers;
-
-use Shift\\Controller;
-use Shift\\Response\\JsonResponse;
-
-class {$class} extends Controller
-{
-    public function index(): JsonResponse
-    {
-        return \$this->json([
-            'status' => 'ok',
-        ]);
-    }
-}
-
-PHP;
-    }
 }

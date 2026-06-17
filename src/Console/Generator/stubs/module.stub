@@ -1,0 +1,36 @@
+<?php
+
+namespace Modules\{{ module }};
+
+use Shift\Modules\AbstractModule;
+use Shift\Routing\AttributeRouteLoader;
+use Shift\Routing\Router\Router;
+use Shift\Service\ServiceContainer;
+
+class Module extends AbstractModule
+{
+    public function getName(): string
+    {
+        return '{{ slug }}';
+    }
+
+    public function registerServices(ServiceContainer $container): void
+    {
+    }
+
+    public function registerRoutes(Router $router): void
+    {
+        (new AttributeRouteLoader())->load($router, [
+        ]);
+    }
+
+    public function getCommandMappings(): array
+    {
+        return [
+            [
+                'dir' => __DIR__ . '/Commands/',
+                'namespace' => 'Modules\\{{ module }}\\Commands\\',
+            ],
+        ];
+    }
+}

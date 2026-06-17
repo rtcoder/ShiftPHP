@@ -22,7 +22,10 @@ class CreateService implements CommandInterface
         $class = NameFormatter::className($rawName, 'Service');
         $path = $this->modulePath($module) . '/Services/' . $class . '.php';
 
-        $this->writeAndReport($path, $this->stub($module, $class));
+        $this->writeAndReport($path, $this->renderStub('service', [
+            'module' => $module,
+            'class' => $class,
+        ]));
     }
 
     public function getHelp(): string
@@ -35,17 +38,4 @@ class CreateService implements CommandInterface
         return 'Create a module service.';
     }
 
-    private function stub(string $module, string $class): string
-    {
-        return <<<PHP
-<?php
-
-namespace Modules\\{$module}\\Services;
-
-class {$class}
-{
-}
-
-PHP;
-    }
 }
