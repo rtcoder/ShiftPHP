@@ -353,10 +353,35 @@ List registered API routes:
 ./shift route:list
 ```
 
+Run the test suite:
+
+```sh
+./shift test
+```
+
 Run the example module command:
 
 ```sh
 ./shift health
+```
+
+Inspect framework/runtime information:
+
+```sh
+./shift about
+```
+
+Check local environment and database configuration:
+
+```sh
+./shift env:check
+./shift db:check
+```
+
+List discovered modules:
+
+```sh
+./shift module:list
 ```
 
 Generate module scaffolding:
