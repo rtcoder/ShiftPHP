@@ -3,94 +3,357 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ShiftPHP Developer Documentation</title>
+    <title>ShiftPHP Documentation</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --bg: #ffffff;
+            --panel: #f8fafc;
+            --text: #17202a;
+            --muted: #5f6c7b;
+            --line: #d9e1ea;
+            --accent: #d43c2f;
+            --accent-soft: #fff1ef;
+            --code-bg: #111827;
+            --code-text: #f8fafc;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            line-height: 1.6;
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        code {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 0.93em;
+        }
+
+        pre {
+            overflow-x: auto;
+            margin: 1rem 0 1.6rem;
+            padding: 1rem;
+            border-radius: 8px;
+            background: var(--code-bg);
+            color: var(--code-text);
+        }
+
+        pre code {
+            color: inherit;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 280px minmax(0, 1fr);
+            min-height: 100vh;
+        }
+
+        aside {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            border-right: 1px solid var(--line);
+            background: var(--panel);
+            padding: 1.25rem 1rem;
+        }
+
+        aside h1 {
+            margin: 0 0 0.25rem;
+            font-size: 1.35rem;
+            letter-spacing: 0;
+        }
+
+        aside p {
+            margin: 0 0 1rem;
+            color: var(--muted);
+            font-size: 0.92rem;
+        }
+
+        nav h2 {
+            margin: 1.25rem 0 0.4rem;
+            color: var(--muted);
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        nav ul {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        nav li {
+            margin: 0.1rem 0;
+        }
+
+        nav a {
+            display: block;
+            padding: 0.25rem 0;
+            color: var(--text);
+            font-size: 0.94rem;
+        }
+
+        main {
+            min-width: 0;
+            max-width: 980px;
+            padding: 3rem min(6vw, 4.5rem) 5rem;
+        }
+
+        header {
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--line);
+        }
+
+        header p {
+            max-width: 760px;
+            color: var(--muted);
+            font-size: 1.12rem;
+        }
+
+        h1, h2, h3 {
+            line-height: 1.25;
+            letter-spacing: 0;
+        }
+
+        h1 {
+            margin: 0 0 1rem;
+            font-size: clamp(2.2rem, 5vw, 4rem);
+        }
+
+        h2 {
+            margin: 3rem 0 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--line);
+            font-size: 2rem;
+        }
+
+        h3 {
+            margin: 2rem 0 0.75rem;
+            font-size: 1.35rem;
+        }
+
+        table {
+            width: 100%;
+            margin: 1rem 0 1.5rem;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        p, li, td {
+            overflow-wrap: anywhere;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--line);
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background: var(--panel);
+            font-weight: 700;
+        }
+
+        .callout {
+            margin: 1.25rem 0 1.75rem;
+            padding: 1rem;
+            border-left: 4px solid var(--accent);
+            background: var(--accent-soft);
+            border-radius: 0 8px 8px 0;
+        }
+
+        .muted {
+            color: var(--muted);
+        }
+
+        @media (max-width: 900px) {
+            .layout {
+                display: block;
+            }
+
+            aside {
+                position: static;
+                height: auto;
+            }
+
+            main {
+                width: 100%;
+                max-width: 100%;
+                padding: 2rem 1.25rem 4rem;
+            }
+
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>ShiftPHP Developer Documentation</h1>
-        <p>ShiftPHP is an API-only PHP 8.3 framework for modular monolith applications.</p>
-    </header>
+    <div class="layout">
+        <aside>
+            <h1>ShiftPHP</h1>
+            <p>API-only PHP 8.3 framework for modular monolith applications.</p>
 
-    <nav aria-label="Documentation sections">
-        <h2>Contents</h2>
-        <ol>
-            <li><a href="#requirements">Requirements</a></li>
-            <li><a href="#architecture">Architecture</a></li>
-            <li><a href="#bootstrap">Bootstrap</a></li>
-            <li><a href="#modules">Modules</a></li>
-            <li><a href="#routing">Routing</a></li>
-            <li><a href="#controllers">Controllers</a></li>
-            <li><a href="#requests">Requests</a></li>
-            <li><a href="#responses">Responses</a></li>
-            <li><a href="#validation">Validation and DTOs</a></li>
-            <li><a href="#middleware">Middleware</a></li>
-            <li><a href="#services">Service Container</a></li>
-            <li><a href="#database">Environment and Database</a></li>
-            <li><a href="#logging">Logging</a></li>
-            <li><a href="#migrations">Migrations</a></li>
-            <li><a href="#cli">CLI</a></li>
-            <li><a href="#errors">Errors</a></li>
-            <li><a href="#testing">Testing</a></li>
-        </ol>
-    </nav>
+            <nav aria-label="Documentation">
+                <h2>Getting Started</h2>
+                <ul>
+                    <li><a href="#introduction">Introduction</a></li>
+                    <li><a href="#installation">Installation</a></li>
+                    <li><a href="#configuration">Configuration</a></li>
+                    <li><a href="#directory-structure">Directory Structure</a></li>
+                </ul>
 
-    <main>
-        <section id="requirements">
-            <h2>Requirements</h2>
-            <ul>
-                <li>PHP 8.3 or newer</li>
-                <li>Composer</li>
-                <li>The <code>json</code> PHP extension</li>
-                <li>The <code>pdo</code> PHP extension</li>
-            </ul>
-        </section>
+                <h2>The Basics</h2>
+                <ul>
+                    <li><a href="#request-lifecycle">Request Lifecycle</a></li>
+                    <li><a href="#routing">Routing</a></li>
+                    <li><a href="#controllers">Controllers</a></li>
+                    <li><a href="#requests">Requests</a></li>
+                    <li><a href="#responses">Responses</a></li>
+                    <li><a href="#validation">Validation</a></li>
+                    <li><a href="#middleware">Middleware</a></li>
+                </ul>
 
-        <section id="architecture">
-            <h2>Architecture</h2>
-            <p>The public framework namespace is <code>Shift\</code>. Composer maps it to the <code>src/</code> directory.</p>
-            <p>Application code lives under <code>application/</code>. Modules live under <code>application/modules/{ModuleName}</code> and are autoloaded with the <code>Modules\</code> namespace.</p>
+                <h2>Architecture</h2>
+                <ul>
+                    <li><a href="#modules">Modules</a></li>
+                    <li><a href="#service-container">Service Container</a></li>
+                    <li><a href="#commands">Console Commands</a></li>
+                </ul>
 
-            <h3>Request Flow</h3>
-            <pre><code>Request
-  -&gt; Shift\App
-  -&gt; Middleware pipeline
-  -&gt; Router
-  -&gt; Controller action
-  -&gt; Response
-  -&gt; ResponseEmitter</code></pre>
+                <h2>Database</h2>
+                <ul>
+                    <li><a href="#database">Database</a></li>
+                    <li><a href="#query-builder">Query Builder</a></li>
+                    <li><a href="#models">Models</a></li>
+                    <li><a href="#migrations">Migrations</a></li>
+                </ul>
 
-            <h3>Core Namespaces</h3>
-            <dl>
-                <dt><code>Shift</code></dt>
-                <dd>Application kernel, request object, and base controller.</dd>
-                <dt><code>Shift\Response</code></dt>
-                <dd>Response objects and response emitter.</dd>
-                <dt><code>Shift\Routing</code></dt>
-                <dd>Attribute route loader and routing attributes.</dd>
-                <dt><code>Shift\Routing\Router</code></dt>
-                <dd>Router, route, and route match objects.</dd>
-                <dt><code>Shift\Middleware</code></dt>
-                <dd>Middleware contract and middleware pipeline.</dd>
-                <dt><code>Shift\Modules</code></dt>
-                <dd>Module contracts and module loader.</dd>
-                <dt><code>Shift\Service</code></dt>
-                <dd>Small service container and service interface.</dd>
-                <dt><code>Shift\Config</code></dt>
-                <dd>Environment variable loading and lookup.</dd>
-                <dt><code>Shift\Database</code></dt>
-                <dd>PDO database configuration, connection, and query helpers.</dd>
-                <dt><code>Shift\Console</code></dt>
-                <dd>CLI command dispatcher and built-in commands.</dd>
-                <dt><code>Shift\Error</code></dt>
-                <dd>HTTP and framework error handling.</dd>
-            </dl>
-        </section>
+                <h2>Operations</h2>
+                <ul>
+                    <li><a href="#logging">Logging</a></li>
+                    <li><a href="#cache">Cache</a></li>
+                    <li><a href="#doctor">Doctor</a></li>
+                    <li><a href="#testing">Testing</a></li>
+                    <li><a href="#releases">Releases</a></li>
+                </ul>
+            </nav>
+        </aside>
 
-        <section id="bootstrap">
-            <h2>Bootstrap</h2>
-            <p>The HTTP entry point is <code>index.php</code>. It creates a request, creates the app, loads modules, registers module services and routes, then starts the app.</p>
+        <main>
+            <header id="introduction">
+                <h1>ShiftPHP Documentation</h1>
+                <p>ShiftPHP is a small, zero-dependency, API-only framework. It is built around modules, attribute routing, typed request DTOs, a native PDO database layer, and a lightweight CLI.</p>
+                <p class="muted">This documentation describes the current framework codebase and the example Health module shipped in this repository.</p>
+            </header>
 
-            <pre><code>use Shift\App;
+            <section id="installation">
+                <h2>Installation</h2>
+                <p>ShiftPHP requires PHP 8.3 or newer, Composer, and the <code>json</code> and <code>pdo</code> PHP extensions.</p>
+
+                <pre><code>composer install
+cp .env.example .env
+php -S 127.0.0.1:8000 index.php</code></pre>
+
+                <p>Visit the example endpoint:</p>
+
+                <pre><code>curl http://127.0.0.1:8000/health</code></pre>
+
+                <p>Run the framework checks:</p>
+
+                <pre><code>./shift doctor</code></pre>
+            </section>
+
+            <section id="configuration">
+                <h2>Configuration</h2>
+                <p>The bootstrap file loads <code>.env</code> from the project root. Existing server environment variables are not overwritten.</p>
+
+                <pre><code>APP_ENV=local
+LOG_ENABLED=false
+LOG_PATH=storage/logs/shift.log
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=shift
+DB_USERNAME=root
+DB_PASSWORD=
+DB_CHARSET=utf8mb4</code></pre>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Variable</th>
+                            <th>Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>APP_ENV</code></td>
+                            <td>Application environment label shown by diagnostics.</td>
+                        </tr>
+                        <tr>
+                            <td><code>LOG_ENABLED</code></td>
+                            <td>Enables JSON-line exception logs when set to <code>true</code>, <code>1</code>, <code>yes</code>, or <code>on</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><code>LOG_PATH</code></td>
+                            <td>Relative or absolute path for the file logger.</td>
+                        </tr>
+                        <tr>
+                            <td><code>DB_CONNECTION</code></td>
+                            <td>Database driver. Supported values include <code>mysql</code> and <code>sqlite</code>.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="directory-structure">
+                <h2>Directory Structure</h2>
+                <p>The framework lives in <code>src/</code>. Application code lives in <code>application/</code>, and modules live in <code>application/modules</code>.</p>
+
+                <pre><code>.
+|-- application/
+|   `-- modules/
+|       `-- Health/
+|-- database/
+|   `-- migrations/
+|-- docs/
+|-- src/
+|-- storage/
+|   |-- cache/
+|   `-- logs/
+|-- tests/
+|-- index.php
+`-- shift</code></pre>
+            </section>
+
+            <section id="request-lifecycle">
+                <h2>Request Lifecycle</h2>
+                <p>The HTTP entry point creates a request, creates the app, loads modules, registers services and routes, then starts the app.</p>
+
+                <pre><code>use Shift\App;
 use Shift\Modules\ModuleLoader;
 use Shift\Request;
 
@@ -102,209 +365,134 @@ $app = new App($request);
 $modules = (new ModuleLoader())-&gt;load();
 $modules-&gt;registerServices($app-&gt;getContainer());
 $modules-&gt;registerRoutes($app-&gt;getRouter());
+$modules-&gt;boot($app-&gt;getContainer());
 
 $app-&gt;start();</code></pre>
 
-            <p>Run the application locally with PHP's built-in server:</p>
-            <pre><code>php -S 127.0.0.1:8000 index.php</code></pre>
-        </section>
+                <p>The internal flow is intentionally small:</p>
 
-        <section id="modules">
-            <h2>Modules</h2>
-            <p>A module owns its controllers, routes, services, config, lifecycle hooks, and CLI commands.</p>
+                <pre><code>Request
+  -&gt; Shift\App
+  -&gt; Middleware pipeline
+  -&gt; Router
+  -&gt; Controller action
+  -&gt; Response
+  -&gt; ResponseEmitter</code></pre>
+            </section>
 
-            <pre><code>application/modules/Health/
-|-- Module.php
-|-- Controllers/
-|-- Services/
-`-- Commands/</code></pre>
+            <section id="routing">
+                <h2>Routing</h2>
+                <p>Routes are usually declared with PHP attributes on module-owned controllers and loaded with <code>Shift\Routing\AttributeRouteLoader</code>.</p>
 
-            <p>Generator commands can also create <code>Models/</code>, <code>Middleware/</code>, and <code>Dto/</code> directories when those artifacts are added.</p>
+                <pre><code>namespace Modules\Users\Controllers;
 
-            <p>Every module boundary implements <code>Shift\Modules\ModuleInterface</code>. Most modules can extend <code>Shift\Modules\AbstractModule</code> and override only the methods they need.</p>
+use Shift\Controller;
+use Shift\Routing\Attributes\Get;
+use Shift\Routing\Attributes\Post;
+use Shift\Routing\Attributes\RoutePrefix;
 
-            <pre><code>namespace Modules\Health;
-
-use Shift\Modules\AbstractModule;
-use Shift\Routing\AttributeRouteLoader;
-use Shift\Routing\Router\Router;
-use Shift\Service\ServiceContainer;
-use Modules\Health\Controllers\HealthController;
-use Modules\Health\Services\HealthService;
-
-class Module extends AbstractModule
-{
-    public function getName(): string
-    {
-        return 'health';
-    }
-
-    public function registerServices(ServiceContainer $container): void
-    {
-        $container-&gt;singleton(HealthService::class, HealthService::class);
-    }
-
-    public function registerRoutes(Router $router): void
-    {
-        (new AttributeRouteLoader())-&gt;load($router, [
-            HealthController::class,
-        ]);
-    }
-
-    public function getCommandMappings(): array
-    {
-        return [
-            [
-                'dir' =&gt; __DIR__ . '/Commands/',
-                'namespace' =&gt; 'Modules\\Health\\Commands\\',
-            ],
-        ];
-    }
-
-    public function boot(ServiceContainer $container): void
-    {
-        $container-&gt;singleton('health.booted', true);
-    }
-}</code></pre>
-
-            <p><code>Shift\Modules\ModuleLoader</code> discovers modules by convention from <code>application/modules/*/Module.php</code>. Module config can be returned from <code>getConfig()</code> or from a module-level <code>config.php</code> file. Merged config is available through <code>$modules-&gt;getConfig()</code> and the container singleton <code>modules.config</code>.</p>
-            <p>For production, discovered module metadata can be cached in <code>storage/cache/modules.php</code> with <code>./shift cache:modules</code>. Clear it with <code>./shift cache:clear</code> after changing module boundaries or module config.</p>
-        </section>
-
-        <section id="routing">
-            <h2>Routing</h2>
-            <p>Routes are registered on <code>Shift\Routing\Router\Router</code>. Modules usually register routes through attributes and <code>Shift\Routing\AttributeRouteLoader</code>.</p>
-
-            <h3>Supported HTTP Method Attributes</h3>
-            <ul>
-                <li><code>#[Get('/path')]</code></li>
-                <li><code>#[Post('/path')]</code></li>
-                <li><code>#[Put('/path')]</code></li>
-                <li><code>#[Patch('/path')]</code></li>
-                <li><code>#[Delete('/path')]</code></li>
-            </ul>
-
-            <h3>Route Metadata Attributes</h3>
-            <ul>
-                <li><code>#[RoutePrefix('/prefix')]</code> on controller classes</li>
-                <li><code>#[Status(201)]</code> on controller actions</li>
-                <li><code>#[Header('X-Name', 'value')]</code> on controller actions</li>
-            </ul>
-
-            <h3>Parameter Binding Attributes</h3>
-            <ul>
-                <li><code>#[PathParam('id')]</code> reads a route placeholder</li>
-                <li><code>#[QueryParam('include')]</code> reads a query string value</li>
-                <li><code>#[Body]</code> reads the decoded JSON body</li>
-                <li><code>#[Body('name')]</code> reads one JSON body field</li>
-                <li><code>#[BodyDto]</code> validates the JSON body into a request DTO</li>
-            </ul>
-
-            <pre><code>#[RoutePrefix('/users')]
+#[RoutePrefix('/users')]
 final class UserController extends Controller
 {
     #[Get('/{id}')]
-    public function show(
-        #[PathParam] int $id,
-        #[QueryParam('include')] ?string $include = null
-    ): JsonResponse {
-        return $this-&gt;json([
-            'id' =&gt; $id,
-            'include' =&gt; $include,
-        ]);
+    public function show(int $id): array
+    {
+        return ['id' =&gt; $id];
+    }
+
+    #[Post('')]
+    public function store(): array
+    {
+        return ['created' =&gt; true];
     }
 }</code></pre>
 
-            <p>The router supports path placeholders such as <code>/users/{id}</code>. Unsupported HTTP methods return <code>405 Method Not Allowed</code> with an <code>Allow</code> header.</p>
-        </section>
+                <h3>Available Attributes</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Attribute</th>
+                            <th>Used on</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>#[RoutePrefix('/api')]</code></td><td>Class</td><td>Prefixes all controller routes.</td></tr>
+                        <tr><td><code>#[Get('/path')]</code></td><td>Method</td><td>Registers a GET route.</td></tr>
+                        <tr><td><code>#[Post('/path')]</code></td><td>Method</td><td>Registers a POST route.</td></tr>
+                        <tr><td><code>#[Put('/path')]</code></td><td>Method</td><td>Registers a PUT route.</td></tr>
+                        <tr><td><code>#[Patch('/path')]</code></td><td>Method</td><td>Registers a PATCH route.</td></tr>
+                        <tr><td><code>#[Delete('/path')]</code></td><td>Method</td><td>Registers a DELETE route.</td></tr>
+                        <tr><td><code>#[Status(201)]</code></td><td>Method</td><td>Overrides the response status.</td></tr>
+                        <tr><td><code>#[Header('X-Name', 'value')]</code></td><td>Method</td><td>Adds a response header.</td></tr>
+                    </tbody>
+                </table>
+            </section>
 
-        <section id="controllers">
-            <h2>Controllers</h2>
-            <p>Controllers extend <code>Shift\Controller</code>. Controllers are created through the service container, so typed constructor dependencies can be injected automatically.</p>
+            <section id="controllers">
+                <h2>Controllers</h2>
+                <p>Controllers extend <code>Shift\Controller</code>. They are resolved through the service container, so typed constructor dependencies are autowired.</p>
 
-            <p>Controller actions can return:</p>
-            <ul>
-                <li><code>Shift\Response\Response</code></li>
-                <li><code>Shift\Response\JsonResponse</code></li>
-                <li>an array, which is normalized to <code>JsonResponse</code></li>
-                <li><code>null</code>, which is normalized to a <code>204 No Content</code> response</li>
-                <li>a scalar value, which is normalized to a plain <code>Response</code></li>
-            </ul>
+                <pre><code>use Shift\Controller;
+use Shift\Response\JsonResponse;
+use Shift\Routing\Attributes\Get;
+use Shift\Routing\Attributes\PathParam;
 
-            <h3>Controller Helpers</h3>
-            <ul>
-                <li><code>$this-&gt;json(array $data, int $statusCode = 200)</code></li>
-                <li><code>$this-&gt;error(string $message, int $statusCode = 400, array $context = [], array $headers = [])</code></li>
-                <li><code>$this-&gt;noContent()</code></li>
-                <li><code>$this-&gt;getRequest()</code></li>
-                <li><code>$this-&gt;getContainer()</code></li>
-            </ul>
-
-            <h3>Constructor Autowiring</h3>
-            <p>Register services in a module, then type-hint them in a controller constructor.</p>
-
-            <pre><code>final class UserController extends Controller
+final class UserController extends Controller
 {
     public function __construct(private readonly UserService $users)
     {
     }
 
-    #[Get('/{id}')]
-    public function show(#[PathParam] int $id): array
+    #[Get('/users/{id}')]
+    public function show(#[PathParam] int $id): JsonResponse
     {
-        return $this-&gt;users-&gt;find($id);
+        return $this-&gt;json($this-&gt;users-&gt;find($id));
     }
 }</code></pre>
 
-            <p>The app registers the current <code>Shift\Request</code>, <code>Shift\Routing\Router\Router</code>, and <code>Shift\Service\ServiceContainer</code> in the container by default.</p>
-        </section>
+                <p>Controller actions may return <code>Response</code>, <code>JsonResponse</code>, arrays, scalars, or <code>null</code>. Arrays are converted to JSON responses and <code>null</code> becomes a <code>204 No Content</code> response.</p>
+            </section>
 
-        <section id="requests">
-            <h2>Requests</h2>
-            <p><code>Shift\Request</code> wraps server data, query values, post data, route parameters, headers, and JSON request bodies.</p>
+            <section id="requests">
+                <h2>Requests</h2>
+                <p><code>Shift\Request</code> wraps server data, query params, post data, headers, route params, attributes, and JSON request bodies.</p>
 
-            <pre><code>$request-&gt;getMethod();
+                <pre><code>$request-&gt;getMethod();
 $request-&gt;getPath();
-$request-&gt;getQueryParams();
-$request-&gt;getPostData();
 $request-&gt;query('page', 1);
 $request-&gt;post('name');
 $request-&gt;input('name');
-$request-&gt;getRawBody();
 $request-&gt;getJson();
 $request-&gt;getHeader('Authorization');
-$request-&gt;getUserAgent();
-$request-&gt;getIpAddress();
 $request-&gt;getRequestId();
-$request-&gt;getRouteParams();
 $request-&gt;routeParam('id');</code></pre>
 
-            <p>If a request does not include <code>X-Request-Id</code>, ShiftPHP generates one. The same id is emitted on every response as <code>X-Request-Id</code> and included in structured exception logs.</p>
-            <p><code>getJson()</code> returns an empty array for an empty body. Malformed JSON throws an HTTP error and is returned as <code>400 Bad Request</code>.</p>
-        </section>
+                <p>If the incoming request does not contain <code>X-Request-Id</code>, ShiftPHP generates one. Every response receives the same <code>X-Request-Id</code> header, and structured exception logs include it.</p>
 
-        <section id="responses">
-            <h2>Responses</h2>
-            <p><code>Shift\Response\Response</code> stores response content, status code, and headers. <code>Shift\Response\ResponseEmitter</code> emits those values to PHP's HTTP response.</p>
+                <div class="callout">
+                    <strong>Malformed JSON</strong>
+                    <p>Calling <code>getJson()</code> on malformed JSON throws an HTTP error and the app returns a <code>400 Bad Request</code> JSON response.</p>
+                </div>
+            </section>
 
-            <pre><code>use Shift\Response\Response;
-use Shift\Response\JsonResponse;
+            <section id="responses">
+                <h2>Responses</h2>
+                <p>Use controller helpers for common API responses.</p>
 
-return new Response('Accepted', 202, ['X-State' =&gt; 'queued']);
-return JsonResponse::ok(['status' =&gt; 'ok']);
-return JsonResponse::created(['id' =&gt; 10]);
-return JsonResponse::error('Invalid payload', 422);</code></pre>
+                <pre><code>return $this-&gt;json(['status' =&gt; 'ok']);
+return $this-&gt;json($payload, 201);
+return $this-&gt;error('Invalid payload', 422);
+return $this-&gt;noContent();</code></pre>
 
-            <p><code>JsonResponse</code> automatically sets <code>Content-Type: application/json</code>.</p>
-        </section>
+                <p><code>JsonResponse</code> automatically sets <code>Content-Type: application/json</code>.</p>
+            </section>
 
-        <section id="validation">
-            <h2>Validation and DTOs</h2>
-            <p><code>Shift\Validation\Validator</code> validates arrays and returns validated values. Validation failures throw <code>Shift\Validation\ValidationException</code>, which the app emits as a <code>422</code> JSON response.</p>
+            <section id="validation">
+                <h2>Validation</h2>
+                <p>Request DTOs extend <code>Shift\Validation\RequestDto</code> and declare rules with a static <code>rules()</code> method.</p>
 
-            <p>Supported rules are <code>required</code>, <code>string</code>, <code>int</code>, <code>bool</code>, <code>array</code>, <code>email</code>, <code>min</code>, and <code>max</code>.</p>
-
-            <pre><code>use Shift\Validation\RequestDto;
+                <pre><code>use Shift\Validation\RequestDto;
 
 final class CreateUserDto extends RequestDto
 {
@@ -323,25 +511,20 @@ final class CreateUserDto extends RequestDto
     }
 }</code></pre>
 
-            <p>DTOs can be bound by type or with <code>#[BodyDto]</code>:</p>
+                <p>Bind DTOs explicitly with <code>#[BodyDto]</code>, or type-hint a <code>RequestDto</code> subclass in an action.</p>
 
-            <pre><code>#[Post('/users')]
-public function create(#[BodyDto] CreateUserDto $dto): array
+                <pre><code>#[Post('/users')]
+public function store(#[BodyDto] CreateUserDto $dto): array
 {
-    return [
-        'email' =&gt; $dto-&gt;email,
-        'age' =&gt; $dto-&gt;age,
-    ];
+    return ['email' =&gt; $dto-&gt;email];
 }</code></pre>
-        </section>
+            </section>
 
-        <section id="middleware">
-            <h2>Middleware</h2>
-            <p>Middleware runs before controller dispatch. It can continue the request by calling <code>$next($request)</code>, modify the returned response, or return a response immediately.</p>
+            <section id="middleware">
+                <h2>Middleware</h2>
+                <p>Middleware may inspect, modify, or short-circuit a request before the controller action runs.</p>
 
-            <pre><code>namespace Modules\Users\Middleware;
-
-use Shift\Middleware\MiddlewareInterface;
+                <pre><code>use Shift\Middleware\MiddlewareInterface;
 use Shift\Request;
 use Shift\Response\JsonResponse;
 use Shift\Response\Response;
@@ -358,64 +541,114 @@ final class AuthMiddleware implements MiddlewareInterface
     }
 }</code></pre>
 
-            <p>Register class middleware on the app:</p>
-            <pre><code>$app-&gt;middleware(AuthMiddleware::class);</code></pre>
+                <p>Register middleware on the app:</p>
 
-            <p>Callable middleware is also supported:</p>
-            <pre><code>$app-&gt;middleware(function (Request $request, callable $next): Response {
-    $response = $next($request);
+                <pre><code>$app-&gt;middleware(AuthMiddleware::class);</code></pre>
 
-    return new Response(
-        $response-&gt;getContent(),
-        $response-&gt;getStatusCode(),
-        $response-&gt;getHeaders() + ['X-Api' =&gt; 'Shift']
-    );
-});</code></pre>
+                <p>Built-in middleware includes CORS, authentication, and authorization middleware.</p>
+            </section>
 
-            <p>Middleware may be a class string, an object implementing <code>MiddlewareInterface</code>, or a callable. Class strings are resolved from the service container when registered there.</p>
+            <section id="modules">
+                <h2>Modules</h2>
+                <p>Modules are the main application boundary. A module can own controllers, routes, services, commands, config, models, middleware, and DTOs.</p>
 
-            <h3>Built-in Middleware</h3>
-            <ul>
-                <li><code>Shift\Middleware\CorsMiddleware</code> handles CORS headers and preflight requests.</li>
-                <li><code>Shift\Middleware\AuthMiddleware</code> uses <code>Shift\Auth\AuthenticatorInterface</code> to authenticate a request.</li>
-                <li><code>Shift\Middleware\AuthorizationMiddleware</code> uses <code>Shift\Auth\AuthorizerInterface</code> to authorize an authenticated user.</li>
-            </ul>
-        </section>
+                <pre><code>application/modules/Billing/
+|-- Module.php
+|-- Commands/
+|-- Controllers/
+|-- Services/
+|-- Models/
+|-- Middleware/
+`-- Dto/</code></pre>
 
-        <section id="services">
-            <h2>Service Container</h2>
-            <p><code>Shift\Service\ServiceContainer</code> stores regular services and singletons. It can resolve closures, class names, and already-created objects. It can also build classes with typed constructor dependencies.</p>
+                <p>Create a module with the CLI:</p>
 
-            <pre><code>$container-&gt;register(UserRepository::class, UserRepository::class);
-$container-&gt;singleton(HealthService::class, HealthService::class);
-$container-&gt;singleton('request', $request);
+                <pre><code>./shift create:module Billing</code></pre>
 
-$service = $container-&gt;resolve(HealthService::class);
-$controller = $container-&gt;make(HealthController::class);
-$exists = $container-&gt;has(HealthService::class);</code></pre>
+                <p>A module boundary usually extends <code>Shift\Modules\AbstractModule</code>.</p>
 
-            <p>The app registers the current request and router as default singleton services under <code>request</code>, <code>Shift\Request</code>, <code>router</code>, and <code>Shift\Routing\Router\Router</code>. It also registers the current <code>Shift\Service\ServiceContainer</code> instance, database config, and a lazy database service.</p>
-        </section>
+                <pre><code>namespace Modules\Billing;
 
-        <section id="database">
-            <h2>Environment and Database</h2>
-            <p><code>bootstrap.php</code> loads <code>.env</code> from the project root without overwriting variables that already exist in the server environment.</p>
+use Shift\Modules\AbstractModule;
+use Shift\Routing\AttributeRouteLoader;
+use Shift\Routing\Router\Router;
+use Shift\Service\ServiceContainer;
+use Modules\Billing\Controllers\InvoiceController;
+use Modules\Billing\Services\InvoiceService;
 
-            <pre><code>DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=shift
-DB_USERNAME=root
-DB_PASSWORD=
-DB_CHARSET=utf8mb4
-LOG_ENABLED=false
-LOG_PATH=storage/logs/shift.log</code></pre>
+final class Module extends AbstractModule
+{
+    public function getName(): string
+    {
+        return 'billing';
+    }
 
-            <p>Database access uses native PDO. The app registers <code>Shift\Database\DatabaseConfig</code>, <code>Shift\Database\Database</code>, and the <code>db</code> alias lazily in the container.</p>
+    public function registerServices(ServiceContainer $container): void
+    {
+        $container-&gt;singleton(InvoiceService::class, InvoiceService::class);
+    }
 
-            <pre><code>use Shift\Database\Database;
+    public function registerRoutes(Router $router): void
+    {
+        (new AttributeRouteLoader())-&gt;load($router, [
+            InvoiceController::class,
+        ]);
+    }
+}</code></pre>
+            </section>
 
-class UserService
+            <section id="service-container">
+                <h2>Service Container</h2>
+                <p>The service container stores regular services and singletons. It can resolve closures, class names, objects, and typed constructor dependencies.</p>
+
+                <pre><code>$container-&gt;register(UserRepository::class, UserRepository::class);
+$container-&gt;singleton(UserService::class, UserService::class);
+
+$service = $container-&gt;resolve(UserService::class);
+$controller = $container-&gt;make(UserController::class);</code></pre>
+            </section>
+
+            <section id="commands">
+                <h2>Console Commands</h2>
+                <p>Commands implement <code>Shift\Console\CommandInterface</code> and may declare metadata with <code>#[Command]</code>.</p>
+
+                <pre><code>use Shift\Console\Attributes\Command;
+use Shift\Console\Cli;
+use Shift\Console\CommandInterface;
+
+#[Command('billing:sync', aliases: ['sync-billing'], group: 'modules')]
+final class SyncBilling implements CommandInterface
+{
+    public function execute(mixed ...$args): void
+    {
+        (new Cli())-&gt;success('Billing synced.');
+    }
+
+    public function getHelp(): string
+    {
+        return 'Usage: ./shift billing:sync';
+    }
+
+    public function getDescription(): string
+    {
+        return 'Sync billing data.';
+    }
+}</code></pre>
+
+                <p>The help command groups commands by metadata and resolves aliases.</p>
+
+                <pre><code>./shift help
+./shift help billing:sync
+./shift sync-billing</code></pre>
+            </section>
+
+            <section id="database">
+                <h2>Database</h2>
+                <p>ShiftPHP uses native PDO and registers <code>Shift\Database\Database</code> and the <code>db</code> alias lazily in the service container.</p>
+
+                <pre><code>use Shift\Database\Database;
+
+final class UserService
 {
     public function __construct(private readonly Database $db)
     {
@@ -429,25 +662,31 @@ class UserService
     }
 }</code></pre>
 
-            <p>Use <code>query()</code> for prepared queries, <code>execute()</code> for write statements, <code>pdo()</code> for raw PDO access, and <code>transaction()</code> for transactional work.</p>
+                <p>The core helpers are <code>query()</code>, <code>execute()</code>, <code>table()</code>, <code>pdo()</code>, <code>transaction()</code>, and <code>lastInsertId()</code>.</p>
+            </section>
 
-            <h3>Query Builder</h3>
-            <pre><code>$users = $db-&gt;table('users')
+            <section id="query-builder">
+                <h2>Query Builder</h2>
+                <p>The table query builder supports simple fluent selects, inserts, updates, deletes, ordering, limits, and offsets.</p>
+
+                <pre><code>$users = $db-&gt;table('users')
     -&gt;select('id', 'email')
     -&gt;where('active', true)
     -&gt;orderBy('id', 'desc')
     -&gt;limit(10)
     -&gt;get();</code></pre>
+            </section>
 
-            <h3>Models</h3>
-            <p>Models extend <code>Shift\Database\Model</code>. Public properties are database columns, and model attributes describe primary keys, guarded fields, and casts.</p>
+            <section id="models">
+                <h2>Models</h2>
+                <p>Models extend <code>Shift\Database\Model</code>. Public properties represent columns. Attributes define primary keys, guarded fields, and casts.</p>
 
-            <pre><code>use Shift\Database\Attributes\Cast;
+                <pre><code>use Shift\Database\Attributes\Cast;
 use Shift\Database\Attributes\Guarded;
 use Shift\Database\Attributes\PrimaryKey;
 use Shift\Database\Model;
 
-class User extends Model
+final class User extends Model
 {
     protected string $table = 'users';
 
@@ -462,43 +701,23 @@ class User extends Model
 
     #[Cast('array')]
     public array $meta = [];
-
-    #[Cast('datetime')]
-    public ?DateTimeImmutable $created_at = null;
 }</code></pre>
 
-            <pre><code>$user = User::query($db)-&gt;where('email', 'dev@example.com')-&gt;first();
-$user = User::find(1, $db);
+                <pre><code>$user = User::find(1, $db);
 $user = User::create(['email' =&gt; 'dev@example.com'], $db);
 $user-&gt;role = 'admin';
 $user-&gt;save($db);</code></pre>
+            </section>
 
-            <p><code>#[Guarded]</code> fields are ignored during mass assignment through <code>create()</code> and query <code>update()</code>, but can be set explicitly before <code>save()</code>. Supported casts include <code>int</code>, <code>float</code>, <code>bool</code>, <code>string</code>, <code>array</code>, <code>date</code>, <code>datetime</code>, and class names. Class casts use <code>fromArray()</code> when available.</p>
-        </section>
+            <section id="migrations">
+                <h2>Migrations</h2>
+                <p>Create migration files in <code>database/migrations</code>:</p>
 
-        <section id="logging">
-            <h2>Logging</h2>
-            <p>Structured exception logging is available through <code>Shift\Logging\LoggerInterface</code>. Logging is disabled by default and can be enabled with environment variables.</p>
+                <pre><code>./shift create:migration create_users_table</code></pre>
 
-            <pre><code>LOG_ENABLED=true
-LOG_PATH=storage/logs/shift.log</code></pre>
+                <p>A migration returns an anonymous class extending <code>Shift\Database\Migration</code>.</p>
 
-            <p>The file logger writes JSON lines with <code>timestamp</code>, <code>level</code>, <code>message</code>, and <code>context</code>. Exception context includes exception class, status code, file, line, and request data such as method, path, IP, user agent, and <code>X-Request-Id</code> when present.</p>
-
-            <pre><code>use Shift\Logging\LoggerInterface;
-
-$app-&gt;getContainer()-&gt;singleton(LoggerInterface::class, new CustomLogger());</code></pre>
-        </section>
-
-        <section id="migrations">
-            <h2>Migrations</h2>
-            <p>Migration files live in <code>database/migrations</code>. Create a migration with the CLI:</p>
-
-            <pre><code>./shift create:migration create_users_table</code></pre>
-
-            <p>A migration returns an anonymous class extending <code>Shift\Database\Migration</code>.</p>
-
-            <pre><code>use Shift\Database\Database;
+                <pre><code>use Shift\Database\Database;
 use Shift\Database\Migration;
 
 return new class extends Migration
@@ -514,102 +733,65 @@ return new class extends Migration
     }
 };</code></pre>
 
-            <p>The migration runner stores applied migrations in the <code>migrations</code> table and runs each migration inside a database transaction.</p>
-
-            <pre><code>./shift migrate
+                <pre><code>./shift migrate
 ./shift migrate:status
 ./shift migrate:rollback</code></pre>
-        </section>
+            </section>
 
-        <section id="cli">
-            <h2>CLI</h2>
-            <p>The CLI entry point is <code>shift</code>. Built-in commands live under <code>Console\Commands</code>, and module commands are loaded from module command mappings.</p>
-            <p><code>Shift\Console\CommandRegistry</code> discovers framework, application, and module commands. Commands can declare their name, aliases, and help group with <code>#[Command]</code>. It normalizes command names, so <code>migrate:status</code>, <code>migrate-status</code>, and <code>migrate_status</code> resolve to the same command.</p>
+            <section id="logging">
+                <h2>Logging</h2>
+                <p>Structured exception logging is available through <code>Shift\Logging\LoggerInterface</code>. Logging is disabled by default and can be enabled with environment variables.</p>
 
-            <pre><code>use Shift\Console\Attributes\Command;
-use Shift\Console\CommandInterface;
+                <pre><code>LOG_ENABLED=true
+LOG_PATH=storage/logs/shift.log</code></pre>
 
-#[Command('billing:sync', aliases: ['sync-billing'], group: 'modules')]
-final class SyncBilling implements CommandInterface
-{
-    public function execute(mixed ...$args): void
-    {
-    }
+                <p>The file logger writes JSON lines with <code>timestamp</code>, <code>level</code>, <code>message</code>, and <code>context</code>. Exception context includes class, status, code, file, line, and request metadata.</p>
 
-    public function getHelp(): string
-    {
-        return 'Usage: ./shift billing:sync';
-    }
+                <pre><code>use Shift\Logging\LoggerInterface;
 
-    public function getDescription(): string
-    {
-        return 'Sync billing data.';
-    }
-}</code></pre>
+$app-&gt;getContainer()-&gt;singleton(LoggerInterface::class, new CustomLogger());</code></pre>
+            </section>
 
-            <pre><code>./shift help
-./shift help migrate
-./shift help ms
-./shift doctor
-./shift route:list
-./shift test
-./shift health
-./shift about
-./shift env:check
-./shift db:check
-./shift module:list
-./shift cache:modules
+            <section id="cache">
+                <h2>Cache</h2>
+                <p>Module discovery can be cached for production. The generated cache file lives at <code>storage/cache/modules.php</code>.</p>
+
+                <pre><code>./shift cache:modules
 ./shift cache:status
 ./shift cache:clear</code></pre>
 
-            <p>Create commands scaffold modules and module-owned classes:</p>
+                <p>Rebuild the module cache after changing module boundaries, module config, or module command mappings.</p>
+            </section>
 
-            <pre><code>./shift create:module Billing
-./shift create:controller --module=Billing InvoiceController
-./shift create:controller Billing:InvoiceController
-./shift create:model Billing:Invoice
-./shift create:service Billing:Invoice
-./shift create:command Billing:SyncInvoices
-./shift create:middleware Billing:Audit
-./shift create:dto Billing:CreateInvoice
-./shift create:migration create_users_table</code></pre>
+            <section id="doctor">
+                <h2>Doctor</h2>
+                <p>The doctor command runs local diagnostics and returns a non-zero exit code when a required check fails.</p>
 
-            <p>Migration commands manage database schema changes:</p>
+                <pre><code>./shift doctor</code></pre>
 
-            <pre><code>./shift migrate
-./shift migrate:status
-./shift migrate:rollback</code></pre>
+                <p>It checks PHP version, required extensions, Composer JSON validity, PHP lint, the test suite, environment presence, database config, and module cache status.</p>
+            </section>
 
-            <p>Controller, service, middleware, and DTO generators add the expected class suffix when it is missing. Commands accept either <code>--module=Billing Name</code> or <code>Billing:Name</code>.</p>
-            <p>Generator templates live in <code>src/Console/Generator/stubs</code>.</p>
+            <section id="testing">
+                <h2>Testing</h2>
+                <p>The project has a lightweight test runner in <code>tests/ApiCoreTest.php</code>. Shared helpers live in <code>tests/Support</code>, fixtures in <code>tests/Fixtures</code>, and feature tests in <code>tests/Feature</code>.</p>
 
-            <p>Commands implement <code>Shift\Console\CommandInterface</code>.</p>
-        </section>
+                <pre><code>composer test
+./shift test</code></pre>
 
-        <section id="errors">
-            <h2>Errors</h2>
-            <p>Framework HTTP errors are represented by <code>Shift\Error\HttpError</code>. The app normalizes HTTP errors to JSON responses.</p>
+                <p>The GitHub workflow validates Composer config, dumps autoload files, lints PHP files, runs tests, and verifies the route list command.</p>
+            </section>
 
-            <pre><code>{
-  "error": {
-    "message": "Endpoint not found",
-    "status": 404
-  }
-}</code></pre>
+            <section id="releases">
+                <h2>Releases</h2>
+                <p>Each pull request must have exactly one version label, such as <code>v0.20.0</code>. After a versioned PR is merged into <code>master</code>, GitHub Actions creates the matching tag and GitHub Release.</p>
 
-            <p>Malformed JSON returns <code>400</code>. Missing routes return <code>404</code>. Wrong methods return <code>405</code> with an <code>Allow</code> header. Unexpected runtime errors return a generic <code>500 Internal Server Error</code>.</p>
-        </section>
-
-        <section id="testing">
-            <h2>Testing</h2>
-            <p>The current lightweight test runner is <code>tests/ApiCoreTest.php</code>.</p>
-
-            <pre><code>composer test</code></pre>
-
-            <p>Shared assertions, request helpers, and emitters live in <code>tests/Support</code>. Test-only controllers, DTOs, middleware, and auth fixtures live in <code>tests/Fixtures</code>. Feature test files live in <code>tests/Feature</code>.</p>
-
-            <p>The API workflow also validates Composer configuration, dumps autoload files, lints PHP files, runs the API tests, and verifies the route list command.</p>
-        </section>
-    </main>
+                <pre><code>release/v0.20.0
+label: v0.20.0
+merge into master
+automatic tag and release</code></pre>
+            </section>
+        </main>
+    </div>
 </body>
 </html>

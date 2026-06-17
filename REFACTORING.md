@@ -39,6 +39,7 @@ ShiftPHP is moving toward an API-only modular monolith. View templates, compiled
 - [x] Module discovery cache for production.
 - [x] Structured exception logging with JSON file logger and service container override.
 - [x] Request id lifecycle with generated `X-Request-Id` response headers and log context.
+- [x] Developer documentation organized into a Laravel-like guide.
 - [x] Removal of view storage and example page assets from runtime.
 - [x] Removal of legacy `application/controllers` and `application/routes.php`.
 - [x] Domain-oriented framework namespaces:
