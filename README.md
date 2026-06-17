@@ -383,6 +383,8 @@ http://127.0.0.1:8000/health
 
 ## CLI
 
+The CLI discovers framework, application, and module commands through the command registry. Command names are normalized, so `migrate:status`, `migrate-status`, and `migrate_status` resolve to the same command.
+
 Show all commands or command-specific help:
 
 ```sh

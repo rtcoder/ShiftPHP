@@ -8,17 +8,14 @@
 
 namespace Shift\Console;
 
-use Shift\Modules\ModuleLoader;
-use ReflectionClass;
-use ReflectionException;
-
 class Shift
 {
-    protected string $_description = 'xd';
     private array $_args = [];
 
-    public function __construct(array $argv)
-    {
+    public function __construct(
+        array $argv,
+        private readonly CommandRegistry $registry = new CommandRegistry()
+    ) {
         $this->setArgs($argv);
     }
 
@@ -47,58 +44,24 @@ class Shift
         $this->_args = $args;
     }
 
-    /**
-     * @throws ReflectionException
-     * @return void
-     */
     public function run(): void
     {
         $cli = new Cli();
+
         if (count($this->_args) < 2) {
-            $cli->error('Shift CLI needs at least one parameter');
-            exit();
-        }
-        $commandName = $this->normalizeCommandName($this->_args[1]);
-
-        $mappings = [
-            [
-                'dir' => APP_PATH . '/console/',
-                'namespace' => 'AppConsole\\Commands\\'
-            ],
-            [
-                'dir' => APP_ROOT . '/src/Console/Commands/',
-                'namespace' => 'Console\\Commands\\'
-            ],
-        ];
-        $mappings = array_merge(
-            $mappings,
-            (new ModuleLoader())->load()->getCommandMappings()
-        );
-        $found = false;
-        foreach ($mappings as $mapping) {
-            if (!$found && file_exists($mapping['dir'] . $commandName . '.php')) {
-                require_once($mapping['dir'] . $commandName . '.php');
-                $found = $mapping['namespace'] . $commandName;
-            }
-        }
-        if (!$found) {
-            $cli->error('Command ' . $commandName . ' not found');
+            $cli->error('Usage: ./shift help');
             exit();
         }
 
-        $cl = new $found();
-        $class = new ReflectionClass($cl);
-        $method = $class->getMethod('execute');
+        $command = $this->registry->find($this->_args[1]);
+
+        if ($command === null) {
+            $cli->error('Command ' . $this->_args[1] . ' not found');
+            exit();
+        }
+
+        $instance = new $command();
         $args = array_slice($this->_args, 2, count($this->_args));
-        $method->invokeArgs($cl, $args);
+        $instance->execute(...$args);
     }
-
-    private function normalizeCommandName(string $command): string
-    {
-        $parts = preg_split('/[:\-_]/', $command) ?: [];
-        $parts = array_map(static fn (string $part): string => ucfirst($part), $parts);
-
-        return implode('', $parts);
-    }
-
 }
