@@ -6,6 +6,7 @@ use Shift\Config\Env;
 use Shift\Console\Cli;
 use Shift\Console\CommandInterface;
 
+#[\Shift\Console\Attributes\Command('env:check', group: 'diagnostics')]
 class EnvCheck implements CommandInterface
 {
     /** @var list<string> */

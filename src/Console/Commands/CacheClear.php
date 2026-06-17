@@ -6,6 +6,7 @@ use Shift\Console\Cli;
 use Shift\Console\CommandInterface;
 use Shift\Modules\ModuleLoader;
 
+#[\Shift\Console\Attributes\Command('cache:clear', aliases: ['cc'], group: 'cache')]
 class CacheClear implements CommandInterface
 {
     public function execute(mixed ...$args): void

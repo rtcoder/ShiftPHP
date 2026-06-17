@@ -11,6 +11,7 @@ namespace Console\Commands;
 
 use Shift\Console\CommandInterface;
 
+#[\Shift\Console\Attributes\Command('serve', aliases: ['server'], group: 'server')]
 class Serve implements CommandInterface
 {
 

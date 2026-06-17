@@ -8,6 +8,7 @@ use Shift\Console\Generator\FileGenerator;
 use Shift\Console\Generator\NameFormatter;
 use Shift\Console\Generator\StubRenderer;
 
+#[\Shift\Console\Attributes\Command('create:migration', group: 'database')]
 class CreateMigration implements CommandInterface
 {
     public function execute(mixed ...$args): void

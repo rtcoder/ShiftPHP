@@ -18,6 +18,7 @@ return [
         $payload = json_decode($emitter->content, true);
 
         assertSameValue(200, $emitter->statusCode, 'App should emit successful status.');
+        assertArrayHasKeyValue('X-Request-Id', $app->getRequest()->getRequestId(), $emitter->headers, 'App should emit request id header.');
         assertSameValue('demo', $payload['data']['routeParams']['argument'] ?? null, 'App should pass route params to controller.');
     },
 
@@ -87,7 +88,11 @@ return [
             }
         };
 
-        $app = new App(makeRequest('GET', '/errors/boom'), $router, $emitter);
+        $app = new App(new Shift\Request([
+            'REQUEST_METHOD' => 'GET',
+            'REQUEST_URI' => '/errors/boom',
+            'HTTP_X_REQUEST_ID' => 'request-500',
+        ]), $router, $emitter);
         $app->getContainer()->singleton(LoggerInterface::class, $logger);
         $app->start();
 
@@ -100,5 +105,7 @@ return [
         assertSameValue('Controller exploded', $record['message'] ?? null, 'Log message should contain the exception message.');
         assertSameValue(RuntimeException::class, $record['context']['exception'] ?? null, 'Log context should include the exception class.');
         assertSameValue('/errors/boom', $record['context']['request']['path'] ?? null, 'Log context should include request path.');
+        assertSameValue('request-500', $record['context']['request']['request_id'] ?? null, 'Log context should include request id.');
+        assertArrayHasKeyValue('X-Request-Id', 'request-500', $emitter->headers, 'Error responses should include request id.');
     },
 ];

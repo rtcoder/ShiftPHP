@@ -6,6 +6,7 @@ use Shift\Console\Cli;
 use Shift\Console\CommandInterface;
 use Modules\Health\Services\HealthService;
 
+#[\Shift\Console\Attributes\Command('health', group: 'modules')]
 class Health implements CommandInterface
 {
     public function execute(mixed ...$args): void

@@ -10,6 +10,17 @@ return [
         assertSameValue(['name' => 'Shift'], $request->getJson(), 'JSON body should parse.');
         assertSameValue('Shift', $request->input('name'), 'Input should read JSON body.');
         assertSameValue('Bearer token', $request->getHeader('Authorization'), 'Header should be available.');
+        assertSameValue(32, strlen($request->getRequestId()), 'Request should generate a request id.');
+    },
+
+    'request keeps incoming request id header' => function (): void {
+        $request = new Shift\Request([
+            'REQUEST_METHOD' => 'GET',
+            'REQUEST_URI' => '/health',
+            'HTTP_X_REQUEST_ID' => 'request-123',
+        ]);
+
+        assertSameValue('request-123', $request->getRequestId(), 'Incoming request id should be preserved.');
     },
 
     'request rejects malformed json' => function (): void {

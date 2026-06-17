@@ -18,6 +18,7 @@ class Request
     private array $attributes = [];
     private ?array $jsonData = null;
     private string $rawBody;
+    private string $requestId;
 
     public function __construct(?array $serverData = null, ?array $queryParams = null, ?array $postData = null, ?string $rawBody = null)
     {
@@ -26,6 +27,7 @@ class Request
         $this->postData = $postData ?? $_POST;
         $this->rawBody = $rawBody ?? (string) file_get_contents('php://input');
         $this->parseRequest();
+        $this->requestId = $this->getHeader('X-Request-Id') ?? bin2hex(random_bytes(16));
     }
 
     private function parseRequest(): void
@@ -138,6 +140,11 @@ class Request
     public function getIpAddress(): ?string
     {
         return $this->serverData['REMOTE_ADDR'] ?? null;
+    }
+
+    public function getRequestId(): string
+    {
+        return $this->requestId;
     }
 
     public function setRouteParams(array $routeParams): void

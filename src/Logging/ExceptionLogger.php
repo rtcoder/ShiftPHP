@@ -36,7 +36,7 @@ final class ExceptionLogger
                 'path' => $request->getPath(),
                 'ip' => $request->getIpAddress(),
                 'user_agent' => $request->getUserAgent(),
-                'request_id' => $request->getHeader('X-Request-Id'),
+                'request_id' => $request->getRequestId(),
             ];
         }
 

@@ -6,6 +6,7 @@ use Shift\Console\Cli;
 use Shift\Console\CommandInterface;
 use Shift\Modules\ModuleLoader;
 
+#[\Shift\Console\Attributes\Command('cache:status', aliases: ['cs'], group: 'cache')]
 class CacheStatus implements CommandInterface
 {
     public function execute(mixed ...$args): void

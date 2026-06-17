@@ -8,6 +8,7 @@ use Shift\Database\Database;
 use Shift\Database\DatabaseConfig;
 use Shift\Database\Migrations\MigrationRunner;
 
+#[\Shift\Console\Attributes\Command('migrate:status', aliases: ['ms'], group: 'database')]
 class MigrateStatus implements CommandInterface
 {
     public function execute(mixed ...$args): void

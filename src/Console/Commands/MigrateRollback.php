@@ -8,6 +8,7 @@ use Shift\Database\Database;
 use Shift\Database\DatabaseConfig;
 use Shift\Database\Migrations\MigrationRunner;
 
+#[\Shift\Console\Attributes\Command('migrate:rollback', aliases: ['rollback'], group: 'database')]
 class MigrateRollback implements CommandInterface
 {
     public function execute(mixed ...$args): void
