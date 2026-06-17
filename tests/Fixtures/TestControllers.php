@@ -5,6 +5,13 @@ use Shift\Auth\AuthenticatorInterface;
 use Shift\Auth\AuthorizerInterface;
 use Shift\Controller;
 use Shift\Middleware\MiddlewareInterface;
+use Shift\OpenApi\Attributes\Deprecated as OpenApiDeprecated;
+use Shift\OpenApi\Attributes\Description as OpenApiDescription;
+use Shift\OpenApi\Attributes\Response as OpenApiResponse;
+use Shift\OpenApi\Attributes\Schema as OpenApiSchema;
+use Shift\OpenApi\Attributes\Security as OpenApiSecurity;
+use Shift\OpenApi\Attributes\Summary as OpenApiSummary;
+use Shift\OpenApi\Attributes\Tag as OpenApiTag;
 use Shift\Request;
 use Shift\Response\JsonResponse;
 use Shift\Response\Response;
@@ -20,10 +27,21 @@ use Shift\Routing\Attributes\Status;
 use Shift\Validation\RequestDto;
 
 #[RoutePrefix('/test')]
+#[OpenApiTag('Testing')]
 final class TestAttributeController extends Controller
 {
     #[Get('/api/{argument}')]
-    public function api(#[PathParam] ?string $argument = null, #[QueryParam('include')] ?string $include = null): JsonResponse
+    #[OpenApiSummary('Show test argument')]
+    #[OpenApiDescription('Returns path and query parameter details for OpenAPI tests.')]
+    #[OpenApiSecurity('bearerAuth')]
+    public function api(
+        #[PathParam]
+        #[OpenApiDescription('Argument from the path.')]
+        ?string $argument = null,
+        #[QueryParam('include')]
+        #[OpenApiSchema(enum: ['meta', 'details'], nullable: true)]
+        ?string $include = null
+    ): JsonResponse
     {
         $arguments = [];
         if ($argument !== null) {
@@ -42,7 +60,12 @@ final class TestAttributeController extends Controller
     #[Post('/created')]
     #[Status(201)]
     #[Header('X-Test', 'created')]
-    public function created(#[Body('name')] string $name): array
+    #[OpenApiResponse(201, 'Test resource created')]
+    public function created(
+        #[Body('name')]
+        #[OpenApiSchema(description: 'Display name.')]
+        string $name
+    ): array
     {
         return [
             'name' => $name,
@@ -100,7 +123,9 @@ final class AutowiredController extends Controller
 final class CreateUserDto extends RequestDto
 {
     public function __construct(
+        #[OpenApiSchema(format: 'email', description: 'User email address.')]
         public readonly string $email,
+        #[OpenApiSchema(type: 'integer', description: 'User age.')]
         public readonly int $age
     ) {
     }
@@ -127,6 +152,7 @@ final class DtoController extends Controller
     }
 
     #[Post('/implicit')]
+    #[OpenApiDeprecated]
     public function implicit(CreateUserDto $dto): array
     {
         return [

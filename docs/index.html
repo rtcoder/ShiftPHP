@@ -694,15 +694,40 @@ final class SyncBilling implements CommandInterface
 
                 <pre><code>./shift openapi
 ./shift openapi --output=docs/openapi.json
+./shift openapi --validate
 ./shift openapi --live</code></pre>
 
                 <p>The generator reads route paths, HTTP methods, controller handlers, path parameters, query parameters, request body attributes, request DTO rules, response status attributes, and response header attributes.</p>
+
+                <pre><code>use Shift\OpenApi\Attributes\Description;
+use Shift\OpenApi\Attributes\Response;
+use Shift\OpenApi\Attributes\Schema;
+use Shift\OpenApi\Attributes\Security;
+use Shift\OpenApi\Attributes\Summary;
+use Shift\OpenApi\Attributes\Tag;
+
+#[Tag('Users')]
+final class UserController
+{
+    #[Summary('Create a user')]
+    #[Description('Creates a user account from a JSON request body.')]
+    #[Security('bearerAuth')]
+    #[Response(201, 'User created')]
+    public function store(
+        #[Schema(format: 'email')]
+        string $email
+    ): array {
+        return ['email' =&gt; $email];
+    }
+}</code></pre>
+
+                <p>Available OpenAPI attributes include <code>Summary</code>, <code>Description</code>, <code>Tag</code>, <code>Response</code>, <code>Deprecated</code>, <code>Security</code>, and <code>Schema</code>. Validation mode checks the generated document for required OpenAPI fields, unique operation ids, responses, and declared path parameters.</p>
 
                 <pre><code>./shift help openapi
 ./shift api:docs --output=storage/openapi.json
 ./shift openapi --live --host=127.0.0.1 --port=8088</code></pre>
 
-                <p>Live mode writes the generated JSON into a temporary directory and starts a local documentation server with a lightweight Swagger-like HTML viewer.</p>
+                <p>Live mode writes the generated JSON into a temporary directory and starts a local documentation server with a lightweight Swagger-like HTML viewer, endpoint search, tag filtering, dark mode, and JSON download.</p>
             </section>
 
             <section id="database">

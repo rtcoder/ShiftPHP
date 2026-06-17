@@ -7,6 +7,7 @@ use Shift\Console\CommandInterface;
 use Shift\Modules\ModuleLoader;
 use Shift\OpenApi\OpenApiGenerator;
 use Shift\OpenApi\OpenApiLivePage;
+use Shift\OpenApi\OpenApiValidator;
 use Shift\Routing\Router\Router;
 
 #[\Shift\Console\Attributes\Command('openapi', aliases: ['api:docs'], group: 'documentation')]
@@ -27,10 +28,29 @@ class OpenApi implements CommandInterface
 
         $outputPath = $this->outputPath($args);
         $live = $this->hasOption($args, '--live');
+        $validate = $this->hasOption($args, '--validate');
 
-        if ($outputPath === null && !$live) {
+        if ($validate) {
+            $errors = (new OpenApiValidator())->validate($document);
+
+            if ($errors !== []) {
+                $cli = new Cli();
+
+                foreach ($errors as $error) {
+                    $cli->error($error);
+                }
+
+                exit(1);
+            }
+        }
+
+        if ($outputPath === null && !$live && !$validate) {
             echo $json . PHP_EOL;
             return;
+        }
+
+        if ($validate) {
+            (new Cli())->success('OpenAPI document is valid.');
         }
 
         if ($outputPath !== null) {
@@ -45,7 +65,7 @@ class OpenApi implements CommandInterface
 
     public function getHelp(): string
     {
-        return 'Usage: ./shift openapi [--output=docs/openapi.json] [--live] [--host=127.0.0.1] [--port=8088]';
+        return 'Usage: ./shift openapi [--output=docs/openapi.json] [--validate] [--live] [--host=127.0.0.1] [--port=8088]';
     }
 
     public function getDescription(): string
