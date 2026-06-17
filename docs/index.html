@@ -167,6 +167,7 @@ class Module extends AbstractModule
 }</code></pre>
 
             <p><code>Shift\Modules\ModuleLoader</code> discovers modules by convention from <code>application/modules/*/Module.php</code>. Module config can be returned from <code>getConfig()</code> or from a module-level <code>config.php</code> file. Merged config is available through <code>$modules-&gt;getConfig()</code> and the container singleton <code>modules.config</code>.</p>
+            <p>For production, discovered module metadata can be cached in <code>storage/cache/modules.php</code> with <code>./shift cache:modules</code>. Clear it with <code>./shift cache:clear</code> after changing module boundaries or module config.</p>
         </section>
 
         <section id="routing">
@@ -514,7 +515,10 @@ return new class extends Migration
 ./shift about
 ./shift env:check
 ./shift db:check
-./shift module:list</code></pre>
+./shift module:list
+./shift cache:modules
+./shift cache:status
+./shift cache:clear</code></pre>
 
             <p>Create commands scaffold modules and module-owned classes:</p>
 
