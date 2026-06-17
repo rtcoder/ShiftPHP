@@ -2,9 +2,11 @@
 
 namespace Modules\{{ module }}\Commands;
 
+use Shift\Console\Attributes\Command;
 use Shift\Console\Cli;
 use Shift\Console\CommandInterface;
 
+#[Command('{{ command }}', group: 'modules')]
 class {{ class }} implements CommandInterface
 {
     public function execute(mixed ...$args): void

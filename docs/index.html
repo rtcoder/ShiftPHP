@@ -275,9 +275,11 @@ $request-&gt;getJson();
 $request-&gt;getHeader('Authorization');
 $request-&gt;getUserAgent();
 $request-&gt;getIpAddress();
+$request-&gt;getRequestId();
 $request-&gt;getRouteParams();
 $request-&gt;routeParam('id');</code></pre>
 
+            <p>If a request does not include <code>X-Request-Id</code>, ShiftPHP generates one. The same id is emitted on every response as <code>X-Request-Id</code> and included in structured exception logs.</p>
             <p><code>getJson()</code> returns an empty array for an empty body. Malformed JSON throws an HTTP error and is returned as <code>400 Bad Request</code>.</p>
         </section>
 
@@ -522,10 +524,33 @@ return new class extends Migration
         <section id="cli">
             <h2>CLI</h2>
             <p>The CLI entry point is <code>shift</code>. Built-in commands live under <code>Console\Commands</code>, and module commands are loaded from module command mappings.</p>
-            <p><code>Shift\Console\CommandRegistry</code> discovers framework, application, and module commands. It normalizes command names, so <code>migrate:status</code>, <code>migrate-status</code>, and <code>migrate_status</code> resolve to the same command.</p>
+            <p><code>Shift\Console\CommandRegistry</code> discovers framework, application, and module commands. Commands can declare their name, aliases, and help group with <code>#[Command]</code>. It normalizes command names, so <code>migrate:status</code>, <code>migrate-status</code>, and <code>migrate_status</code> resolve to the same command.</p>
+
+            <pre><code>use Shift\Console\Attributes\Command;
+use Shift\Console\CommandInterface;
+
+#[Command('billing:sync', aliases: ['sync-billing'], group: 'modules')]
+final class SyncBilling implements CommandInterface
+{
+    public function execute(mixed ...$args): void
+    {
+    }
+
+    public function getHelp(): string
+    {
+        return 'Usage: ./shift billing:sync';
+    }
+
+    public function getDescription(): string
+    {
+        return 'Sync billing data.';
+    }
+}</code></pre>
 
             <pre><code>./shift help
 ./shift help migrate
+./shift help ms
+./shift doctor
 ./shift route:list
 ./shift test
 ./shift health

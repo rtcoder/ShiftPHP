@@ -5,6 +5,7 @@ namespace Console\Commands;
 use Shift\Console\Cli;
 use Shift\Console\CommandInterface;
 
+#[\Shift\Console\Attributes\Command('test', aliases: ['t'], group: 'diagnostics')]
 class Test implements CommandInterface
 {
     public function execute(mixed ...$args): void

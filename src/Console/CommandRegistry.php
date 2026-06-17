@@ -2,6 +2,8 @@
 
 namespace Shift\Console;
 
+use ReflectionClass;
+use Shift\Console\Attributes\Command;
 use Shift\Modules\ModuleLoader;
 
 final class CommandRegistry
@@ -23,7 +25,18 @@ final class CommandRegistry
      */
     public function all(): array
     {
-        $commands = [];
+        return array_map(
+            static fn (CommandDefinition $definition): string => $definition->class,
+            $this->definitions()
+        );
+    }
+
+    /**
+     * @return array<string, CommandDefinition>
+     */
+    public function definitions(): array
+    {
+        $definitions = [];
 
         foreach ($this->mappings() as $mapping) {
             if (!is_dir($mapping['dir'])) {
@@ -37,14 +50,15 @@ final class CommandRegistry
                 $class = $mapping['namespace'] . $className;
 
                 if (class_exists($class) && is_subclass_of($class, CommandInterface::class)) {
-                    $commands[self::nameFromClass($className)] = $class;
+                    $definition = $this->definitionFor($class, $className);
+                    $definitions[$definition->name] = $definition;
                 }
             }
         }
 
-        ksort($commands);
+        ksort($definitions);
 
-        return $commands;
+        return $definitions;
     }
 
     /**
@@ -52,7 +66,20 @@ final class CommandRegistry
      */
     public function find(string $command): ?string
     {
-        return $this->all()[$this->normalize($command)] ?? null;
+        return $this->findDefinition($command)?->class;
+    }
+
+    public function findDefinition(string $command): ?CommandDefinition
+    {
+        $normalized = $this->normalize($command);
+
+        foreach ($this->definitions() as $definition) {
+            if ($definition->name === $normalized || in_array($normalized, $definition->aliases, true)) {
+                return $definition;
+            }
+        }
+
+        return null;
     }
 
     public function normalize(string $command): string
@@ -81,6 +108,41 @@ final class CommandRegistry
         $commandParts = array_map(static fn (string $part): string => strtolower($part), $commandParts);
 
         return implode(':', $commandParts);
+    }
+
+    /**
+     * @param class-string<CommandInterface> $class
+     */
+    private function definitionFor(string $class, string $fallbackClassName): CommandDefinition
+    {
+        $reflection = new ReflectionClass($class);
+        $attributes = $reflection->getAttributes(Command::class);
+
+        if ($attributes !== []) {
+            /** @var Command $attribute */
+            $attribute = $attributes[0]->newInstance();
+
+            return new CommandDefinition(
+                $this->normalize($attribute->name),
+                $class,
+                $this->normalizeList($attribute->aliases),
+                $attribute->group
+            );
+        }
+
+        return new CommandDefinition(self::nameFromClass($fallbackClassName), $class);
+    }
+
+    /**
+     * @param list<string> $values
+     * @return list<string>
+     */
+    private function normalizeList(array $values): array
+    {
+        return array_values(array_filter(array_map(
+            fn (string $value): string => $this->normalize($value),
+            $values
+        )));
     }
 
     /**

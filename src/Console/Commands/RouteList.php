@@ -7,6 +7,7 @@ use Shift\Console\CommandInterface;
 use Shift\Modules\ModuleLoader;
 use Shift\Routing\Router\Router;
 
+#[\Shift\Console\Attributes\Command('route:list', aliases: ['routes', 'rl'], group: 'routing')]
 class RouteList implements CommandInterface
 {
     public function execute(mixed ...$args): void

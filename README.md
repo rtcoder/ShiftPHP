@@ -147,10 +147,11 @@ $request->post('name');
 $request->input('name');
 $request->getJson();
 $request->getHeader('Authorization');
+$request->getRequestId();
 $request->routeParam('id');
 ```
 
-Malformed JSON bodies are returned as `400 Bad Request`.
+If the request does not include `X-Request-Id`, ShiftPHP generates one. The same id is emitted on every response as `X-Request-Id` and included in structured exception logs. Malformed JSON bodies are returned as `400 Bad Request`.
 
 ## Validation and DTOs
 
@@ -405,13 +406,37 @@ http://127.0.0.1:8000/health
 
 ## CLI
 
-The CLI discovers framework, application, and module commands through the command registry. Command names are normalized, so `migrate:status`, `migrate-status`, and `migrate_status` resolve to the same command.
+The CLI discovers framework, application, and module commands through the command registry. Command names are declared with `#[Command]` attributes and can include aliases and groups. Command names are normalized, so `migrate:status`, `migrate-status`, and `migrate_status` resolve to the same command.
+
+```php
+use Shift\Console\Attributes\Command;
+use Shift\Console\CommandInterface;
+
+#[Command('billing:sync', aliases: ['sync-billing'], group: 'modules')]
+final class SyncBilling implements CommandInterface
+{
+    public function execute(mixed ...$args): void
+    {
+    }
+
+    public function getHelp(): string
+    {
+        return 'Usage: ./shift billing:sync';
+    }
+
+    public function getDescription(): string
+    {
+        return 'Sync billing data.';
+    }
+}
+```
 
 Show all commands or command-specific help:
 
 ```sh
 ./shift help
 ./shift help migrate
+./shift help ms
 ```
 
 List registered API routes:
@@ -441,6 +466,7 @@ Inspect framework/runtime information:
 Check local environment and database configuration:
 
 ```sh
+./shift doctor
 ./shift env:check
 ./shift db:check
 ```

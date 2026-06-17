@@ -9,6 +9,7 @@ use Shift\Database\DatabaseConfig;
 use Shift\Database\DatabaseException;
 use Throwable;
 
+#[\Shift\Console\Attributes\Command('db:check', group: 'diagnostics')]
 class DbCheck implements CommandInterface
 {
     public function execute(mixed ...$args): void

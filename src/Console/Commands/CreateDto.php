@@ -6,6 +6,7 @@ use Shift\Console\CommandInterface;
 use Shift\Console\Generator\GeneratesFiles;
 use Shift\Console\Generator\NameFormatter;
 
+#[\Shift\Console\Attributes\Command('create:dto', group: 'make')]
 class CreateDto implements CommandInterface
 {
     use GeneratesFiles;

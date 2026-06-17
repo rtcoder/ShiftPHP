@@ -6,6 +6,7 @@ use Shift\Console\CommandInterface;
 use Shift\Console\Generator\GeneratesFiles;
 use Shift\Console\Generator\NameFormatter;
 
+#[\Shift\Console\Attributes\Command('create:model', group: 'make')]
 class CreateModel implements CommandInterface
 {
     use GeneratesFiles;

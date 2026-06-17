@@ -77,7 +77,7 @@ final class App
             $response = JsonResponse::error('Internal Server Error', 500);
         }
 
-        $this->emitter->emit($response);
+        $this->emitter->emit($this->withRequestId($response));
     }
 
     public function middleware(MiddlewareInterface|callable|string $middleware): self
@@ -397,5 +397,14 @@ final class App
             (new ExceptionLogger($this->container->resolve(LoggerInterface::class)))->log($exception, $this->request, $statusCode);
         } catch (Throwable) {
         }
+    }
+
+    private function withRequestId(Response $response): Response
+    {
+        return new Response(
+            $response->getContent(),
+            $response->getStatusCode(),
+            ['X-Request-Id' => $this->request->getRequestId()] + $response->getHeaders()
+        );
     }
 }

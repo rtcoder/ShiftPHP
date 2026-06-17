@@ -12,6 +12,7 @@ use Shift\Console\Cli;
 use Shift\Console\CommandInterface;
 use Shift\Console\CommandRegistry;
 
+#[\Shift\Console\Attributes\Command('help', aliases: ['h'], group: 'core')]
 class Help implements CommandInterface
 {
     public function __construct(private readonly CommandRegistry $registry = new CommandRegistry())
@@ -33,15 +34,21 @@ class Help implements CommandInterface
     private function displayHelpForCommand(string $command): void
     {
         $cli = new Cli();
-        $class = $this->registry->find($command);
+        $definition = $this->registry->findDefinition($command);
 
-        if ($class === null) {
+        if ($definition === null) {
             $cli->error('Command not found: ' . $command);
             return;
         }
 
-        $instance = new $class();
-        $cli->info(CommandRegistry::nameFromClass($class));
+        $instance = $definition->instantiate();
+        $cli->info($definition->name);
+        $cli->debug('Group: ' . $definition->group);
+
+        if ($definition->aliases !== []) {
+            $cli->debug('Aliases: ' . implode(', ', $definition->aliases));
+        }
+
         $cli->debug($instance->getDescription());
         $cli->debug($instance->getHelp());
     }
@@ -49,19 +56,25 @@ class Help implements CommandInterface
     private function displayFullHelp(): void
     {
         $cli = new Cli();
-        $rows = [];
+        $groups = [];
 
-        foreach ($this->registry->all() as $command => $class) {
-            $instance = new $class();
-            $rows[] = [
-                $command,
+        foreach ($this->registry->definitions() as $definition) {
+            $instance = $definition->instantiate();
+            $groups[$definition->group][] = [
+                $definition->name,
+                $definition->aliases === [] ? '' : implode(', ', $definition->aliases),
                 $instance->getDescription(),
             ];
         }
 
-        usort($rows, static fn (array $left, array $right): int => strcmp($left[0], $right[0]));
+        ksort($groups);
 
-        $cli->table(['Command', 'Description'], $rows);
+        foreach ($groups as $group => $rows) {
+            usort($rows, static fn (array $left, array $right): int => strcmp($left[0], $right[0]));
+
+            $cli->info(ucfirst($group));
+            $cli->table(['Command', 'Aliases', 'Description'], $rows);
+        }
     }
 
     public function getHelp(): string

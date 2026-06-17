@@ -6,6 +6,7 @@ use Shift\Config\Env;
 use Shift\Console\Cli;
 use Shift\Console\CommandInterface;
 
+#[\Shift\Console\Attributes\Command('about', group: 'diagnostics')]
 class About implements CommandInterface
 {
     public function execute(mixed ...$args): void
