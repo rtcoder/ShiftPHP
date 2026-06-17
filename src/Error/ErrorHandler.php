@@ -39,7 +39,7 @@ class ErrorHandler
             $exception = new ShiftError($message, $level);
             $exception->setFile($file);
             $exception->setLine($line);
-            
+
             self::handleException($exception);
             return true;
         }
@@ -69,12 +69,12 @@ class ErrorHandler
     public static function handleShutdown(): void
     {
         $error = error_get_last();
-        
+
         if ($error !== null && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
             $exception = new ShiftError($error['message'], $error['type']);
             $exception->setFile($error['file']);
             $exception->setLine($error['line']);
-            
+
             self::handleException($exception);
         }
     }
@@ -122,4 +122,4 @@ class ErrorHandler
     {
         return in_array(strtolower((string) ini_get('display_errors')), ['1', 'on', 'true'], true);
     }
-} 
+}

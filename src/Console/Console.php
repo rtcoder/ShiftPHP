@@ -16,7 +16,7 @@ class Console
 {
     /**
      * Instancja klasy Cli do operacji terminalowych
-     * 
+     *
      * @var Cli
      */
     private Cli $cli;
@@ -31,7 +31,7 @@ class Console
 
     /**
      * Zwraca instancję klasy Cli
-     * 
+     *
      * @return Cli
      */
     public function cli(): Cli

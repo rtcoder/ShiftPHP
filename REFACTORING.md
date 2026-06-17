@@ -40,6 +40,7 @@ ShiftPHP is moving toward an API-only modular monolith. View templates, compiled
 - [x] Structured exception logging with JSON file logger and service container override.
 - [x] Request id lifecycle with generated `X-Request-Id` response headers and log context.
 - [x] Developer documentation organized into a Laravel-like guide.
+- [x] CLI quality gate with `shift lint` and `shift qa`.
 - [x] Removal of view storage and example page assets from runtime.
 - [x] Removal of legacy `application/controllers` and `application/routes.php`.
 - [x] Domain-oriented framework namespaces:
@@ -165,4 +166,4 @@ Internal errors return a generic `500` message unless `display_errors` is enable
 
 ## Next
 
-- [ ] Static analysis and coding style checks.
+- [ ] Deeper static analysis for framework contracts and type safety.
