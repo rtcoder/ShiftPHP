@@ -12,6 +12,7 @@ The current architecture focuses on an API-only modular monolith:
 - JSON responses,
 - request helpers,
 - middleware pipeline,
+- validation helpers and typed request DTOs,
 - JSON error responses,
 - a small service container.
 
@@ -120,6 +121,7 @@ You can use these routing attributes:
 - `#[PathParam('id')]`
 - `#[QueryParam('include')]`
 - `#[Body]` or `#[Body('field')]`
+- `#[BodyDto]`
 
 ## Responses
 
@@ -146,6 +148,43 @@ $request->routeParam('id');
 ```
 
 Malformed JSON bodies are returned as `400 Bad Request`.
+
+## Validation and DTOs
+
+Request DTOs extend `Shift\Validation\RequestDto` and define validation rules:
+
+```php
+use Shift\Validation\RequestDto;
+
+final class CreateUserDto extends RequestDto
+{
+    public function __construct(
+        public readonly string $email,
+        public readonly int $age
+    ) {
+    }
+
+    public static function rules(): array
+    {
+        return [
+            'email' => 'required|string|email',
+            'age' => 'required|int|min:18',
+        ];
+    }
+}
+```
+
+DTOs can be bound by type or with `#[BodyDto]`:
+
+```php
+#[Post('/users')]
+public function create(#[BodyDto] CreateUserDto $dto): array
+{
+    return ['email' => $dto->email, 'age' => $dto->age];
+}
+```
+
+Validation failures are returned as `422` JSON responses. Supported rules are `required`, `string`, `int`, `bool`, `array`, `email`, `min`, and `max`.
 
 ## Middleware
 
@@ -184,6 +223,8 @@ $app->middleware(function (Request $request, callable $next): Response {
     );
 });
 ```
+
+Built-in middleware includes `Shift\Middleware\CorsMiddleware`, `Shift\Middleware\AuthMiddleware`, and `Shift\Middleware\AuthorizationMiddleware`. Auth middleware uses `Shift\Auth\AuthenticatorInterface`; authorization middleware uses `Shift\Auth\AuthorizerInterface`.
 
 ## Service Container
 
@@ -274,6 +315,8 @@ class Module extends AbstractModule
 ```
 
 Modules are loaded automatically by convention from `application/modules/*/Module.php`.
+
+Modules may expose config through `config.php` and `getConfig()`. Config is available from the loader with `$modules->getConfig()` and in the container under `modules.config`. Modules may also implement `boot(ServiceContainer $container)` for work that should run after service registration.
 
 ## Tests
 

@@ -15,5 +15,6 @@ $app = new App($request);
 $modules = (new ModuleLoader())->load();
 $modules->registerServices($app->getContainer());
 $modules->registerRoutes($app->getRouter());
+$modules->boot($app->getContainer());
 
 $app->start();

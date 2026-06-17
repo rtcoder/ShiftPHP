@@ -16,6 +16,13 @@ class Module extends AbstractModule
         return 'health';
     }
 
+    public function getConfig(): array
+    {
+        return [
+            'module' => 'health',
+        ];
+    }
+
     public function registerServices(ServiceContainer $container): void
     {
         $container->singleton(HealthService::class, HealthService::class);
@@ -36,5 +43,10 @@ class Module extends AbstractModule
                 'namespace' => 'Modules\\Health\\Commands\\',
             ],
         ];
+    }
+
+    public function boot(ServiceContainer $container): void
+    {
+        $container->singleton('health.booted', true);
     }
 }

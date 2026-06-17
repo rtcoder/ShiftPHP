@@ -1,8 +1,14 @@
 <?php
 
+use Shift\Auth\AuthenticatedUser;
+use Shift\Auth\AuthenticatorInterface;
+use Shift\Auth\AuthorizerInterface;
 use Shift\App;
 use Shift\Controller;
 use Shift\Error\HttpError;
+use Shift\Middleware\AuthMiddleware;
+use Shift\Middleware\AuthorizationMiddleware;
+use Shift\Middleware\CorsMiddleware;
 use Shift\Middleware\MiddlewareInterface;
 use Shift\Modules\ModuleLoader;
 use Shift\Request;
@@ -11,6 +17,7 @@ use Shift\Response\Response;
 use Shift\Response\ResponseEmitter;
 use Shift\Routing\AttributeRouteLoader;
 use Shift\Routing\Attributes\Body;
+use Shift\Routing\Attributes\BodyDto;
 use Shift\Routing\Attributes\Get;
 use Shift\Routing\Attributes\Header;
 use Shift\Routing\Attributes\PathParam;
@@ -21,6 +28,9 @@ use Shift\Routing\Attributes\Status;
 use Shift\Routing\Router\Route;
 use Shift\Routing\Router\Router;
 use Shift\Service\ServiceContainer;
+use Shift\Validation\RequestDto;
+use Shift\Validation\ValidationException;
+use Shift\Validation\Validator;
 use Modules\Health\Services\HealthService;
 
 require_once __DIR__ . '/../bootstrap.php';
@@ -108,11 +118,84 @@ final class AutowiredController extends Controller
     }
 
     #[Get('/service')]
-    public function service(): array
+    public function service(): JsonResponse
+    {
+        return $this->json([
+            'message' => $this->service->message(),
+            'path' => $this->getRequest()->getPath(),
+        ]);
+    }
+}
+
+final class CreateUserDto extends RequestDto
+{
+    public function __construct(
+        public readonly string $email,
+        public readonly int $age
+    ) {
+    }
+
+    public static function rules(): array
     {
         return [
-            'message' => $this->service->message(),
+            'email' => 'required|string|email',
+            'age' => 'required|int|min:18',
         ];
+    }
+}
+
+#[RoutePrefix('/dto')]
+final class DtoController extends Controller
+{
+    #[Post('/users')]
+    public function create(#[BodyDto] CreateUserDto $dto): array
+    {
+        return [
+            'email' => $dto->email,
+            'age' => $dto->age,
+        ];
+    }
+
+    #[Post('/implicit')]
+    public function implicit(CreateUserDto $dto): array
+    {
+        return [
+            'email' => $dto->email,
+            'age' => $dto->age,
+        ];
+    }
+}
+
+#[RoutePrefix('/auth')]
+final class AuthenticatedController extends Controller
+{
+    #[Get('/me')]
+    public function me(Request $request): array
+    {
+        /** @var AuthenticatedUser|null $user */
+        $user = $request->getAttribute(AuthenticatedUser::class);
+
+        return [
+            'id' => $user?->id,
+        ];
+    }
+}
+
+final class HeaderAuthenticator implements AuthenticatorInterface
+{
+    public function authenticate(Request $request): ?AuthenticatedUser
+    {
+        return $request->getHeader('Authorization') === 'Bearer token'
+            ? new AuthenticatedUser('user-1')
+            : null;
+    }
+}
+
+final class AllowAuthorizer implements AuthorizerInterface
+{
+    public function authorize(AuthenticatedUser $user, Request $request, ?string $ability = null): bool
+    {
+        return $ability === 'view';
     }
 }
 
@@ -245,6 +328,7 @@ $tests['app autowires controller constructor dependencies'] = function (): void 
 
     assertSameValue(200, $emitter->statusCode, 'Autowired controller should emit successful status.');
     assertSameValue('autowired', $payload['message'] ?? null, 'Controller dependency should be injected from the container.');
+    assertSameValue('/autowired/service', $payload['path'] ?? null, 'Autowired controller should retain base controller context.');
 };
 
 $tests['service container makes classes with typed dependencies'] = function (): void {
@@ -336,6 +420,118 @@ $tests['middleware can short-circuit request handling'] = function (): void {
     assertSameValue('Blocked', $payload['error']['message'] ?? null, 'Short-circuit response should be emitted.');
 };
 
+$tests['validator returns validated typed data'] = function (): void {
+    $validated = (new Validator())->validate(
+        ['email' => 'dev@example.com', 'age' => '21', 'active' => 'true'],
+        [
+            'email' => 'required|email',
+            'age' => 'required|int|min:18',
+            'active' => 'bool',
+        ]
+    );
+
+    assertSameValue('dev@example.com', $validated['email'], 'Validator should keep valid email.');
+    assertSameValue(21, $validated['age'], 'Validator should cast integers.');
+    assertSameValue(true, $validated['active'], 'Validator should cast booleans.');
+};
+
+$tests['validator throws validation exception'] = function (): void {
+    try {
+        (new Validator())->validate(['email' => 'bad'], ['email' => 'required|email', 'age' => 'required|int']);
+    } catch (ValidationException $exception) {
+        assertSameValue(422, $exception->getStatusCode(), 'Validation errors should use HTTP 422.');
+        assertSameValue(true, isset($exception->getErrors()['email']), 'Validation errors should include invalid fields.');
+        assertSameValue(true, isset($exception->getErrors()['age']), 'Validation errors should include missing required fields.');
+        return;
+    }
+
+    throw new RuntimeException('Expected validation exception was not thrown.');
+};
+
+$tests['app binds body dto parameters'] = function (): void {
+    $router = new Router();
+    (new AttributeRouteLoader())->load($router, [DtoController::class]);
+    $emitter = new CapturingEmitter();
+
+    $app = new App(makeRequest('POST', '/dto/users', '{"email":"dev@example.com","age":"22"}'), $router, $emitter);
+    $app->start();
+
+    $payload = json_decode($emitter->content, true);
+
+    assertSameValue(200, $emitter->statusCode, 'Valid DTO payload should pass.');
+    assertSameValue('dev@example.com', $payload['email'] ?? null, 'DTO should expose validated email.');
+    assertSameValue(22, $payload['age'] ?? null, 'DTO should expose cast age.');
+};
+
+$tests['app auto-binds request dto parameters by type'] = function (): void {
+    $router = new Router();
+    (new AttributeRouteLoader())->load($router, [DtoController::class]);
+    $emitter = new CapturingEmitter();
+
+    $app = new App(makeRequest('POST', '/dto/implicit', '{"email":"dev@example.com","age":"22"}'), $router, $emitter);
+    $app->start();
+
+    $payload = json_decode($emitter->content, true);
+
+    assertSameValue(200, $emitter->statusCode, 'Implicit DTO payload should pass.');
+    assertSameValue(22, $payload['age'] ?? null, 'Implicit DTO should be bound by type.');
+};
+
+$tests['app emits validation errors as json'] = function (): void {
+    $router = new Router();
+    (new AttributeRouteLoader())->load($router, [DtoController::class]);
+    $emitter = new CapturingEmitter();
+
+    $app = new App(makeRequest('POST', '/dto/users', '{"email":"bad","age":15}'), $router, $emitter);
+    $app->start();
+
+    $payload = json_decode($emitter->content, true);
+
+    assertSameValue(422, $emitter->statusCode, 'Invalid DTO payload should return 422.');
+    assertSameValue('Validation failed', $payload['error']['message'] ?? null, 'Validation response should include message.');
+    assertSameValue(true, isset($payload['error']['context']['errors']['email']), 'Validation response should include field errors.');
+};
+
+$tests['cors middleware handles preflight requests'] = function (): void {
+    $router = new Router();
+    $emitter = new CapturingEmitter();
+
+    $app = new App(makeRequest('OPTIONS', '/anything'), $router, $emitter);
+    $app->middleware(new CorsMiddleware());
+    $app->start();
+
+    assertSameValue(204, $emitter->statusCode, 'CORS preflight should short-circuit with 204.');
+    assertArrayHasKeyValue('Access-Control-Allow-Origin', '*', $emitter->headers, 'CORS should expose allowed origin.');
+};
+
+$tests['auth middleware authenticates request user'] = function (): void {
+    $router = new Router();
+    (new AttributeRouteLoader())->load($router, [AuthenticatedController::class]);
+    $emitter = new CapturingEmitter();
+
+    $app = new App(makeRequest('GET', '/auth/me'), $router, $emitter);
+    $app->middleware(new AuthMiddleware(new HeaderAuthenticator()));
+    $app->middleware(new AuthorizationMiddleware(new AllowAuthorizer(), 'view'));
+    $app->start();
+
+    $payload = json_decode($emitter->content, true);
+
+    assertSameValue(200, $emitter->statusCode, 'Authenticated request should continue.');
+    assertSameValue('user-1', $payload['id'] ?? null, 'Authenticated user should be stored on the request.');
+};
+
+$tests['auth middleware rejects unauthenticated requests'] = function (): void {
+    $router = new Router();
+    (new AttributeRouteLoader())->load($router, [AuthenticatedController::class]);
+    $emitter = new CapturingEmitter();
+
+    $app = new App(new Request(['REQUEST_METHOD' => 'GET', 'REQUEST_URI' => '/auth/me']), $router, $emitter);
+    $app->middleware(new AuthMiddleware(new HeaderAuthenticator()));
+    $app->start();
+
+    assertSameValue(401, $emitter->statusCode, 'Unauthenticated request should return 401.');
+};
+
 $tests['module loader registers services and routes'] = function (): void {
     $loader = (new ModuleLoader())->load();
     $router = new Router();
@@ -343,8 +539,12 @@ $tests['module loader registers services and routes'] = function (): void {
 
     $loader->registerServices($container);
     $loader->registerRoutes($router);
+    $loader->boot($container);
 
     assertSameValue(true, $container->has(HealthService::class), 'Health module service should be registered.');
+    assertSameValue(true, $container->resolve('health.booted'), 'Health module boot hook should run.');
+    assertSameValue(true, $loader->getConfig('health')['enabled'] ?? null, 'Health module config file should load.');
+    assertSameValue('health', $loader->getConfig('health')['module'] ?? null, 'Health module config method should merge.');
 
     $routes = array_map(
         static fn (Route $route): string => $route->getMethod() . ' ' . $route->getPath(),
