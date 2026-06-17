@@ -262,6 +262,27 @@ Run the example module command:
 php shift.php health
 ```
 
+Generate module scaffolding:
+
+```sh
+php shift.php create:module Billing
+```
+
+Generate module-owned classes:
+
+```sh
+php shift.php create:controller --module=Billing InvoiceController
+php shift.php create:controller Billing:InvoiceController
+php shift.php create:model Billing:Invoice
+php shift.php create:service Billing:Invoice
+php shift.php create:command Billing:SyncInvoices
+php shift.php create:middleware Billing:Audit
+php shift.php create:dto Billing:CreateInvoice
+```
+
+Generator commands normalize module and class names to PHP class conventions. Missing suffixes are added for controllers, services, middleware, and DTOs.
+Generator templates live in `src/Console/Generator/stubs`.
+
 ## Modules
 
 ShiftPHP supports a modular monolith structure under `application/modules`.
@@ -275,6 +296,8 @@ application/modules/Health/
 ├── Services/
 └── Commands/
 ```
+
+Generated models, middleware, and DTOs live under `Models/`, `Middleware/`, and `Dto/` inside the target module.
 
 A module registers itself through `Module.php`:
 

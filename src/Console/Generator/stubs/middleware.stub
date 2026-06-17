@@ -1,0 +1,15 @@
+<?php
+
+namespace Modules\{{ module }}\Middleware;
+
+use Shift\Middleware\MiddlewareInterface;
+use Shift\Request;
+use Shift\Response\Response;
+
+class {{ class }} implements MiddlewareInterface
+{
+    public function handle(Request $request, callable $next): Response
+    {
+        return $next($request);
+    }
+}

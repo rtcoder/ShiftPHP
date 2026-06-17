@@ -1,0 +1,24 @@
+<?php
+
+namespace Modules\{{ module }}\Commands;
+
+use Shift\Console\Cli;
+use Shift\Console\CommandInterface;
+
+class {{ class }} implements CommandInterface
+{
+    public function execute(mixed ...$args): void
+    {
+        (new Cli())->success('Command executed.');
+    }
+
+    public function getHelp(): string
+    {
+        return 'Usage: php shift.php {{ command }}';
+    }
+
+    public function getDescription(): string
+    {
+        return 'Module command.';
+    }
+}

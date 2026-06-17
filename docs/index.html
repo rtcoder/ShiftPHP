@@ -111,6 +111,8 @@ $app-&gt;start();</code></pre>
 |-- Services/
 `-- Commands/</code></pre>
 
+            <p>Generator commands can also create <code>Models/</code>, <code>Middleware/</code>, and <code>Dto/</code> directories when those artifacts are added.</p>
+
             <p>Every module boundary implements <code>Shift\Modules\ModuleInterface</code>. Most modules can extend <code>Shift\Modules\AbstractModule</code> and override only the methods they need.</p>
 
             <pre><code>namespace Modules\Health;
@@ -386,10 +388,24 @@ $exists = $container-&gt;has(HealthService::class);</code></pre>
 
         <section id="cli">
             <h2>CLI</h2>
-            <p>The CLI entry point is <code>shift.php</code>. Built-in commands live under <code>Shift\Console\Commands</code>, and module commands are loaded from module command mappings.</p>
+            <p>The CLI entry point is <code>shift.php</code>. Built-in commands live under <code>Console\Commands</code>, and module commands are loaded from module command mappings.</p>
 
             <pre><code>php shift.php route:list
 php shift.php health</code></pre>
+
+            <p>Create commands scaffold modules and module-owned classes:</p>
+
+            <pre><code>php shift.php create:module Billing
+php shift.php create:controller --module=Billing InvoiceController
+php shift.php create:controller Billing:InvoiceController
+php shift.php create:model Billing:Invoice
+php shift.php create:service Billing:Invoice
+php shift.php create:command Billing:SyncInvoices
+php shift.php create:middleware Billing:Audit
+php shift.php create:dto Billing:CreateInvoice</code></pre>
+
+            <p>Controller, service, middleware, and DTO generators add the expected class suffix when it is missing. Commands accept either <code>--module=Billing Name</code> or <code>Billing:Name</code>.</p>
+            <p>Generator templates live in <code>src/Console/Generator/stubs</code>.</p>
 
             <p>Commands implement <code>Shift\Console\CommandInterface</code>.</p>
         </section>

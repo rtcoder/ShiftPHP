@@ -1,0 +1,16 @@
+<?php
+
+namespace Modules\{{ module }}\Controllers;
+
+use Shift\Controller;
+use Shift\Response\JsonResponse;
+
+class {{ class }} extends Controller
+{
+    public function index(): JsonResponse
+    {
+        return $this->json([
+            'status' => 'ok',
+        ]);
+    }
+}
