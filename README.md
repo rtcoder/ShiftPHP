@@ -429,6 +429,16 @@ List discovered modules:
 ./shift module:list
 ```
 
+Cache discovered modules for production:
+
+```sh
+./shift cache:modules
+./shift cache:status
+./shift cache:clear
+```
+
+The module cache is stored in `storage/cache/modules.php`. Without that file, ShiftPHP discovers modules from `application/modules` on each run. After changing module boundaries, module config, or module command mappings in production, rebuild the cache.
+
 Run database migrations:
 
 ```sh

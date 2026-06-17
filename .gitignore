@@ -3,5 +3,7 @@
 /.env
 
 Engine/storage/views/
+storage/cache/*
+!storage/cache/.gitkeep
 
 \.idea/
