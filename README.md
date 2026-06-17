@@ -326,6 +326,8 @@ Run the lightweight API core test suite:
 composer test
 ```
 
+The test runner lives in `tests/ApiCoreTest.php`. Shared helpers and fixtures live in `tests/Support` and `tests/Fixtures`, while feature test files live in `tests/Feature`.
+
 ## Release Process
 
 Every pull request must have exactly one version label, for example `v0.6`.
